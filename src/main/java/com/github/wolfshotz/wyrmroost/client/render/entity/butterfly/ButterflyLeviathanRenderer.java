@@ -16,8 +16,8 @@ import net.minecraft.client.renderer.model.ModelRenderer;
 import net.minecraft.client.renderer.model.RenderMaterial;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.inventory.container.PlayerContainer;
+import net.minecraft.util.Mth;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Quaternion;
 import net.minecraft.util.math.vector.Vector3f;
 
@@ -92,7 +92,7 @@ public class ButterflyLeviathanRenderer extends AbstractDragonRenderer<Butterfly
         @Override
         public void render(MatrixStack ms, IRenderTypeBuffer buffer, int packedLight, ButterflyLeviathanEntity entity, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch)
         {
-            float alpha = MathHelper.clamp(entity.lightningCooldown, 1, 255);
+            float alpha = Mth.clamp(entity.lightningCooldown, 1, 255);
             IVertexBuilder builder = buffer.getBuffer(RenderHelper.getTranslucentGlow(WRConfig.deckTheHalls? CHRISTMAS_GLOW : GLOW));
             getEntityModel().render(ms, builder, 15728640, OverlayTexture.NO_OVERLAY, 1, 1, 1, alpha);
         }
@@ -124,7 +124,7 @@ public class ButterflyLeviathanRenderer extends AbstractDragonRenderer<Butterfly
 
             int overlay = getPackedOverlay(entity, getOverlayProgress(entity, partialTicks));
             float rotation = (tick * -0.0375f) * (180f / Mafs.PI);
-            float translation = MathHelper.sin(tick * 0.1F) / 2.0F + 0.5F;
+            float translation = Mth.sin(tick * 0.1F) / 2.0F + 0.5F;
             translation = translation * translation + translation;
             if (!entity.canSwim()) headPitch /= 2;
 

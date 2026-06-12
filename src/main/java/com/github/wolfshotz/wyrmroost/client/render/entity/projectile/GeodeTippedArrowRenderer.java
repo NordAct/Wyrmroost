@@ -5,8 +5,8 @@ import com.github.wolfshotz.wyrmroost.entities.projectile.GeodeTippedArrowEntity
 import com.github.wolfshotz.wyrmroost.registry.WRItems;
 import net.minecraft.client.renderer.entity.ArrowRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererManager;
-import net.minecraft.item.Item;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.item.Item;
 
 public class GeodeTippedArrowRenderer extends ArrowRenderer<GeodeTippedArrowEntity>
 {

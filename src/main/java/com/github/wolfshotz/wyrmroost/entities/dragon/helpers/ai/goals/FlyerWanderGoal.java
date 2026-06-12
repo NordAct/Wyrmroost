@@ -50,7 +50,7 @@ public class FlyerWanderGoal extends WaterAvoidingRandomWalkingGoal
 
         if (dragon.isFlying() || (!dragon.getLeashed() && dragon.getRNG().nextFloat() <= probability + 0.02))
         {
-            if ((dragon.hasDataParameter(AbstractDragonEntity.SLEEPING) && !dragon.world.isDaytime()) || dragon.getRNG().nextFloat() <= probability)
+            if ((dragon.hasDataParameter(AbstractDragonEntity.SLEEPING) && !dragon.level.isDaytime()) || dragon.getRNG().nextFloat() <= probability)
                 position = RandomPositionGenerator.getLandPos(dragon, 20, 25);
             else
             {
@@ -61,7 +61,7 @@ public class FlyerWanderGoal extends WaterAvoidingRandomWalkingGoal
                 int yOffset = dragon.getAltitude() > 40? 10 : 0;
                 position = RandomPositionGenerator.findAirTarget(dragon, 50, 30, vec3d, Mafs.PI / 2, 10, yOffset);
             }
-            if (position != null && position.y > dragon.getPosY() + dragon.getHeight() && !dragon.isFlying()) dragon.setFlying(true);
+            if (position != null && position.y > dragon.getPosY() + dragon.getBbHeight() && !dragon.isFlying()) dragon.setFlying(true);
         }
 
         return position == null? super.getPosition() : position;

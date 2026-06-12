@@ -22,9 +22,6 @@ import com.github.wolfshotz.wyrmroost.util.animation.Animation;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
 import net.minecraft.entity.ai.goal.*;
-import net.minecraft.entity.passive.AnimalEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
@@ -32,11 +29,16 @@ import net.minecraft.pathfinding.PathNodeType;
 import net.minecraft.potion.EffectInstance;
 import net.minecraft.potion.Effects;
 import net.minecraft.util.*;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
-import net.minecraft.world.biome.Biome;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.biome.MobSpawnInfo;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.goal.Goal;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.client.event.EntityViewRenderEvent;
 import net.minecraftforge.event.world.BiomeLoadingEvent;
 import org.lwjgl.glfw.GLFW;
@@ -45,6 +47,10 @@ import javax.annotation.Nullable;
 import java.util.EnumSet;
 
 import static net.minecraft.entity.ai.attributes.Attributes.*;
+
+import ActionResultType;
+import EntitySize;
+import SoundEvent;
 
 
 public class RoyalRedEntity extends AbstractDragonEntity
@@ -66,7 +72,7 @@ public class RoyalRedEntity extends AbstractDragonEntity
     public final TickFloat knockOutTimer = new TickFloat().setLimit(0, 1);
     private int knockOutTime = 0;
 
-    public RoyalRedEntity(EntityType<? extends AbstractDragonEntity> dragon, World world)
+    public RoyalRedEntity(EntityType<? extends AbstractDragonEntity> dragon, Level world)
     {
         super(dragon, world);
         ignoreFrustumCheck = WRConfig.disableFrustumCheck;
@@ -132,7 +138,7 @@ public class RoyalRedEntity extends AbstractDragonEntity
             if (isBreathingFire() && getControllingPlayer() == null && getAttackTarget() == null)
                 setBreathingFire(false);
 
-            if (breathTimer.get() == 1) world.addEntity(new FireBreathEntity(this));
+            if (breathTimer.get() == 1) level.addEntity(new FireBreathEntity(this));
 
             if (noActiveAnimation() && !isKnockedOut() && !isSleeping() && !isBreathingFire() && !isChild() && getRNG().nextDouble() < 0.0004)
                 AnimationPacket.send(this, ROAR_ANIMATION);
@@ -152,21 +158,21 @@ public class RoyalRedEntity extends AbstractDragonEntity
         }
         else if (anim == SLAP_ATTACK_ANIMATION && (animTime == 7 || animTime == 12))
         {
-            attackInBox(getOffsetBox(getWidth()).grow(0.2), 50);
+            attackInBox(getOffsetBox(getBbWidth()).grow(0.2), 50);
             if (animTime == 7) playSound(WRSounds.ENTITY_ROYALRED_HURT.get(), 1, 1, true);
             rotationYaw = rotationYawHead;
         }
         else if (anim == BITE_ATTACK_ANIMATION && animTime == 4)
         {
-            attackInBox(getOffsetBox(getWidth()).grow(-0.3), 100);
+            attackInBox(getOffsetBox(getBbWidth()).grow(-0.3), 100);
             playSound(WRSounds.ENTITY_ROYALRED_HURT.get(), 1, 1, true);
         }
     }
 
     @Override
-    public ActionResultType playerInteraction(PlayerEntity player, Hand hand, ItemStack stack)
+    public ActionResultType playerInteraction(Player player, InteractionHand hand, ItemStack stack)
     {
-        if (!isTamed() && isFoodItem(stack))
+        if (!isTame() && isFoodItem(stack))
         {
             if (isChild() || player.isCreative())
             {
@@ -201,8 +207,8 @@ public class RoyalRedEntity extends AbstractDragonEntity
     @Override
     public void onDeath(DamageSource cause)
     {
-        if (isTamed() || isKnockedOut() || cause.getDamageType().equals(DamageSource.OUT_OF_WORLD.getDamageType()))
-            super.onDeath(cause);
+        if (isTame() || isKnockedOut() || cause.getDamageType().equals(DamageSource.OUT_OF_WORLD.getDamageType()))
+            super.die(cause);
         else // knockout RR's instead of killing them
         {
             setHealth(getMaxHealth() * 0.25f); // reset to 25% health
@@ -255,7 +261,7 @@ public class RoyalRedEntity extends AbstractDragonEntity
     public Vector3d getApproximateMouthPos()
     {
         Vector3d position = getEyePosition(1).subtract(0, 1.3d, 0);
-        position = position.add(getVectorForRotation(rotationPitch, renderYawOffset).scale(getWidth() / 2)); // base of neck
+        position = position.add(getVectorForRotation(rotationPitch, renderYawOffset).scale(getBbWidth() / 2)); // base of neck
         return position.add(getVectorForRotation(rotationPitch, rotationYawHead).scale(2.75));
     }
 
@@ -303,13 +309,13 @@ public class RoyalRedEntity extends AbstractDragonEntity
     @Override
     protected float getStandingEyeHeight(Pose poseIn, EntitySize sizeIn)
     {
-        return getHeight() * (isFlying()? 0.95f : 1.13f);
+        return getBbHeight() * (isFlying()? 0.95f : 1.13f);
     }
 
     @Override
     protected boolean canBeRidden(Entity entity)
     {
-        return !isChild() && !isKnockedOut() && isTamed();
+        return !isChild() && !isKnockedOut() && isTame();
     }
 
     @Override
@@ -321,7 +327,7 @@ public class RoyalRedEntity extends AbstractDragonEntity
     @Override
     public Vector3d getPassengerPosOffset(Entity entity, int index)
     {
-        return new Vector3d(0, getHeight() * 0.85f, index == 0? 0.5f : -1);
+        return new Vector3d(0, getBbHeight() * 0.85f, index == 0? 0.5f : -1);
     }
 
     @Override
@@ -514,7 +520,7 @@ public class RoyalRedEntity extends AbstractDragonEntity
 
             getLookController().setLookPositionWithEntity(target, 90, 90);
 
-            double headAngle = Math.abs(MathHelper.wrapDegrees(degrees - rotationYawHead));
+            double headAngle = Math.abs(Mth.wrapDegrees(degrees - rotationYawHead));
             boolean shouldBreatheFire = (!detachHome() || !isWithinHomeDistanceCurrentPosition()) && (distFromTarget > 100 || target.getPosY() - getPosY() > 3 || isFlying()) && headAngle < 30;
             if (isBreathingFire != shouldBreatheFire) setBreathingFire(isBreathingFire = shouldBreatheFire);
 

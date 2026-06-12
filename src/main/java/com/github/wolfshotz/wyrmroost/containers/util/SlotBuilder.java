@@ -1,11 +1,11 @@
 package com.github.wolfshotz.wyrmroost.containers.util;
 
-import net.minecraft.block.Block;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
 import net.minecraft.util.IItemProvider;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Block;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.SlotItemHandler;
 
@@ -22,7 +22,7 @@ public class SlotBuilder extends SlotItemHandler
     private int limit = super.getSlotStackLimit();
     private BooleanSupplier isEnabled = () -> true;
     private Predicate<ItemStack> isItemValid = super::isItemValid;
-    private Predicate<PlayerEntity> canTakeStack = super::canTakeStack;
+    private Predicate<Player> canTakeStack = super::canTakeStack;
     private Consumer<SlotBuilder> onSlotUpdate = s ->
     {
     };
@@ -73,7 +73,7 @@ public class SlotBuilder extends SlotItemHandler
         else return only(s -> clazz.isInstance(s.getItem()));
     }
 
-    public SlotBuilder canTake(Predicate<PlayerEntity> canTakeStack)
+    public SlotBuilder canTake(Predicate<Player> canTakeStack)
     {
         this.canTakeStack = canTakeStack;
         return this;
@@ -106,7 +106,7 @@ public class SlotBuilder extends SlotItemHandler
     }
 
     @Override
-    public boolean canTakeStack(PlayerEntity playerIn)
+    public boolean canTakeStack(Player playerIn)
     {
         return this.canTakeStack.test(playerIn);
     }

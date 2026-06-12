@@ -6,8 +6,8 @@ import com.github.wolfshotz.wyrmroost.client.model.WRModelRenderer;
 import com.github.wolfshotz.wyrmroost.entities.dragon.RoostStalkerEntity;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
-import net.minecraft.item.BlockItem;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.Mth;
+import net.minecraft.world.item.BlockItem;
 
 /**
  * Roost stalker - nova
@@ -172,7 +172,7 @@ public class RoostStalkerModel extends WREntityModel<RoostStalkerEntity>
     @Override
     public void setRotationAngles(RoostStalkerEntity stalker, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch)
     {
-        netHeadYaw = MathHelper.wrapDegrees(netHeadYaw);
+        netHeadYaw = Mth.wrapDegrees(netHeadYaw);
         if (!stalker.isSleeping())
         {
             head.rotateAngleX = headPitch * ((float) Math.PI / 180F);

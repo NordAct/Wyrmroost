@@ -4,7 +4,7 @@ import com.github.wolfshotz.wyrmroost.entities.dragon.AbstractDragonEntity;
 import com.github.wolfshotz.wyrmroost.util.animation.Animation;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.util.text.StringTextComponent;
 
@@ -44,7 +44,7 @@ public class DebugScreen extends Screen
 
         drawCenteredString(ms, font, dragon.getDisplayName().getUnformattedComponentText(), (width / 2), 15, 0xffffff);
         drawCenteredString(ms, font, "isSleeping: " + dragon.isSleeping(), (width / 2) + 50, 50, 0xffffff);
-        drawCenteredString(ms, font, "isTamed: " + dragon.isTamed(), (width / 2) - 50, 50, 0xffffff);
+        drawCenteredString(ms, font, "isTamed: " + dragon.isTame(), (width / 2) - 50, 50, 0xffffff);
         drawCenteredString(ms, font, "isSitting: " + dragon.func_233684_eK_(), (width / 2) - 50, 75, 0xffffff);
         drawCenteredString(ms, font, "isFlying: " + dragon.isFlying(), (width / 2) + 50, 75, 0xffffff);
         drawCenteredString(ms, font, "variant: " + dragon.getVariant(), (width / 2) - 50, 100, 0xffffff);

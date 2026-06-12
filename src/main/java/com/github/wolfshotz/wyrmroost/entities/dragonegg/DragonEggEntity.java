@@ -1,5 +1,6 @@
 package com.github.wolfshotz.wyrmroost.entities.dragonegg;
 
+import EntitySize;
 import com.github.wolfshotz.wyrmroost.Wyrmroost;
 import com.github.wolfshotz.wyrmroost.entities.dragon.AbstractDragonEntity;
 import com.github.wolfshotz.wyrmroost.items.DragonEggItem;
@@ -9,8 +10,6 @@ import com.github.wolfshotz.wyrmroost.util.ModUtils;
 import com.github.wolfshotz.wyrmroost.util.TickFloat;
 import net.minecraft.entity.*;
 import net.minecraft.inventory.InventoryHelper;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.IPacket;
 import net.minecraft.network.PacketBuffer;
@@ -23,7 +22,12 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
 import net.minecraftforge.fml.network.FMLPlayMessages;
@@ -45,16 +49,16 @@ public class DragonEggEntity extends Entity implements IEntityAdditionalSpawnDat
     public boolean wiggling = false;
     public int hatchTime;
 
-    public DragonEggEntity(EntityType<? extends DragonEggEntity> type, World world) { super(type, world);}
+    public DragonEggEntity(EntityType<? extends DragonEggEntity> type, Level world) { super(type, world);}
 
-    public DragonEggEntity(EntityType<AbstractDragonEntity> type, int hatchTime, World world)
+    public DragonEggEntity(EntityType<AbstractDragonEntity> type, int hatchTime, Level world)
     {
         super(WREntities.DRAGON_EGG.get(), world);
         this.containedDragon = type;
         this.hatchTime = hatchTime;
     }
 
-    public DragonEggEntity(FMLPlayMessages.SpawnEntity packet, World world)
+    public DragonEggEntity(FMLPlayMessages.SpawnEntity packet, Level world)
     {
         super(WREntities.DRAGON_EGG.get(), world);
         this.containedDragon = ModUtils.getEntityTypeByKey(packet.getAdditionalData().readString());
@@ -109,9 +113,9 @@ public class DragonEggEntity extends Entity implements IEntityAdditionalSpawnDat
                 if (ticksExisted % 3 == 0)
                 {
                     double x = getPosX() + rand.nextGaussian() * 0.2d;
-                    double y = getPosY() + rand.nextDouble() + getHeight() / 2;
+                    double y = getPosY() + rand.nextDouble() + getBbHeight() / 2;
                     double z = getPosZ() + rand.nextGaussian() * 0.2d;
-                    world.addParticle(new RedstoneParticleData(1f, 1f, 0, 0.5f), x, y, z, 0, 0, 0);
+                    level.addParticle(new RedstoneParticleData(1f, 1f, 0, 0.5f), x, y, z, 0, 0, 0);
                 }
                 wiggleTime.add(wiggling? 0.4f : -0.4f);
                 if (wiggleTime.get() == 1) wiggling = false;
@@ -120,11 +124,11 @@ public class DragonEggEntity extends Entity implements IEntityAdditionalSpawnDat
             {
                 if (--hatchTime <= 0)
                 {
-                    world.setEntityState(this, (byte) HATCH_ID); // notify client
+                    level.setEntityState(this, (byte) HATCH_ID); // notify client
                     hatch();
                 }
                 else if (rand.nextInt(Math.max(hatchTime / 2, 5)) == 0)
-                    world.setEntityState(this, (byte) WIGGLE_ID);
+                    level.setEntityState(this, (byte) WIGGLE_ID);
             }
         }
     }
@@ -147,7 +151,7 @@ public class DragonEggEntity extends Entity implements IEntityAdditionalSpawnDat
         double d0 = 0.5d;
         
         move(MoverType.SELF, getMotion());
-        if (!hasNoGravity() && !isSprinting())
+        if (!isNoGravity() && !isSprinting())
         {
             Vector3d vec3d2 = getMotion();
             double d2;
@@ -192,39 +196,39 @@ public class DragonEggEntity extends Entity implements IEntityAdditionalSpawnDat
     {
         if (!world.isRemote)
         {
-            AbstractDragonEntity newDragon = containedDragon.create(world);
+            AbstractDragonEntity newDragon = containedDragon.create(level);
             if (newDragon == null)
             {
                 safeError();
                 return;
             }
-            newDragon.setPosition(getPosX(), getPosY(), getPosZ());
+            newDragon.setPos(getPosX(), getPosY(), getPosZ());
             newDragon.setGrowingAge(getProperties().getGrowthTime());
-            newDragon.onInitialSpawn((ServerWorld) world, world.getDifficultyForLocation(getPosition()), SpawnReason.BREEDING, null, null);
-            world.addEntity(newDragon);
+            newDragon.onInitialSpawn((ServerWorld) level, level.getDifficultyForLocation(getPosition()), MobSpawnType.BREEDING, null, null);
+            level.addEntity(newDragon);
         }
         else
         {
             crack(25);
-            world.playSound(getPosX(), getPosY(), getPosZ(), SoundEvents.ENTITY_TURTLE_EGG_HATCH, SoundCategory.BLOCKS, 1, 1, false);
+            level.playSound(getPosX(), getPosY(), getPosZ(), SoundEvents.ENTITY_TURTLE_EGG_HATCH, SoundCategory.BLOCKS, 1, 1, false);
         }
         remove();
     }
 
     public void crack(int intensity)
     {
-        world.playSound(getPosX(), getPosY(), getPosZ(), SoundEvents.ENTITY_TURTLE_EGG_CRACK, SoundCategory.BLOCKS, 1, 1, false);
-        float f = getWidth() * getHeight();
+        level.playSound(getPosX(), getPosY(), getPosZ(), SoundEvents.ENTITY_TURTLE_EGG_CRACK, SoundCategory.BLOCKS, 1, 1, false);
+        float f = getBbWidth() * getBbHeight();
         f += f;
         for (int i = 0; i < f * intensity; ++i)
         {
-            double x = getPosX() + (Mafs.nextDouble(rand) * getWidth() / 2);
-            double y = getPosY() + (Mafs.nextDouble(rand) * getHeight());
-            double z = getPosZ() + (Mafs.nextDouble(rand) * getWidth() / 2);
-            double xMot = Mafs.nextDouble(rand) * getWidth() * 0.35;
-            double yMot = rand.nextDouble() * getHeight() * 0.5;
-            double zMot = Mafs.nextDouble(rand) * getWidth() * 0.35;
-            world.addParticle(new ItemParticleData(ParticleTypes.ITEM, new ItemStack(Items.EGG)), x, y, z, xMot, yMot, zMot);
+            double x = getPosX() + (Mafs.nextDouble(rand) * getBbWidth() / 2);
+            double y = getPosY() + (Mafs.nextDouble(rand) * getBbHeight());
+            double z = getPosZ() + (Mafs.nextDouble(rand) * getBbWidth() / 2);
+            double xMot = Mafs.nextDouble(rand) * getBbWidth() * 0.35;
+            double yMot = rand.nextDouble() * getBbHeight() * 0.5;
+            double zMot = Mafs.nextDouble(rand) * getBbWidth() * 0.35;
+            level.addParticle(new ItemParticleData(ParticleTypes.ITEM, new ItemStack(Items.EGG)), x, y, z, xMot, yMot, zMot);
         }
     }
 
@@ -249,7 +253,7 @@ public class DragonEggEntity extends Entity implements IEntityAdditionalSpawnDat
     public boolean attackEntityFrom(DamageSource source, float amount)
     {
         ItemStack stack = DragonEggItem.getStack(containedDragon, hatchTime);
-        InventoryHelper.spawnItemStack(world, getPosX(), getPosY(), getPosZ(), stack);
+        InventoryHelper.spawnItemStack(level, getPosX(), getPosY(), getPosZ(), stack);
         remove();
 
         return true;

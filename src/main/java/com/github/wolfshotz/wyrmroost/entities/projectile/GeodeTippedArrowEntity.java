@@ -3,14 +3,14 @@ package com.github.wolfshotz.wyrmroost.entities.projectile;
 import com.github.wolfshotz.wyrmroost.items.GeodeTippedArrowItem;
 import com.github.wolfshotz.wyrmroost.registry.WREntities;
 import com.github.wolfshotz.wyrmroost.registry.WRItems;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
 import net.minecraft.entity.projectile.AbstractArrowEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
 import net.minecraft.network.IPacket;
 import net.minecraft.network.PacketBuffer;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
 import net.minecraftforge.fml.network.FMLPlayMessages;
 import net.minecraftforge.fml.network.NetworkHooks;
@@ -19,19 +19,19 @@ public class GeodeTippedArrowEntity extends AbstractArrowEntity implements IEnti
 {
     private final GeodeTippedArrowItem item;
 
-    public GeodeTippedArrowEntity(EntityType<? extends AbstractArrowEntity> type, World worldIn)
+    public GeodeTippedArrowEntity(EntityType<? extends AbstractArrowEntity> type, Level worldIn)
     {
         super(type, worldIn);
         this.item = (GeodeTippedArrowItem) WRItems.BLUE_GEODE_ARROW.get();
     }
 
-    public GeodeTippedArrowEntity(World worldIn, Item item)
+    public GeodeTippedArrowEntity(Level worldIn, Item item)
     {
         super(WREntities.GEODE_TIPPED_ARROW.get(), worldIn);
         this.item = (GeodeTippedArrowItem) item;
     }
 
-    public GeodeTippedArrowEntity(FMLPlayMessages.SpawnEntity packet, World world)
+    public GeodeTippedArrowEntity(FMLPlayMessages.SpawnEntity packet, Level world)
     {
         super(WREntities.GEODE_TIPPED_ARROW.get(), world);
 

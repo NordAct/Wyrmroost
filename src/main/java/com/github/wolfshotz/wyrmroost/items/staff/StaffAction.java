@@ -1,5 +1,6 @@
 package com.github.wolfshotz.wyrmroost.items.staff;
 
+import EntityRayTraceResult;
 import com.github.wolfshotz.wyrmroost.client.ClientEvents;
 import com.github.wolfshotz.wyrmroost.client.render.RenderHelper;
 import com.github.wolfshotz.wyrmroost.client.screen.StaffScreen;
@@ -8,16 +9,18 @@ import com.github.wolfshotz.wyrmroost.entities.dragon.AbstractDragonEntity;
 import com.github.wolfshotz.wyrmroost.util.Mafs;
 import com.github.wolfshotz.wyrmroost.util.ModUtils;
 import com.mojang.blaze3d.matrix.MatrixStack;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.core.BlockPos;
 import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUseContext;
 import net.minecraft.particles.ParticleTypes;
+import net.minecraft.util.Mth;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.*;
 import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.fml.network.NetworkHooks;
 
 import javax.annotation.Nullable;
@@ -27,7 +30,7 @@ public enum StaffAction
     DEFAULT
             {
                 @Override
-                public boolean rightClick(AbstractDragonEntity dragon, PlayerEntity player, ItemStack stack)
+                public boolean rightClick(AbstractDragonEntity dragon, Player player, ItemStack stack)
                 {
                     if (player.world.isRemote) StaffScreen.open(dragon, stack);
                     return true;
@@ -37,7 +40,7 @@ public enum StaffAction
     INVENTORY
             {
                 @Override
-                public void onSelected(AbstractDragonEntity dragon, PlayerEntity player, ItemStack stack)
+                public void onSelected(AbstractDragonEntity dragon, Player player, ItemStack stack)
                 {
                     DragonStaffItem.setAction(DEFAULT, player, stack);
                     if (!player.world.isRemote)
@@ -48,7 +51,7 @@ public enum StaffAction
     SIT
             {
                 @Override
-                public void onSelected(AbstractDragonEntity dragon, PlayerEntity player, ItemStack stack)
+                public void onSelected(AbstractDragonEntity dragon, Player player, ItemStack stack)
                 {
                     dragon.setSit(!dragon.func_233684_eK_());
                     DragonStaffItem.setAction(DEFAULT, player, stack);
@@ -65,7 +68,7 @@ public enum StaffAction
     HOME
             {
                 @Override
-                public void onSelected(AbstractDragonEntity dragon, PlayerEntity player, ItemStack stack)
+                public void onSelected(AbstractDragonEntity dragon, Player player, ItemStack stack)
                 {
                     if (dragon.getHomePos().isPresent())
                     {
@@ -78,7 +81,7 @@ public enum StaffAction
                 public boolean clickBlock(AbstractDragonEntity dragon, ItemUseContext context)
                 {
                     BlockPos pos = context.getPos();
-                    World world = context.getWorld();
+                    Level world = context.getWorld();
                     ItemStack stack = context.getItem();
                     DragonStaffItem.setAction(DEFAULT, context.getPlayer(), stack);
                     if (world.getBlockState(pos).getMaterial().isSolid())
@@ -103,7 +106,7 @@ public enum StaffAction
                     if (rtr instanceof BlockRayTraceResult)
                         RenderHelper.drawBlockPos(ms,
                                 ((BlockRayTraceResult) rtr).getPos(),
-                                dragon.world,
+                                dragon.level,
                                 Math.cos((dragon.ticksExisted + partialTicks) * 0.2) * 4.5 + 4.5,
                                 0x4d0000ff);
                 }
@@ -122,7 +125,7 @@ public enum StaffAction
                 private static final int TARGET_RANGE = 40;
 
                 @Override
-                public void onSelected(AbstractDragonEntity dragon, PlayerEntity player, ItemStack stack)
+                public void onSelected(AbstractDragonEntity dragon, Player player, ItemStack stack)
                 {
                     dragon.clearAI();
                     dragon.clearHome();
@@ -130,14 +133,14 @@ public enum StaffAction
                 }
 
                 @Override
-                public boolean rightClick(AbstractDragonEntity dragon, PlayerEntity player, ItemStack stack)
+                public boolean rightClick(AbstractDragonEntity dragon, Player player, ItemStack stack)
                 {
                     EntityRayTraceResult ertr = rayTrace(player, dragon);
                     if (ertr != null)
                     {
                         dragon.setAttackTarget((LivingEntity) ertr.getEntity());
                         if (player.world.isRemote)
-                            ModUtils.playLocalSound(player.world, player.getPosition(), SoundEvents.ENTITY_BLAZE_SHOOT, 1, 0.5f);
+                            ModUtils.playLocalSound(player.level, player.getPosition(), SoundEvents.ENTITY_BLAZE_SHOOT, 1, 0.5f);
                         return true;
                     }
                     return false;
@@ -148,11 +151,11 @@ public enum StaffAction
                 {
                     EntityRayTraceResult rtr = rayTrace(ClientEvents.getPlayer(), dragon);
                     if (rtr != null && rtr.getEntity() != dragon.getAttackTarget())
-                        RenderHelper.renderEntityOutline(rtr.getEntity(), 255, 0, 0, (int) (MathHelper.cos((dragon.ticksExisted + partialTicks) * 0.2f) * 35 + 45));
+                        RenderHelper.renderEntityOutline(rtr.getEntity(), 255, 0, 0, (int) (Mth.cos((dragon.ticksExisted + partialTicks) * 0.2f) * 35 + 45));
                 }
 
                 @Nullable
-                private EntityRayTraceResult rayTrace(PlayerEntity player, AbstractDragonEntity dragon)
+                private EntityRayTraceResult rayTrace(Player player, AbstractDragonEntity dragon)
                 {
                     return Mafs.rayTraceEntities(player,
                             TARGET_RANGE,
@@ -165,9 +168,9 @@ public enum StaffAction
 
     public boolean clickBlock(AbstractDragonEntity dragon, ItemUseContext context) { return false; }
 
-    public boolean rightClick(AbstractDragonEntity dragon, PlayerEntity player, ItemStack stack) { return false; }
+    public boolean rightClick(AbstractDragonEntity dragon, Player player, ItemStack stack) { return false; }
 
-    public void onSelected(AbstractDragonEntity dragon, PlayerEntity player, ItemStack stack) {}
+    public void onSelected(AbstractDragonEntity dragon, Player player, ItemStack stack) {}
 
     public void render(AbstractDragonEntity dragon, MatrixStack ms, float partialTicks) {}
 

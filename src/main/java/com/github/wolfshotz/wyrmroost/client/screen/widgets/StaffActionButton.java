@@ -11,11 +11,11 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.SimpleSound;
 import net.minecraft.client.gui.widget.button.AbstractButton;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
+import net.minecraft.util.Mth;
 import net.minecraft.util.SoundEvents;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 
 public class StaffActionButton extends AbstractButton
 {
@@ -32,7 +32,7 @@ public class StaffActionButton extends AbstractButton
     @Override
     public void onPress()
     {
-        PlayerEntity player = Minecraft.getInstance().player;
+        Player player = Minecraft.getInstance().player;
         ItemStack stack = ModUtils.getHeldStack(player, WRItems.DRAGON_STAFF.get());
         if (stack.getItem() == WRItems.DRAGON_STAFF.get())
         {
@@ -55,7 +55,7 @@ public class StaffActionButton extends AbstractButton
                 getMessage(),
                 x + width / 2,
                 (y + (height - 8) / 2) - (int) amount,
-                (int) MathHelper.lerp(amount, 0xffffff, 0xfffd8a));
+                (int) Mth.lerpInt(amount, 0xffffff, 0xfffd8a));
     }
 
     @Override

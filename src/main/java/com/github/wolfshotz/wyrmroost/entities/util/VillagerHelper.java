@@ -1,11 +1,11 @@
 package com.github.wolfshotz.wyrmroost.entities.util;
 
 import com.github.wolfshotz.wyrmroost.registry.WRItems;
-import net.minecraft.entity.Entity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
 import net.minecraft.item.MerchantOffer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraftforge.event.village.WandererTradesEvent;
 
 import javax.annotation.Nullable;
@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.Random;
 
 import static net.minecraft.entity.merchant.villager.VillagerTrades.ITrade;
+
+import ITrade;
 
 public class VillagerHelper
 {

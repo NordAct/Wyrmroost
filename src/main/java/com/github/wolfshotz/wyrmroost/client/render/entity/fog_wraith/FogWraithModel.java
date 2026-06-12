@@ -9,7 +9,7 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.model.ModelRenderer;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.Mth;
 
 /**
  * WRFogWraith - Ukan
@@ -1060,7 +1060,7 @@ public class FogWraithModel extends WREntityModel<FogWraithEntity>
         int tick = entity.getAnimationTick();
         if (tick > 5 && tick < 60)
         {
-            float delta = (Math.min(MathHelper.sin(((tick - 6) / 54f) * Mafs.PI) * 2, 1) * 0.5f);
+            float delta = (Math.min(Mth.sin(((tick - 6) / 54f) * Mafs.PI) * 2, 1) * 0.5f);
             chainFlap(headArray, globalSpeed + 0.5f, 0.05f, -2.5, frame, delta);
             chainSwing(headArray, globalSpeed + 0.5f, 0.03f, -2.5, frame, delta);
         }

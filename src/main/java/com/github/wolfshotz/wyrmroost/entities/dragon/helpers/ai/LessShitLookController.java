@@ -2,7 +2,7 @@ package com.github.wolfshotz.wyrmroost.entities.dragon.helpers.ai;
 
 import net.minecraft.entity.MobEntity;
 import net.minecraft.entity.ai.controller.LookController;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.Mth;
 
 public class LessShitLookController extends LookController
 {
@@ -40,7 +40,7 @@ public class LessShitLookController extends LookController
         else mob.rotationYawHead = clampedRotate(mob.rotationYawHead, mob.renderYawOffset, deltaLookYaw);
 
         if (!mob.getNavigator().noPath())
-            mob.rotationYawHead = MathHelper.func_219800_b(mob.rotationYawHead, mob.renderYawOffset, deltaLookYaw);
+            mob.rotationYawHead = Mth.func_219800_b(mob.rotationYawHead, mob.renderYawOffset, deltaLookYaw);
     }
 
     protected boolean func_220680_b() { return !frozen; }

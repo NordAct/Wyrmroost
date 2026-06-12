@@ -3,12 +3,12 @@ package com.github.wolfshotz.wyrmroost;
 import com.github.wolfshotz.wyrmroost.client.ClientEvents;
 import com.github.wolfshotz.wyrmroost.network.packets.*;
 import com.github.wolfshotz.wyrmroost.registry.*;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.DistExecutor;
@@ -27,7 +27,7 @@ public class Wyrmroost
 {
     public static final String MOD_ID = "wyrmroost";
     public static final Logger LOG = LogManager.getLogger(MOD_ID);
-    public static final ItemGroup ITEM_GROUP = new WRItemGroup();
+    public static final CreativeModeTab ITEM_GROUP = new WRItemGroup();
     public static final SimpleChannel NETWORK = buildChannel();
 
     public Wyrmroost()
@@ -83,7 +83,7 @@ public class Wyrmroost
     /**
      * C R E A T I V E  T A B. F U C K  Y O U.
      */
-    static class WRItemGroup extends ItemGroup
+    static class WRItemGroup extends CreativeModeTab
     {
         public WRItemGroup() { super("wyrmroost"); }
 

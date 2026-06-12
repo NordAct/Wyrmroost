@@ -2,16 +2,16 @@ package com.github.wolfshotz.wyrmroost.entities.projectile.breath;
 
 import com.github.wolfshotz.wyrmroost.entities.dragon.AbstractDragonEntity;
 import com.github.wolfshotz.wyrmroost.entities.projectile.DragonProjectileEntity;
-import net.minecraft.entity.EntityType;
+import net.minecraft.core.BlockPos;
 import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.level.Level;
 
 public class BreathWeaponEntity extends DragonProjectileEntity
 {
-    public BreathWeaponEntity(EntityType<?> type, World world)
+    public BreathWeaponEntity(EntityType<?> type, Level world)
     {
         super(type, world);
     }
@@ -28,7 +28,7 @@ public class BreathWeaponEntity extends DragonProjectileEntity
 //        BlockState state = world.getBlockState(pos);
 //        state.onProjectileCollision(world, state, result, this); todo.. somehow
 
-        if (!world.isRemote && !noClip && !world.getBlockState(pos).getCollisionShape(world, pos).equals(VoxelShapes.empty()))
+        if (!world.isRemote && !noPhysics && !level.getBlockState(pos).getCollisionShape(level, pos).equals(VoxelShapes.empty()))
         {
             setMotion(acceleration.mul(-Math.abs(direction.getXOffset()) + 1, -Math.abs(direction.getYOffset()) + 1, -Math.abs(direction.getZOffset()) + 1));
 

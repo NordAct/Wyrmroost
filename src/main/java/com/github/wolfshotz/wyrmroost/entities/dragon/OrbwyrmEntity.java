@@ -5,16 +5,21 @@ import com.github.wolfshotz.wyrmroost.network.packets.KeybindPacket;
 import com.github.wolfshotz.wyrmroost.registry.WREntities;
 import com.github.wolfshotz.wyrmroost.util.TickFloat;
 import com.github.wolfshotz.wyrmroost.util.animation.Animation;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
-import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import org.lwjgl.glfw.GLFW;
 
 import static net.minecraft.entity.ai.attributes.Attributes.*;
+
+import CreatureAttribute;
+import EntitySize;
 
 public class OrbwyrmEntity extends AbstractDragonEntity
 {
@@ -24,7 +29,7 @@ public class OrbwyrmEntity extends AbstractDragonEntity
 
     public final TickFloat sitTimer = new TickFloat().setLimit(0, 1);
 
-    public OrbwyrmEntity(EntityType<? extends AbstractDragonEntity> dragon, World world)
+    public OrbwyrmEntity(EntityType<? extends AbstractDragonEntity> dragon, Level world)
     {
         super(dragon, world);
 
@@ -75,7 +80,7 @@ public class OrbwyrmEntity extends AbstractDragonEntity
     @Override
     public void setMotionMultiplier(BlockState state, Vector3d multiplier)
     {
-        if (!state.isIn(Blocks.COBWEB)) super.setMotionMultiplier(state, multiplier);
+        if (!state.is(Blocks.COBWEB)) super.setMotionMultiplier(state, multiplier);
     }
 
     @Override
@@ -88,7 +93,7 @@ public class OrbwyrmEntity extends AbstractDragonEntity
     @Override
     protected boolean canBeRidden(Entity entity)
     {
-        return !isChild() && isTamed();
+        return !isChild() && isTame();
     }
 
     @Override

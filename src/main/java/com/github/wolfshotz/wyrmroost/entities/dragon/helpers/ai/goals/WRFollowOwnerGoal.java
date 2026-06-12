@@ -1,10 +1,9 @@
 package com.github.wolfshotz.wyrmroost.entities.dragon.helpers.ai.goals;
 
 import com.github.wolfshotz.wyrmroost.entities.dragon.AbstractDragonEntity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.goal.Goal;
-
 import java.util.EnumSet;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.goal.Goal;
 
 public class WRFollowOwnerGoal extends Goal
 {
@@ -13,14 +12,14 @@ public class WRFollowOwnerGoal extends Goal
 
     public WRFollowOwnerGoal(AbstractDragonEntity tameableEntity)
     {
-        setMutexFlags(EnumSet.of(Goal.Flag.MOVE, Goal.Flag.LOOK));
+        setMutexFlags(EnumSet.of(Flag.MOVE, Flag.LOOK));
         this.dragon = tameableEntity;
     }
 
     @Override
     public boolean shouldExecute()
     {
-        final double MINIMUM_FOLLOW_DIST = dragon.getWidth() * dragon.getWidth() + 100;
+        final double MINIMUM_FOLLOW_DIST = dragon.getBbWidth() * dragon.getBbWidth() + 100;
 
         if (dragon.func_233684_eK_() || dragon.getLeashed() || dragon.detachHome()) return false;
         LivingEntity owner = dragon.getOwner();
@@ -31,7 +30,7 @@ public class WRFollowOwnerGoal extends Goal
     @Override
     public boolean shouldContinueExecuting()
     {
-        final double MINIMUM_TRAVEL_DIST = dragon.getWidth() * dragon.getWidth() + 6.25;
+        final double MINIMUM_TRAVEL_DIST = dragon.getBbWidth() * dragon.getBbWidth() + 6.25;
 
         if (dragon.func_233684_eK_() || dragon.getLeashed()) return false;
         LivingEntity owner = dragon.getOwner();
@@ -53,7 +52,7 @@ public class WRFollowOwnerGoal extends Goal
         {
             newPathTicks = 0;
 
-            final double minTeleportDist = (dragon.getWidth() * 5 * dragon.getWidth() * 5 * (dragon.isFlying()? dragon.getWidth() * 5 : 1)) + 196;
+            final double minTeleportDist = (dragon.getBbWidth() * 5 * dragon.getBbWidth() * 5 * (dragon.isFlying()? dragon.getBbWidth() * 5 : 1)) + 196;
 
             if (dragon.getDistanceSq(owner) > minTeleportDist && (owner.getLowestRidingEntity().isOnGround() || dragon.canFly()) && dragon.tryTeleportToOwner())
                 dragon.getNavigator().clearPath();

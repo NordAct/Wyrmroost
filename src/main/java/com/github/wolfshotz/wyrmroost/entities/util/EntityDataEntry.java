@@ -1,7 +1,7 @@
 package com.github.wolfshotz.wyrmroost.entities.util;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.math.BlockPos;
 import org.apache.logging.log4j.util.TriConsumer;
 
 import java.util.Optional;
@@ -14,7 +14,7 @@ public class EntityDataEntry<T>
     public static final SerializerType<Boolean> BOOLEAN = new SerializerType<>((key, nbt, value) -> nbt.putBoolean(key, value), (key, nbt) -> nbt.getBoolean(key));
     public static final SerializerType<Integer> INTEGER = new SerializerType<>((key, nbt, value) -> nbt.putInt(key, value), (key, nbt) -> nbt.getInt(key));
     public static final SerializerType<CompoundNBT> COMPOUND = new SerializerType<>((key, nbt, value) -> nbt.put(key, value), (key, nbt) -> nbt.getCompound(key));
-    public static final SerializerType<BlockPos> BLOCK_POS = new SerializerType<>((key, nbt, value) -> nbt.putLong(key, value.toLong()), (key, nbt) -> BlockPos.fromLong(nbt.getLong(key)));
+    public static final SerializerType<BlockPos> BLOCK_POS = new SerializerType<>((key, nbt, value) -> nbt.putLong(key, value.toLong()), (key, nbt) -> BlockPos.of(nbt.getLong(key)));
 
     private final String key;
     private final SerializerType<T> serializer;

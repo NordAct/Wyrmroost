@@ -14,9 +14,8 @@ import net.minecraft.client.renderer.entity.model.EntityModel;
 import net.minecraft.client.renderer.model.ModelRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.entity.EntitySize;
-import net.minecraft.entity.EntityType;
 import net.minecraft.util.ResourceLocation;
-
+import net.minecraft.world.entity.EntityType;
 import java.util.HashMap;
 import java.util.Map;
 

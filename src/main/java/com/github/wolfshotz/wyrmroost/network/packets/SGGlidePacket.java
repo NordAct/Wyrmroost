@@ -2,9 +2,9 @@ package com.github.wolfshotz.wyrmroost.network.packets;
 
 import com.github.wolfshotz.wyrmroost.Wyrmroost;
 import com.github.wolfshotz.wyrmroost.entities.dragon.SilverGliderEntity;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.network.PacketBuffer;
+import net.minecraft.world.entity.Entity;
 import net.minecraftforge.fml.network.NetworkEvent;
 
 import java.util.function.Supplier;

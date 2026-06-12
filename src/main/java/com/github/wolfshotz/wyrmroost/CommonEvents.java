@@ -9,14 +9,13 @@ import com.github.wolfshotz.wyrmroost.items.LazySpawnEggItem;
 import com.github.wolfshotz.wyrmroost.items.base.ArmorBase;
 import com.github.wolfshotz.wyrmroost.registry.WRWorld;
 import com.github.wolfshotz.wyrmroost.util.animation.IAnimatable;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.loot.LootPool;
-import net.minecraft.loot.LootTables;
 import net.minecraft.util.ActionResultType;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.LootTableLoadEvent;
 import net.minecraftforge.event.entity.living.LivingEquipmentChangeEvent;
@@ -78,7 +77,7 @@ public class CommonEvents
     public static void debugStick(PlayerInteractEvent.EntityInteract evt)
     {
         if (!WRConfig.debugMode) return;
-        PlayerEntity player = evt.getPlayer();
+        Player player = evt.getPlayer();
         ItemStack stack = player.getHeldItem(evt.getHand());
         if (stack.getItem() != Items.STICK || !stack.getDisplayName().getUnformattedComponentText().equals("Debug Stick"))
             return;
@@ -92,7 +91,7 @@ public class CommonEvents
         if (!(entity instanceof AbstractDragonEntity)) return;
         AbstractDragonEntity dragon = (AbstractDragonEntity) entity;
 
-        if (player.isSneaking()) dragon.tame(true, player);
+        if (player.isShiftKeyDown()) dragon.tame(true, player);
         else
         {
             if (dragon.world.isRemote) DebugScreen.open(dragon);
@@ -114,7 +113,7 @@ public class CommonEvents
     public static void loadLoot(LootTableLoadEvent evt)
     {
         if (evt.getName().equals(LootTables.CHESTS_ABANDONED_MINESHAFT))
-            evt.getTable().addPool(LootPool.builder()
+            evt.getTable().addPool(LootPool.lootPool()
                     .name("coin_dragon_inject")
                     .addEntry(CoinDragonItem.getLootEntry())
                     .build());

@@ -7,7 +7,7 @@ import com.github.wolfshotz.wyrmroost.entities.dragon.OrbwyrmEntity;
 import com.github.wolfshotz.wyrmroost.util.Mafs;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.Mth;
 
 /**
  * WROrbwyrm - Ukan
@@ -581,7 +581,7 @@ public class OrbwyrmModel extends WREntityModel<OrbwyrmEntity>
     @Override
     public void setRotationAngles(OrbwyrmEntity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch)
     {
-        netHeadYaw = MathHelper.wrapDegrees(netHeadYaw);
+        netHeadYaw = Mth.wrapDegrees(netHeadYaw);
         faceTarget(netHeadYaw, headPitch, 1, necks);
     }
 
@@ -748,7 +748,7 @@ public class OrbwyrmModel extends WREntityModel<OrbwyrmEntity>
             float prev = tick--;
             tick = Math.min(-0.1f * Math.abs(tick - 25f) + 2.5f, 1f);
             prev = Math.min(-0.1f * Math.abs(prev - 25f) + 2.5f, 1f);
-            tick = MathHelper.lerp(partialTicks, tick, prev);
+            tick = Mth.lerp(partialTicks, tick, prev);
             tick *= 0.5f;
 
             chainFlap(necks, 0.5f, 0.1f, 2, frame, tick);
@@ -774,9 +774,9 @@ public class OrbwyrmModel extends WREntityModel<OrbwyrmEntity>
         if (tick < 14)
         {
             float prev = tick--;
-            tick = MathHelper.clamp(-2f * Math.abs(tick - 7f) + 14, 0, 1);
-            prev = MathHelper.clamp(-2f * Math.abs(prev - 7f) + 7, 0, 1);
-            tick = MathHelper.lerp(partialTicks, tick, prev);
+            tick = Mth.clamp(-2f * Math.abs(tick - 7f) + 14, 0, 1);
+            prev = Mth.clamp(-2f * Math.abs(prev - 7f) + 7, 0, 1);
+            tick = Mth.lerp(partialTicks, tick, prev);
             tick *= 0.5f;
             chainSwing(tails, 0.4f, 0.5f, -2, frame, tick);
         }

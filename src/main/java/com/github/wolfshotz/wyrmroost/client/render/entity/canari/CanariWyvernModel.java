@@ -8,8 +8,7 @@ import com.github.wolfshotz.wyrmroost.util.Mafs;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 import net.minecraft.client.renderer.model.ModelRenderer;
-import net.minecraft.entity.player.PlayerEntity;
-
+import net.minecraft.world.entity.player.Player;
 import java.util.Random;
 
 /**
@@ -521,7 +520,7 @@ public class CanariWyvernModel extends WREntityModel<CanariWyvernEntity>
 
     public void sitPose()
     {
-        boolean shouldSwap = entity.getRidingEntity() instanceof PlayerEntity && entity.getRidingEntity().getPassengers().indexOf(entity) == 1;
+        boolean shouldSwap = entity.getRidingEntity() instanceof Player && entity.getRidingEntity().getPassengers().indexOf(entity) == 1;
         float tailRot = shouldSwap? 0.5f : -0.5f;
 
         body1.rotationPointY = 24f;
@@ -529,7 +528,7 @@ public class CanariWyvernModel extends WREntityModel<CanariWyvernEntity>
         wing1L.rotateAngleX = 0.6f;
         wing1R.rotateAngleX = 0.6f;
 
-        if (entity.getRidingEntity() instanceof PlayerEntity)
+        if (entity.getRidingEntity() instanceof Player)
         {
             wing1L.rotateAngleY = -1.85f;
             wing1R.rotateAngleY = 1.85f;

@@ -2,12 +2,11 @@ package com.github.wolfshotz.wyrmroost.items;
 
 import com.github.wolfshotz.wyrmroost.items.base.ArmorBase;
 import com.github.wolfshotz.wyrmroost.items.base.ArmorMaterials;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
 import net.minecraft.inventory.EquipmentSlotType;
-
+import net.minecraft.world.entity.LivingEntity;
 import java.util.UUID;
 
 public class DrakeArmorItem extends ArmorBase

@@ -3,7 +3,7 @@ package com.github.wolfshotz.wyrmroost.entities.dragon.helpers.ai.goals;
 import com.github.wolfshotz.wyrmroost.WRConfig;
 import com.github.wolfshotz.wyrmroost.entities.dragon.AbstractDragonEntity;
 import net.minecraft.entity.EntityPredicate;
-import net.minecraft.entity.ai.goal.Goal;
+import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.server.ServerWorld;
 
 import javax.annotation.Nullable;
@@ -22,7 +22,7 @@ public class DragonBreedGoal extends Goal
         setMutexFlags(EnumSet.of(Flag.MOVE, Flag.LOOK));
         this.dragon = dragon;
         this.predicate = new EntityPredicate()
-                .setDistance(dragon.getWidth() * 8)
+                .setDistance(dragon.getBbWidth() * 8)
                 .allowInvulnerable()
                 .allowFriendlyFire()
                 .setLineOfSiteRequired()
@@ -69,8 +69,8 @@ public class DragonBreedGoal extends Goal
     {
         dragon.getLookController().setLookPositionWithEntity(targetMate, 10f, dragon.getVerticalFaceSpeed());
         dragon.getNavigator().tryMoveToEntityLiving(targetMate, 1);
-        if (++spawnBabyDelay >= 60 && dragon.getDistance(targetMate) < dragon.getWidth() * 2)
-            dragon.func_234177_a_((ServerWorld) dragon.world, targetMate);
+        if (++spawnBabyDelay >= 60 && dragon.getDistance(targetMate) < dragon.getBbWidth() * 2)
+            dragon.func_234177_a_((ServerWorld) dragon.level, targetMate);
     }
 
     /**
@@ -80,7 +80,7 @@ public class DragonBreedGoal extends Goal
     @Nullable
     protected AbstractDragonEntity getNearbyMate()
     {
-        return dragon.world.getTargettableEntitiesWithinAABB(dragon.getClass(), predicate, dragon, dragon.getBoundingBox().grow(dragon.getWidth() * 8))
+        return dragon.level.getTargettableEntitiesWithinAABB(dragon.getClass(), predicate, dragon, dragon.getBoundingBox().grow(dragon.getBbWidth() * 8))
                 .stream()
                 .min(Comparator.comparingDouble(dragon::getDistanceSq)).orElse(null);
     }

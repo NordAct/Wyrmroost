@@ -1,10 +1,9 @@
 package com.github.wolfshotz.wyrmroost.util;
 
-import net.minecraft.entity.Entity;
+import net.minecraft.util.Mth;
 import net.minecraft.util.math.EntityRayTraceResult;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
-
+import net.minecraft.world.entity.Entity;
 import javax.annotation.Nullable;
 import java.util.Optional;
 import java.util.Random;
@@ -46,12 +45,12 @@ public final class Mafs
      */
     public static double getAngle(double sourceX, double sourceZ, double targetX, double targetZ)
     {
-        return MathHelper.atan2(targetZ - sourceZ, targetX - sourceX) * 180 / Math.PI + 180;
+        return Mth.atan2(targetZ - sourceZ, targetX - sourceX) * 180 / Math.PI + 180;
     }
 
     public static double getAngle(Entity source, Entity target)
     {
-        return MathHelper.atan2(target.getPosZ() - source.getPosZ(), target.getPosX() - source.getPosX()) * (180 / Math.PI) + 180;
+        return Mth.atan2(target.getPosZ() - source.getPosZ(), target.getPosX() - source.getPosX()) * (180 / Math.PI) + 180;
     }
 
     /**
@@ -72,7 +71,7 @@ public final class Mafs
 
         Entity result = null;
         double distance = range * range;
-        for (Entity entity : shooter.world.getEntitiesInAABBexcluding(shooter, shooter.getBoundingBox().grow(range), filter))
+        for (Entity entity : shooter.level.getEntitiesInAABBexcluding(shooter, shooter.getBoundingBox().grow(range), filter))
         {
             Optional<Vector3d> opt = entity.getBoundingBox().grow(0.3).rayTrace(eyes, end);
             if (opt.isPresent())

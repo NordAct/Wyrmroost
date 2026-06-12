@@ -7,22 +7,22 @@ import com.github.wolfshotz.wyrmroost.entities.dragonegg.DragonEggEntity;
 import com.github.wolfshotz.wyrmroost.entities.dragonegg.DragonEggProperties;
 import com.github.wolfshotz.wyrmroost.registry.WRItems;
 import com.github.wolfshotz.wyrmroost.util.ModUtils;
-import net.minecraft.block.BlockState;
 import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
+import net.minecraft.core.BlockPos;
 import net.minecraft.item.ItemUseContext;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -38,7 +38,7 @@ public class DragonEggItem extends Item
     }
 
     @Override
-    public boolean onLeftClickEntity(ItemStack stack, PlayerEntity player, Entity entity)
+    public boolean onLeftClickEntity(ItemStack stack, Player player, Entity entity)
     {
         if (!player.isCreative()) return false;
         if (!entity.isAlive()) return false;
@@ -56,21 +56,21 @@ public class DragonEggItem extends Item
     @Override
     public ActionResultType onItemUse(ItemUseContext ctx)
     {
-        PlayerEntity player = ctx.getPlayer();
-        if (player.isSneaking()) return super.onItemUse(ctx);
+        Player player = ctx.getPlayer();
+        if (player.isShiftKeyDown()) return super.onItemUse(ctx);
 
-        World world = ctx.getWorld();
+        Level world = ctx.getWorld();
         CompoundNBT tag = ctx.getItem().getTag();
         BlockPos pos = ctx.getPos();
         BlockState state = world.getBlockState(pos);
 
         if (tag == null || !tag.contains(DragonEggEntity.DATA_DRAGON_TYPE)) return ActionResultType.PASS;
-        if (!state.getCollisionShape(world, pos).isEmpty()) pos = pos.offset(ctx.getFace());
+        if (!state.getCollisionShape(world, pos).isEmpty()) pos = pos.relative(ctx.getFace());
         if (!world.getEntitiesWithinAABB(DragonEggEntity.class, new AxisAlignedBB(pos)).isEmpty())
             return ActionResultType.FAIL;
 
         DragonEggEntity eggEntity = new DragonEggEntity(ModUtils.getEntityTypeByKey(tag.getString(DragonEggEntity.DATA_DRAGON_TYPE)), tag.getInt(DragonEggEntity.DATA_HATCH_TIME), world);
-        eggEntity.setPosition(pos.getX() + 0.5d, pos.getY() + 0.5d, pos.getZ() + 0.5d);
+        eggEntity.setPos(pos.getX() + 0.5d, pos.getY() + 0.5d, pos.getZ() + 0.5d);
 
         if (!world.isRemote) world.addEntity(eggEntity);
         if (!player.isCreative()) player.setHeldItem(ctx.getHand(), ItemStack.EMPTY);
@@ -87,8 +87,8 @@ public class DragonEggItem extends Item
         
         if (type.isPresent())
         {
-            String dragonTranslation = type.get().getName().getString();
-            return new TranslationTextComponent(dragonTranslation + " ").append(new TranslationTextComponent(getTranslationKey()));
+            String dragonTranslation = type.get().getDescription().getString();
+            return new TranslationTextComponent(dragonTranslation + " ").append(new TranslationTextComponent(getDescriptionId()));
         }
         
         return super.getDisplayName(stack);
@@ -96,13 +96,13 @@ public class DragonEggItem extends Item
     
     @Override
     @OnlyIn(Dist.CLIENT)
-    public void addInformation(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn)
+    public void addInformation(ItemStack stack, @Nullable Level worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn)
     {
         CompoundNBT tag = stack.getTag();
 
         if (tag != null && tag.contains(DragonEggEntity.DATA_HATCH_TIME))
             tooltip.add(new TranslationTextComponent("item.wyrmroost.egg.tooltip", tag.getInt(DragonEggEntity.DATA_HATCH_TIME) / 1200).mergeStyle(TextFormatting.AQUA));
-        PlayerEntity player = ClientEvents.getPlayer();
+        Player player = ClientEvents.getPlayer();
         if (player != null && player.isCreative())
             tooltip.add(new TranslationTextComponent("item.wyrmroost.egg.creativetooltip").mergeStyle(TextFormatting.GRAY));
     }

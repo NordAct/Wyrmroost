@@ -17,18 +17,18 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.client.renderer.entity.LivingRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.vector.Matrix4f;
 import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.client.event.RenderLivingEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 
@@ -101,7 +101,7 @@ public class RenderHelper extends RenderType
             MatrixStack ms = event.getMatrixStack();
             LivingRenderer<? super LivingEntity, ?> renderer = event.getRenderer();
             float partialTicks = event.getPartialRenderTick();
-            float yaw = MathHelper.lerp(partialTicks, entity.prevRotationYaw, entity.rotationYaw);
+            float yaw = Mth.lerpInt(partialTicks, entity.prevRotationYaw, entity.rotationYaw);
 
             buffer.setColor((color >> 16) & 0xFF, (color >> 8) & 0xFF, color & 0xFF, (color >> 24) & 0xFF);
             renderer.render(entity, yaw, partialTicks, ms, buffer, 15728640);
@@ -135,7 +135,7 @@ public class RenderHelper extends RenderType
     private static void renderDragonStaff(MatrixStack ms, float partialTicks)
     {
         Minecraft mc = Minecraft.getInstance();
-        PlayerEntity player = mc.player;
+        Player player = mc.player;
         ItemStack stack = ModUtils.getHeldStack(player, WRItems.DRAGON_STAFF.get());
         if (stack == null) return;
         AbstractDragonEntity dragon = DragonStaffItem.getBoundDragon(mc.world, stack);
@@ -144,11 +144,11 @@ public class RenderHelper extends RenderType
         DragonStaffItem.getAction(stack).render(dragon, ms, partialTicks);
         if (WRConfig.renderEntityOutlines)
         {
-            renderEntityOutline(dragon, 0, 255, 255, (int) (MathHelper.cos((dragon.ticksExisted + partialTicks) * 0.2f) * 35 + 45));
+            renderEntityOutline(dragon, 0, 255, 255, (int) (Mth.cos((dragon.ticksExisted + partialTicks) * 0.2f) * 35 + 45));
             LivingEntity target = dragon.getAttackTarget();
             if (target != null) renderEntityOutline(target, 255, 0, 0, 100);
         }
-        dragon.getHomePos().ifPresent(pos -> RenderHelper.drawBlockPos(ms, pos, dragon.world, 4, 0xff0000ff));
+        dragon.getHomePos().ifPresent(pos -> RenderHelper.drawBlockPos(ms, pos, dragon.level, 4, 0xff0000ff));
     }
 
     public static void drawShape(MatrixStack ms, IVertexBuilder buffer, VoxelShape shapeIn, double xIn, double yIn, double zIn, float red, float green, float blue, float alpha)
@@ -161,7 +161,7 @@ public class RenderHelper extends RenderType
         });
     }
 
-    public static void drawBlockPos(MatrixStack ms, BlockPos pos, World world, double lineThickness, int argb)
+    public static void drawBlockPos(MatrixStack ms, BlockPos pos, Level world, double lineThickness, int argb)
     {
         Vector3d view = ClientEvents.getProjectedView();
         double x = pos.getX() - view.x;

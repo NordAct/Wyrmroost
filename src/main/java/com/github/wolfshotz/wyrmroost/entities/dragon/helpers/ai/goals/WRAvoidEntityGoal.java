@@ -2,11 +2,10 @@ package com.github.wolfshotz.wyrmroost.entities.dragon.helpers.ai.goals;
 
 import com.github.wolfshotz.wyrmroost.entities.dragon.AbstractDragonEntity;
 import net.minecraft.entity.EntityPredicate;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.RandomPositionGenerator;
-import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.util.math.vector.Vector3d;
-
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.goal.Goal;
 import java.util.EnumSet;
 import java.util.function.Predicate;
 
@@ -33,14 +32,14 @@ public class WRAvoidEntityGoal<T extends LivingEntity> extends Goal
         this.nearSpeed = farSpeedIn;
         this.builtTargetSelector = new EntityPredicate().setDistance(distance).setCustomPredicate(targetPredicate);
 
-        setMutexFlags(EnumSet.of(Goal.Flag.MOVE));
+        setMutexFlags(EnumSet.of(Flag.MOVE));
     }
 
     @Override
     public boolean shouldExecute()
     {
-        if (entity.isTamed()) return false;
-        this.avoidTarget = entity.world.func_225318_b(classToAvoid, builtTargetSelector, entity, entity.getPosX(), entity.getPosY(), entity.getPosZ(), entity.getBoundingBox().grow(avoidDistance, 3.0D, avoidDistance));
+        if (entity.isTame()) return false;
+        this.avoidTarget = entity.level.func_225318_b(classToAvoid, builtTargetSelector, entity, entity.getPosX(), entity.getPosY(), entity.getPosZ(), entity.getBoundingBox().grow(avoidDistance, 3.0D, avoidDistance));
         if (avoidTarget == null) return false;
         Vector3d pos = RandomPositionGenerator.findRandomTargetBlockAwayFrom(entity, 16, 7, avoidTarget.getPositionVec());
         if (pos == null) return false;

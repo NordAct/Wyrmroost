@@ -14,22 +14,29 @@ import net.minecraft.entity.ai.RandomPositionGenerator;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
 import net.minecraft.entity.ai.controller.BodyController;
 import net.minecraft.entity.ai.goal.*;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
 import net.minecraft.potion.EffectInstance;
 import net.minecraft.potion.Effects;
 import net.minecraft.util.*;
 import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
-import net.minecraft.world.biome.Biome;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.biome.MobSpawnInfo;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.goal.Goal;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.event.world.BiomeLoadingEvent;
 
 import javax.annotation.Nullable;
 import java.util.EnumSet;
 
 import static net.minecraft.entity.ai.attributes.Attributes.*;
+
+import ActionResultType;
+import SoundEvent;
 
 public class CanariWyvernEntity extends AbstractDragonEntity
 {
@@ -38,9 +45,9 @@ public class CanariWyvernEntity extends AbstractDragonEntity
     public static final Animation THREAT_ANIMATION = new Animation(40);
     public static final Animation ATTACK_ANIMATION = new Animation(15);
 
-    public PlayerEntity pissedOffTarget;
+    public Player pissedOffTarget;
 
-    public CanariWyvernEntity(EntityType<? extends AbstractDragonEntity> dragon, World world)
+    public CanariWyvernEntity(EntityType<? extends AbstractDragonEntity> dragon, Level world)
     {
         super(dragon, world);
 
@@ -108,19 +115,19 @@ public class CanariWyvernEntity extends AbstractDragonEntity
     }
 
     @Override
-    public ActionResultType playerInteraction(PlayerEntity player, Hand hand, ItemStack stack)
+    public ActionResultType playerInteraction(Player player, InteractionHand hand, ItemStack stack)
     {
         ActionResultType result = super.playerInteraction(player, hand, stack);
         if (result.isSuccessOrConsume()) return result;
 
-        if (!isTamed() && isFoodItem(stack) && (isPissed() || player.isCreative() || isChild()))
+        if (!isTame() && isFoodItem(stack) && (isPissed() || player.isCreative() || isChild()))
         {
             eat(stack);
             if (!world.isRemote) tame(getRNG().nextDouble() < 0.2, player);
             return ActionResultType.func_233537_a_(world.isRemote);
         }
 
-        if (isOwner(player) && player.getPassengers().size() < 3 && !player.isSneaking() && !getLeashed())
+        if (isOwnedBy(player) && player.getPassengers().size() < 3 && !player.isShiftKeyDown() && !getLeashed())
         {
             setSit(true);
             setFlying(false);
@@ -138,7 +145,7 @@ public class CanariWyvernEntity extends AbstractDragonEntity
         if (super.attackEntityAsMob(entity) && entity instanceof LivingEntity)
         {
             int i = 5;
-            switch (world.getDifficulty())
+            switch (level.getDifficulty())
             {
                 case HARD:
                     i = 15; break;
@@ -245,7 +252,7 @@ public class CanariWyvernEntity extends AbstractDragonEntity
 
     public class ThreatenGoal extends Goal
     {
-        public PlayerEntity target;
+        public Player target;
 
         public ThreatenGoal()
         {
@@ -255,10 +262,10 @@ public class CanariWyvernEntity extends AbstractDragonEntity
         @Override
         public boolean shouldExecute()
         {
-            if (isTamed()) return false;
+            if (isTame()) return false;
             if (isFlying()) return false;
             if (getAttackTarget() != null) return false;
-            if ((target = world.getClosestPlayer(getPosX(), getPosY(), getPosZ(), 12d, true)) == null)
+            if ((target = level.getClosestPlayer(getPosX(), getPosY(), getPosZ(), 12d, true)) == null)
                 return false;
             return canAttack(target);
         }
@@ -334,7 +341,7 @@ public class CanariWyvernEntity extends AbstractDragonEntity
                 getLookController().setLookPositionWithEntity(target, 90, 90);
             }
 
-            if (--attackDelay <= 0 && getDistanceSq(target.getPositionVec().add(0, target.getBoundingBox().getYSize(), 0)) <= 2.25 + target.getWidth())
+            if (--attackDelay <= 0 && getDistanceSq(target.getPositionVec().add(0, target.getBoundingBox().getYSize(), 0)) <= 2.25 + target.getBbWidth())
             {
                 attackDelay = 20 + getRNG().nextInt(10);
                 AnimationPacket.send(CanariWyvernEntity.this, ATTACK_ANIMATION);

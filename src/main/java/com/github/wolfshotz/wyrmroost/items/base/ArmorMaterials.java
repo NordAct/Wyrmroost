@@ -3,16 +3,15 @@ package com.github.wolfshotz.wyrmroost.items.base;
 import com.github.wolfshotz.wyrmroost.registry.WRItems;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.IArmorMaterial;
-import net.minecraft.item.Item;
 import net.minecraft.item.Rarity;
 import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.SoundEvents;
-
+import net.minecraft.world.item.Item;
 import java.util.function.Supplier;
 
 /**
- * @see net.minecraft.item.ArmorMaterial
+ * @see net.minecraft.world.item.ArmorMaterial
  */
 public enum ArmorMaterials implements IArmorMaterial
 {

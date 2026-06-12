@@ -16,23 +16,28 @@ import com.github.wolfshotz.wyrmroost.util.animation.Animation;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
 import net.minecraft.entity.ai.goal.*;
-import net.minecraft.entity.passive.BeeEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
 import net.minecraft.util.DamageSource;
-import net.minecraft.util.Hand;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.SoundEvents;
-import net.minecraft.world.World;
-import net.minecraft.world.biome.Biome;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.biome.MobSpawnInfo;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
+import net.minecraft.world.entity.animal.Bee;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.client.event.EntityViewRenderEvent;
 import net.minecraftforge.event.world.BiomeLoadingEvent;
 
 import javax.annotation.Nullable;
 
 import static net.minecraft.entity.ai.attributes.Attributes.*;
+
+import EntitySize;
 
 public class AlpineEntity extends AbstractDragonEntity
 {
@@ -43,7 +48,7 @@ public class AlpineEntity extends AbstractDragonEntity
     public final TickFloat sitTimer = new TickFloat().setLimit(0, 1);
     public final TickFloat flightTimer = new TickFloat().setLimit(0, 1);
 
-    public AlpineEntity(EntityType<? extends AbstractDragonEntity> dragon, World world)
+    public AlpineEntity(EntityType<? extends AbstractDragonEntity> dragon, Level world)
     {
         super(dragon, world);
 
@@ -65,7 +70,7 @@ public class AlpineEntity extends AbstractDragonEntity
         goalSelector.addGoal(10, new LookRandomlyGoal(this));
 
         targetSelector.addGoal(0, new HurtByTargetGoal(this));
-        targetSelector.addGoal(1, new NonTamedTargetGoal<>(this, BeeEntity.class, false, e -> ((BeeEntity) e).hasNectar()));
+        targetSelector.addGoal(1, new NonTamedTargetGoal<>(this, Bee.class, false, e -> ((BeeEntity) e).hasNectar()));
     }
 
     @Override
@@ -108,7 +113,7 @@ public class AlpineEntity extends AbstractDragonEntity
             if (tick == 0) setMotion(getMotion().add(0, -0.35, 0));
             if (tick == 4)
             {
-                if (!world.isRemote) world.addEntity(new WindGustEntity(this));
+                if (!world.isRemote) level.addEntity(new WindGustEntity(this));
                 setMotion(getMotion().add(getLookVec().inverse().mul(1.5, 0, 1.5).add(0, 1, 0)));
                 playSound(WRSounds.WING_FLAP.get(), 3, 1f, true);
             }
@@ -120,13 +125,13 @@ public class AlpineEntity extends AbstractDragonEntity
     {
         boolean flag = super.attackEntityAsMob(enemy);
 
-        if (!isTamed() && flag && !enemy.isAlive() && enemy.getType() == EntityType.BEE)
+        if (!isTame() && flag && !enemy.isAlive() && enemy.getType() == EntityType.BEE)
         {
-            BeeEntity bee = (BeeEntity) enemy;
+            Bee bee = (Bee) enemy;
             if (bee.hasNectar() && bee.getLeashed())
             {
                 Entity holder = bee.getLeashHolder();
-                if (holder instanceof PlayerEntity) tame(true, (PlayerEntity) holder);
+                if (holder instanceof Player) tame(true, (Player) holder);
             }
         }
         return flag;
@@ -138,7 +143,7 @@ public class AlpineEntity extends AbstractDragonEntity
         Entity attacker = source.getImmediateSource();
         if (attacker != null && attacker.getType() == EntityType.BEE)
         {
-            setAttackTarget((BeeEntity) attacker);
+            setAttackTarget((Bee) attacker);
             return true;
         }
         return super.isInvulnerableTo(source);
@@ -166,22 +171,22 @@ public class AlpineEntity extends AbstractDragonEntity
     }
 
     @Override
-    protected void jump()
+    protected void jumpFromGround()
     {
-        super.jump();
+        super.jumpFromGround();
         if (!world.isRemote)
-            world.addEntity(new WindGustEntity(this, getPositionVec().add(0, 7, 0), getVectorForRotation(90, rotationYaw)));
+            level.addEntity(new WindGustEntity(this, getPositionVec().add(0, 7, 0), getVectorForRotation(90, rotationYaw)));
     }
 
     @Override
     protected float getJumpUpwardsMotion()
     {
-        if (canFly()) return (getHeight() * getJumpFactor());
+        if (canFly()) return (getBbHeight() * getJumpFactor());
         else return super.getJumpUpwardsMotion();
     }
 
     @Override
-    public void swingArm(Hand hand)
+    public void swingArm(InteractionHand hand)
     {
         setAnimation(BITE_ANIMATION);
         playSound(SoundEvents.ENTITY_GENERIC_EAT, 1, 1, true);
@@ -197,7 +202,7 @@ public class AlpineEntity extends AbstractDragonEntity
     @Override
     protected boolean canBeRidden(Entity entity)
     {
-        return !isChild() && entity instanceof LivingEntity && isOwner((LivingEntity) entity);
+        return !isChild() && entity instanceof LivingEntity && isOwnedBy((LivingEntity) entity);
     }
 
     @Override

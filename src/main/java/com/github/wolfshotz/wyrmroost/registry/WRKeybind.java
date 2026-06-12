@@ -3,7 +3,7 @@ package com.github.wolfshotz.wyrmroost.registry;
 import com.github.wolfshotz.wyrmroost.Wyrmroost;
 import com.github.wolfshotz.wyrmroost.client.ClientEvents;
 import com.github.wolfshotz.wyrmroost.network.packets.KeybindPacket;
-import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.client.util.InputMappings;
 import net.minecraftforge.client.settings.KeyConflictContext;
@@ -12,7 +12,7 @@ import net.minecraftforge.fml.client.registry.ClientRegistry;
 import org.lwjgl.glfw.GLFW;
 
 /**
- * @see org.lwjgl.glfw.GLFW
+ * @see GLFW
  */
 public class WRKeybind extends KeyBinding
 {

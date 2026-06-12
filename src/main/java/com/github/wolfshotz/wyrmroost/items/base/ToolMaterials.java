@@ -2,8 +2,8 @@ package com.github.wolfshotz.wyrmroost.items.base;
 
 import com.github.wolfshotz.wyrmroost.registry.WRItems;
 import net.minecraft.item.IItemTier;
-import net.minecraft.item.Item;
 import net.minecraft.item.crafting.Ingredient;
+import net.minecraft.world.item.Item;
 
 public enum ToolMaterials implements IItemTier
 {

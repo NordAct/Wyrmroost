@@ -14,22 +14,13 @@ import com.github.wolfshotz.wyrmroost.network.packets.AddPassengerPacket;
 import com.github.wolfshotz.wyrmroost.registry.WREntities;
 import com.github.wolfshotz.wyrmroost.registry.WRSounds;
 import com.github.wolfshotz.wyrmroost.util.Mafs;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.ChestBlock;
+import net.minecraft.core.BlockPos;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
 import net.minecraft.entity.ai.controller.BodyController;
 import net.minecraft.entity.ai.goal.*;
-import net.minecraft.entity.passive.ChickenEntity;
-import net.minecraft.entity.passive.RabbitEntity;
-import net.minecraft.entity.passive.TurtleEntity;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.inventory.IInventory;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
@@ -37,11 +28,21 @@ import net.minecraft.particles.ParticleTypes;
 import net.minecraft.tileentity.ChestTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.*;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IWorldReader;
-import net.minecraft.world.World;
-import net.minecraft.world.biome.Biome;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.biome.MobSpawnInfo;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.ChestBlock;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.Tags;
 import net.minecraftforge.event.world.BiomeLoadingEvent;
 
@@ -50,13 +51,17 @@ import java.util.Random;
 
 import static net.minecraft.entity.ai.attributes.Attributes.*;
 
+import ActionResultType;
+import EntitySize;
+import SoundEvent;
+
 public class RoostStalkerEntity extends AbstractDragonEntity
 {
     public static final int ITEM_SLOT = 0;
     private static final DataParameter<ItemStack> ITEM = EntityDataManager.createKey(RoostStalkerEntity.class, DataSerializers.ITEMSTACK);
     private static final DataParameter<Boolean> SCAVENGING = EntityDataManager.createKey(RoostStalkerEntity.class, DataSerializers.BOOLEAN);
 
-    public RoostStalkerEntity(EntityType<? extends RoostStalkerEntity> stalker, World world)
+    public RoostStalkerEntity(EntityType<? extends RoostStalkerEntity> stalker, Level world)
     {
         super(stalker, world);
 
@@ -80,12 +85,12 @@ public class RoostStalkerEntity extends AbstractDragonEntity
         goalSelector.addGoal(10, new WaterAvoidingRandomWalkingGoal(this, 1));
         goalSelector.addGoal(11, new LookAtGoal(this, LivingEntity.class, 5f));
         goalSelector.addGoal(12, new LookRandomlyGoal(this));
-        goalSelector.addGoal(8, new AvoidEntityGoal<PlayerEntity>(this, PlayerEntity.class, 7f, 1.15f, 1f)
+        goalSelector.addGoal(8, new AvoidEntityGoal<Player>(this, Player.class, 7f, 1.15f, 1f)
         {
             @Override
             public boolean shouldExecute()
             {
-                return !isTamed() && !getItem().isEmpty() && super.shouldExecute();
+                return !isTame() && !getItem().isEmpty() && super.shouldExecute();
             }
         });
 
@@ -146,14 +151,14 @@ public class RoostStalkerEntity extends AbstractDragonEntity
     }
 
     @Override
-    public ActionResultType playerInteraction(PlayerEntity player, Hand hand, ItemStack stack)
+    public ActionResultType playerInteraction(Player player, InteractionHand hand, ItemStack stack)
     {
         final ActionResultType COMMON_SUCCESS = ActionResultType.func_233537_a_(world.isRemote);
 
         ItemStack heldItem = getItem();
         Item item = stack.getItem();
 
-        if (!isTamed() && Tags.Items.EGGS.contains(item))
+        if (!isTame() && Tags.Items.EGGS.contains(item))
         {
             eat(stack);
             if (tame(getRNG().nextDouble() < 0.25, player)) getAttribute(MAX_HEALTH).setBaseValue(20d);
@@ -161,7 +166,7 @@ public class RoostStalkerEntity extends AbstractDragonEntity
             return COMMON_SUCCESS;
         }
 
-        if (isTamed() && isBreedingItem(stack))
+        if (isTame() && isFood(stack))
         {
             if (!world.isRemote && canFallInLove() && getGrowingAge() == 0)
             {
@@ -173,9 +178,9 @@ public class RoostStalkerEntity extends AbstractDragonEntity
             return ActionResultType.CONSUME;
         }
 
-        if (isOwner(player))
+        if (isOwnedBy(player))
         {
-            if (player.isSneaking())
+            if (player.isShiftKeyDown())
             {
                 setSit(!func_233684_eK_());
                 return COMMON_SUCCESS;
@@ -192,7 +197,7 @@ public class RoostStalkerEntity extends AbstractDragonEntity
                 return COMMON_SUCCESS;
             }
 
-            if ((!stack.isEmpty() && !isBreedingItem(stack)) || !heldItem.isEmpty())
+            if ((!stack.isEmpty() && !isFood(stack)) || !heldItem.isEmpty())
             {
                 setStackInSlot(ITEM_SLOT, stack);
                 player.setHeldItem(hand, heldItem);
@@ -212,7 +217,7 @@ public class RoostStalkerEntity extends AbstractDragonEntity
             double x = getPosX() + (Mafs.nextDouble(getRNG()) * 0.7d);
             double y = getPosY() + (getRNG().nextDouble() * 0.5d);
             double z = getPosZ() + (Mafs.nextDouble(getRNG()) * 0.7d);
-            world.addParticle(ParticleTypes.END_ROD, x, y, z, 0, 0.05f, 0);
+            level.addParticle(ParticleTypes.END_ROD, x, y, z, 0, 0.05f, 0);
         }
     }
 
@@ -251,7 +256,7 @@ public class RoostStalkerEntity extends AbstractDragonEntity
     }
 
     @Override
-    public boolean isBreedingItem(ItemStack stack)
+    public boolean isFood(ItemStack stack)
     {
         return stack.getItem() == Items.GOLD_NUGGET;
     }
@@ -355,7 +360,7 @@ public class RoostStalkerEntity extends AbstractDragonEntity
         @Override
         public boolean shouldExecute()
         {
-            boolean flag = !isTamed() && !hasItem() && super.shouldExecute();
+            boolean flag = !isTame() && !hasItem() && super.shouldExecute();
             if (flag) return (chest = getInventoryAtPosition()) != null && !chest.isEmpty();
             else return false;
         }
@@ -410,16 +415,16 @@ public class RoostStalkerEntity extends AbstractDragonEntity
         public IInventory getInventoryAtPosition()
         {
             IInventory inv = null;
-            BlockState blockstate = world.getBlockState(destinationBlock);
+            BlockState blockstate = level.getBlockState(destinationBlock);
             Block block = blockstate.getBlock();
             if (blockstate.hasTileEntity())
             {
-                TileEntity tileentity = world.getTileEntity(destinationBlock);
+                TileEntity tileentity = level.getTileEntity(destinationBlock);
                 if (tileentity instanceof IInventory)
                 {
                     inv = (IInventory) tileentity;
                     if (inv instanceof ChestTileEntity && block instanceof ChestBlock)
-                        inv = ChestBlock.getChestInventory((ChestBlock) block, blockstate, world, destinationBlock, true);
+                        inv = ChestBlock.getChestInventory((ChestBlock) block, blockstate, level, destinationBlock, true);
                 }
             }
 

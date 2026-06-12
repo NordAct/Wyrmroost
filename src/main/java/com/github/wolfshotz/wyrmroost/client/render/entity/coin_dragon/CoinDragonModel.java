@@ -5,7 +5,7 @@ import com.github.wolfshotz.wyrmroost.entities.dragon.CoinDragonEntity;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 import net.minecraft.client.renderer.model.ModelRenderer;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.Mth;
 
 /**
  * WRCoinDragon - Ukan
@@ -144,15 +144,15 @@ public class CoinDragonModel extends WREntityModel<CoinDragonEntity>
     @Override
     public void setRotationAngles(CoinDragonEntity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch)
     {
-        float flap = MathHelper.cos(ageInTicks * 3f) * 0.6f + 0.75f;
+        float flap = Mth.cos(ageInTicks * 3f) * 0.6f + 0.75f;
         wingL.rotateAngleZ = flap;
         wingR.rotateAngleZ = -flap;
 
-        legR.rotateAngleX = legL.rotateAngleX = MathHelper.cos(ageInTicks * 0.15f + 1) * 0.05f + 1.75f;
+        legR.rotateAngleX = legL.rotateAngleX = Mth.cos(ageInTicks * 0.15f + 1) * 0.05f + 1.75f;
 
         for (int i = 1; i < tails.length + 1; i++) // move the tail a bit
-            tails[i - 1].rotateAngleX = MathHelper.cos(ageInTicks * 0.2f + 0.8f * -i) * 0.1f + 0.35f;
+            tails[i - 1].rotateAngleX = Mth.cos(ageInTicks * 0.2f + 0.8f * -i) * 0.1f + 0.35f;
 
-        coin.rotateAngleX = MathHelper.cos(ageInTicks * 0.15f) * 0.08f - 0.875f;
+        coin.rotateAngleX = Mth.cos(ageInTicks * 0.15f) * 0.08f - 0.875f;
     }
 }

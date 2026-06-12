@@ -2,8 +2,7 @@ package com.github.wolfshotz.wyrmroost;
 
 import com.github.wolfshotz.wyrmroost.util.ModUtils;
 import com.google.common.collect.ImmutableList;
-import net.minecraft.world.GameRules;
-import net.minecraft.world.World;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.fml.config.ModConfig;
 import org.apache.commons.lang3.tuple.Pair;
@@ -34,7 +33,7 @@ public class WRConfig
     private static boolean dragonGriefing;
     public static Map<String, Integer> breedLimits;
 
-    public static boolean canGrief(World world)
+    public static boolean canGrief(Level world)
     {
         return respectMobGriefing? world.getGameRules().getBoolean(GameRules.MOB_GRIEFING) : dragonGriefing;
     }

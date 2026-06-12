@@ -1,18 +1,19 @@
 package com.github.wolfshotz.wyrmroost.data;
 
+import ShapedRecipeBuilder;
+import ShapelessRecipeBuilder;
 import com.github.wolfshotz.wyrmroost.Wyrmroost;
 import com.github.wolfshotz.wyrmroost.items.LazySpawnEggItem;
 import com.github.wolfshotz.wyrmroost.registry.WRBlocks;
 import com.github.wolfshotz.wyrmroost.registry.WRItems;
 import com.github.wolfshotz.wyrmroost.util.ModUtils;
 import net.minecraft.data.*;
-import net.minecraft.item.Item;
-import net.minecraft.item.Items;
 import net.minecraft.item.crafting.CookingRecipeSerializer;
 import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.tags.ITag;
 import net.minecraft.util.IItemProvider;
-
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
 import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.util.Collections;

@@ -3,9 +3,8 @@ package com.github.wolfshotz.wyrmroost.entities.dragon.helpers.ai.goals;
 import com.github.wolfshotz.wyrmroost.WRConfig;
 import com.github.wolfshotz.wyrmroost.entities.dragon.AbstractDragonEntity;
 import net.minecraft.entity.ai.RandomPositionGenerator;
-import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.util.math.vector.Vector3d;
-
+import net.minecraft.world.entity.ai.goal.Goal;
 import java.util.EnumSet;
 
 public class MoveToHomeGoal extends Goal
@@ -46,7 +45,7 @@ public class MoveToHomeGoal extends Goal
 
         time++;
         if (dragon.getDistanceSq(home) > sq + 35 || time >= TIME_UNTIL_TELEPORT)
-            dragon.trySafeTeleport(dragon.getHomePosition().up());
+            dragon.trySafeTeleport(dragon.getHomePosition().above());
         else
         {
             Vector3d movePos;

@@ -1,14 +1,13 @@
 package com.github.wolfshotz.wyrmroost.world.features;
 
 import com.mojang.serialization.Codec;
-import net.minecraft.block.BlockState;
+import net.minecraft.core.BlockPos;
 import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.ISeedReader;
 import net.minecraft.world.gen.ChunkGenerator;
-import net.minecraft.world.gen.feature.Feature;
 import net.minecraft.world.gen.feature.ReplaceBlockConfig;
-
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.feature.Feature;
 import java.util.Random;
 
 public class NoExposureReplacementFeature extends Feature<ReplaceBlockConfig>
@@ -31,7 +30,7 @@ public class NoExposureReplacementFeature extends Feature<ReplaceBlockConfig>
 
     private static boolean checkExposure(ISeedReader world, BlockPos initialPos)
     {
-        BlockPos.Mutable pos = new BlockPos.Mutable();
+        BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
         for (Direction direction : DIRECTIONS)
         {
             BlockState state = world.getBlockState(pos.setAndMove(initialPos, direction));

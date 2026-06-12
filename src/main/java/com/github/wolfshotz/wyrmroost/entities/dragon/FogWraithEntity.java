@@ -9,14 +9,17 @@ import net.minecraft.entity.*;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
 import net.minecraft.entity.ai.goal.LookAtGoal;
 import net.minecraft.entity.ai.goal.LookRandomlyGoal;
-import net.minecraft.entity.ai.goal.SwimGoal;
-import net.minecraft.item.ItemStack;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.potion.EffectInstance;
 import net.minecraft.potion.Effects;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.goal.FloatGoal;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 
 import static net.minecraft.entity.ai.attributes.Attributes.*;
 
@@ -31,7 +34,7 @@ public class FogWraithEntity extends AbstractDragonEntity
     public final TickFloat flightTimer = new TickFloat().setLimit(0, 1f);
     public final TickFloat stealthTimer = new TickFloat().setLimit(0, 0.85f);
 
-    public FogWraithEntity(EntityType<? extends AbstractDragonEntity> dragon, World world)
+    public FogWraithEntity(EntityType<? extends AbstractDragonEntity> dragon, Level world)
     {
         super(dragon, world);
         registerDataEntry("IsStealth", EntityDataEntry.BOOLEAN, STEALTH, false);
@@ -40,7 +43,7 @@ public class FogWraithEntity extends AbstractDragonEntity
     @Override
     protected void registerGoals()
     {
-        goalSelector.addGoal(1, new SwimGoal(this));
+        goalSelector.addGoal(1, new FloatGoal(this));
         goalSelector.addGoal(9, new FlyerWanderGoal(this, 1));
         goalSelector.addGoal(10, new LookAtGoal(this, LivingEntity.class, 10f));
         goalSelector.addGoal(11, new LookRandomlyGoal(this));
@@ -75,7 +78,7 @@ public class FogWraithEntity extends AbstractDragonEntity
         if (super.attackEntityAsMob(entity) && entity instanceof LivingEntity)
         {
             int i = 5;
-            switch (world.getDifficulty())
+            switch (level.getDifficulty())
             {
                 case HARD:
                     i = 12; break;

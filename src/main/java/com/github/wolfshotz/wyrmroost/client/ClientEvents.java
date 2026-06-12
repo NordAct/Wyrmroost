@@ -8,15 +8,15 @@ import com.github.wolfshotz.wyrmroost.registry.WRIO;
 import com.github.wolfshotz.wyrmroost.registry.WRKeybind;
 import com.github.wolfshotz.wyrmroost.util.animation.IAnimatable;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.color.IItemColor;
 import net.minecraft.client.renderer.color.ItemColors;
 import net.minecraft.client.renderer.texture.AtlasTexture;
 import net.minecraft.client.settings.PointOfView;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.client.event.ColorHandlerEvent;
 import net.minecraftforge.client.event.EntityViewRenderEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
@@ -103,12 +103,12 @@ public class ClientEvents
         return Minecraft.getInstance();
     }
 
-    public static ClientWorld getWorld()
+    public static ClientLevel getWorld()
     {
         return getClient().world;
     }
 
-    public static PlayerEntity getPlayer()
+    public static Player getPlayer()
     {
         return getClient().player;
     }
@@ -125,7 +125,7 @@ public class ClientEvents
 
     public static boolean handleAnimationPacket(int entityID, int animationIndex)
     {
-        World world = ClientEvents.getWorld();
+        Level world = ClientEvents.getWorld();
         IAnimatable entity = (IAnimatable) world.getEntityByID(entityID);
 
         if (animationIndex < 0) entity.setAnimation(IAnimatable.NO_ANIMATION);

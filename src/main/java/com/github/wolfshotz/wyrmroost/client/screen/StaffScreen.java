@@ -7,15 +7,14 @@ import com.github.wolfshotz.wyrmroost.items.staff.DragonStaffItem;
 import com.github.wolfshotz.wyrmroost.items.staff.StaffAction;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.layouts.LayoutElement;
 import net.minecraft.client.gui.screen.inventory.InventoryScreen;
-import net.minecraft.client.gui.widget.Widget;
-import net.minecraft.item.ItemStack;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.util.IReorderingProcessor;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.Style;
-
+import net.minecraft.world.item.ItemStack;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -64,14 +63,14 @@ public class StaffScreen extends Screen
     public void render(MatrixStack ms, int mouseX, int mouseY, float partialTicks)
     {
         renderBackground(ms);
-        for (Widget b : buttons) b.render(ms, mouseX, mouseY, partialTicks);
+        for (LayoutElement b : buttons) b.render(ms, mouseX, mouseY, partialTicks);
         int x = width / 2;
-        int y = (height / 2) + (int) (dragon.getHeight() / 2);
+        int y = (height / 2) + (int) (dragon.getBbHeight() / 2);
 
         if (dragon.getVariant() < 0)
             drawString(ms, font, Character.toString('\u2726'), x - 40, y - 40, 0xffff00);
 
-        int scale = (int) -(dragon.getWidth() * dragon.getHeight()) + 23; // linear decay: smaller scale bigger the dragon. if things get problematic, exponential?
+        int scale = (int) -(dragon.getBbWidth() * dragon.getBbHeight()) + 23; // linear decay: smaller scale bigger the dragon. if things get problematic, exponential?
         InventoryScreen.drawEntityOnScreen(x, y, scale, x - mouseX, y - mouseY, dragon);
         if (mouseX >= x - 40 && mouseY >= y - 40 && mouseX < x + 45 && mouseY < y + 15)
             renderTooltip(ms, toolTip, mouseX, mouseY);

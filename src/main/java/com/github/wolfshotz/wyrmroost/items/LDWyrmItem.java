@@ -5,14 +5,14 @@ import com.github.wolfshotz.wyrmroost.client.ClientEvents;
 import com.github.wolfshotz.wyrmroost.entities.dragon.LDWyrmEntity;
 import com.github.wolfshotz.wyrmroost.registry.WREntities;
 import com.github.wolfshotz.wyrmroost.registry.WRItems;
-import net.minecraft.item.Item;
+import net.minecraft.core.BlockPos;
 import net.minecraft.item.ItemModelsProperties;
-import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUseContext;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ActionResultType;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
 
@@ -40,7 +40,7 @@ public class LDWyrmItem extends Item
             CompoundNBT tag = stack.getTag();
             if (tag.contains(DATA_CONTENTS))
             {
-                World world = context.getWorld();
+                Level world = context.getWorld();
                 if (!world.isRemote)
                 {
                     BlockPos pos = context.getPos().offset(context.getFace());
@@ -50,7 +50,7 @@ public class LDWyrmItem extends Item
                     entity.deserializeNBT(contents);
                     if (stack.hasDisplayName())
                         entity.setCustomName(stack.getDisplayName()); // Item name takes priority
-                    entity.setPosition(pos.getX(), pos.getY(), pos.getZ());
+                    entity.setPos(pos.getX(), pos.getY(), pos.getZ());
                     world.addEntity(entity);
                     stack.shrink(1);
                 }

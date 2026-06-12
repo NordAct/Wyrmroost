@@ -3,26 +3,26 @@ package com.github.wolfshotz.wyrmroost.entities.dragon;
 import com.github.wolfshotz.wyrmroost.items.CoinDragonItem;
 import com.github.wolfshotz.wyrmroost.registry.WRItems;
 import com.github.wolfshotz.wyrmroost.registry.WRSounds;
-import net.minecraft.block.BlockState;
+import net.minecraft.core.BlockPos;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
 import net.minecraft.entity.ai.goal.LookAtGoal;
 import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.DamageSource;
-import net.minecraft.util.Hand;
 import net.minecraft.util.SoundEvent;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
-
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 import javax.annotation.Nullable;
 
 import static net.minecraft.entity.ai.attributes.Attributes.MAX_HEALTH;
@@ -36,7 +36,7 @@ public class CoinDragonEntity extends MobEntity
     public static final DataParameter<Integer> VARIANT = EntityDataManager.createKey(CoinDragonEntity.class, DataSerializers.VARINT);
     public static String DATA_VARIANT = "Variant";
 
-    public CoinDragonEntity(EntityType<? extends CoinDragonEntity> type, World worldIn)
+    public CoinDragonEntity(EntityType<? extends CoinDragonEntity> type, Level worldIn)
     {
         super(type, worldIn);
     }
@@ -44,7 +44,7 @@ public class CoinDragonEntity extends MobEntity
     @Override
     protected void registerGoals()
     {
-        goalSelector.addGoal(0, new LookAtGoal(this, PlayerEntity.class, 4));
+        goalSelector.addGoal(0, new LookAtGoal(this, Player.class, 4));
     }
 
     @Override
@@ -96,12 +96,12 @@ public class CoinDragonEntity extends MobEntity
     }
 
     @Override
-    protected ActionResultType func_230254_b_(PlayerEntity player, Hand hand)
+    protected ActionResultType func_230254_b_(Player player, InteractionHand hand)
     {
         ActionResultType stackResult = player.getHeldItem(hand).interactWithEntity(player, this, hand);
         if (stackResult.isSuccessOrConsume()) return stackResult;
 
-        ItemEntity itemEntity = new ItemEntity(world, getPosX(), getPosY(), getPosZ(), getItemStack());
+        net.minecraft.world.entity.item.ItemEntity itemEntity = new net.minecraft.world.entity.item.ItemEntity(world, getPosX(), getPosY(), getPosZ(), getItemStack());
         double x = player.getPosX() - getPosX();
         double y = player.getPosY() - getPosY();
         double z = player.getPosZ() - getPosZ();
@@ -169,7 +169,7 @@ public class CoinDragonEntity extends MobEntity
 
     public double getAltitude()
     {
-        BlockPos.Mutable pos = getPosition().toMutable().move(0, -1, 0);
+        BlockPos.MutableBlockPos pos = getPosition().toMutable().move(0, -1, 0);
         while (pos.getY() > 0 && !world.getBlockState(pos).isSolid()) pos.setY(pos.getY() - 1);
         return getPosY() - pos.getY();
     }

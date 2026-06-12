@@ -1,13 +1,12 @@
 package com.github.wolfshotz.wyrmroost.items;
 
 import com.github.wolfshotz.wyrmroost.registry.WRItems;
-import net.minecraft.enchantment.Enchantment;
-import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.enchantment.Enchantments;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-
 import java.util.UUID;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.enchantment.Enchantments;
 
 public class DragonArmorItem extends Item
 {
@@ -42,6 +41,6 @@ public class DragonArmorItem extends Item
         if (!(item instanceof DragonArmorItem))
             throw new AssertionError("uhh this isn't a an armor: " + item.getRegistryName().toString());
 
-        return ((DragonArmorItem) item).getDmgReduction() + EnchantmentHelper.getEnchantments(stack).getOrDefault(Enchantments.PROTECTION, 0);
+        return ((DragonArmorItem) item).getDmgReduction() + EnchantmentHelper.getEnchantmentsForCrafting(stack).getOrDefault(Enchantments.PROTECTION, 0);
     }
 }

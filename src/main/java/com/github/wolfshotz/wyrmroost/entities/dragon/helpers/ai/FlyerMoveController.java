@@ -2,15 +2,15 @@ package com.github.wolfshotz.wyrmroost.entities.dragon.helpers.ai;
 
 import com.github.wolfshotz.wyrmroost.entities.dragon.AbstractDragonEntity;
 import com.github.wolfshotz.wyrmroost.util.Mafs;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
+import net.minecraft.core.BlockPos;
 import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.ai.controller.MovementController;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.Mth;
 import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 
 public class FlyerMoveController extends MovementController
 {
@@ -65,7 +65,7 @@ public class FlyerMoveController extends MovementController
                     action = MovementController.Action.JUMPING;
                 }
             }
-            dragon.rotationYaw = limitAngle(dragon.rotationYaw, (float) (MathHelper.atan2(z, x) * (180f / Mafs.PI)) - 90f, dragon.getYawRotationSpeed());
+            dragon.rotationYaw = limitAngle(dragon.rotationYaw, (float) (Mth.atan2(z, x) * (180f / Mafs.PI)) - 90f, dragon.getYawRotationSpeed());
             dragon.setAIMoveSpeed(speed);
             action = Action.WAIT;
         }

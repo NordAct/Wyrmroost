@@ -3,13 +3,12 @@ package com.github.wolfshotz.wyrmroost.entities.dragon.helpers.ai.goals;
 import com.github.wolfshotz.wyrmroost.WRConfig;
 import com.github.wolfshotz.wyrmroost.entities.dragon.AbstractDragonEntity;
 import net.minecraft.entity.EntityPredicate;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.MobEntity;
 import net.minecraft.entity.ai.goal.TargetGoal;
 import net.minecraft.entity.monster.CreeperEntity;
 import net.minecraft.entity.monster.IMob;
 import net.minecraft.util.math.AxisAlignedBB;
-
+import net.minecraft.world.entity.LivingEntity;
 import java.util.EnumSet;
 import java.util.function.Predicate;
 
@@ -50,7 +49,7 @@ public class DefendHomeGoal extends TargetGoal
         super.startExecuting();
 
         // alert others!
-        for (MobEntity mob : defender.world.getEntitiesWithinAABB(MobEntity.class, defender.getBoundingBox().grow(WRConfig.homeRadius), defender::isOnSameTeam))
+        for (MobEntity mob : defender.level.getEntitiesWithinAABB(MobEntity.class, defender.getBoundingBox().grow(WRConfig.homeRadius), defender::isOnSameTeam))
             mob.setAttackTarget(target);
     }
 
@@ -68,7 +67,7 @@ public class DefendHomeGoal extends TargetGoal
 
     public LivingEntity findPotentialTarget()
     {
-        return defender.world.func_225318_b(LivingEntity.class,
+        return defender.level.func_225318_b(LivingEntity.class,
                 predicate,
                 defender,
                 defender.getPosX(),

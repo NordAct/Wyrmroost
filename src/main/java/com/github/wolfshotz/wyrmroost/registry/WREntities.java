@@ -24,14 +24,17 @@ import com.github.wolfshotz.wyrmroost.entities.projectile.GeodeTippedArrowEntity
 import com.github.wolfshotz.wyrmroost.entities.projectile.WindGustEntity;
 import com.github.wolfshotz.wyrmroost.entities.projectile.breath.FireBreathEntity;
 import com.github.wolfshotz.wyrmroost.items.LazySpawnEggItem;
-import net.minecraft.block.Blocks;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.attributes.Attribute;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
 import net.minecraft.entity.ai.attributes.GlobalEntityTypeAttributes;
 import net.minecraft.entity.ai.attributes.RangedAttribute;
-import net.minecraft.entity.passive.AnimalEntity;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.gen.Heightmap;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.world.BiomeLoadingEvent;
 import net.minecraftforge.fml.DistExecutor;
@@ -46,6 +49,9 @@ import java.util.function.Supplier;
 
 import static net.minecraft.entity.EntitySpawnPlacementRegistry.PlacementType.NO_RESTRICTIONS;
 import static net.minecraft.entity.EntitySpawnPlacementRegistry.PlacementType.ON_GROUND;
+
+import EntityClassification;
+import MobEntity;
 
 /**
  * Created by com.github.WolfShotz - 7/3/19 19:03 <p>
@@ -115,7 +121,7 @@ public class WREntities
             .spawnPlacement(NO_RESTRICTIONS, Heightmap.Type.MOTION_BLOCKING, AbstractDragonEntity::canFlyerSpawn)
             .spawnBiomes(CanariWyvernEntity::setSpawnBiomes)
             .spawnEgg(0x1D1F28, 0x492E0E)
-            .dragonEgg(new DragonEggProperties(0.25f, 0.35f, 6000).setConditions(c -> c.world.getBlockState(c.getPosition().down()).getBlock() == Blocks.JUNGLE_LEAVES))
+            .dragonEgg(new DragonEggProperties(0.25f, 0.35f, 6000).setConditions(c -> c.level.getBlockState(c.getPosition().down()).getBlock() == Blocks.JUNGLE_LEAVES))
             .renderer(() -> CanariWyvernRenderer::new)
             .build(b -> b.size(0.65f, 0.85f));
 
@@ -227,7 +233,7 @@ public class WREntities
 
         private Builder<T> spawnPlacement()
         {
-            return spawnPlacement(ON_GROUND, Heightmap.Type.MOTION_BLOCKING_NO_LEAVES, AnimalEntity::canAnimalSpawn);
+            return spawnPlacement(ON_GROUND, Heightmap.Type.MOTION_BLOCKING_NO_LEAVES, Animal::canAnimalSpawn);
         }
 
         private Builder<T> spawnBiomes(Consumer<BiomeLoadingEvent> consumer)
@@ -244,7 +250,7 @@ public class WREntities
 
         private RegistryObject<EntityType<T>> build(Consumer<EntityType.Builder<T>> consumer)
         {
-            EntityType.Builder<T> builder = EntityType.Builder.create(factory, classification);
+            EntityType.Builder<T> builder = EntityType.Builder.of(factory, classification);
             consumer.accept(builder);
             return registered = REGISTRY.register(name, () -> builder.build(Wyrmroost.MOD_ID + ":" + name));
         }

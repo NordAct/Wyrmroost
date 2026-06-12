@@ -1,8 +1,8 @@
 package com.github.wolfshotz.wyrmroost.network.packets;
 
-import net.minecraft.entity.Entity;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.world.entity.Entity;
 import net.minecraftforge.fml.network.NetworkEvent;
 
 import java.util.UUID;

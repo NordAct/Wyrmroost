@@ -7,7 +7,7 @@ import com.github.wolfshotz.wyrmroost.entities.dragon.AlpineEntity;
 import com.github.wolfshotz.wyrmroost.util.Mafs;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.Mth;
 
 /**
  * WRAlpineDragonNew - Ukan
@@ -665,7 +665,7 @@ public class AlpineModel extends WREntityModel<AlpineEntity>
     @Override
     public void setRotationAngles(AlpineEntity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch)
     {
-        netHeadYaw = MathHelper.wrapDegrees(netHeadYaw);
+        netHeadYaw = Mth.wrapDegrees(netHeadYaw);
         if (!entity.isSleeping()) faceTarget(netHeadYaw, headPitch, 1, headArray);
         if (entity.flightTimer.get() == 1) body1.rotateAngleZ = -(netHeadYaw * Mafs.PI / 180f) * 0.4f;
     }

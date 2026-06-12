@@ -1,20 +1,20 @@
 package com.github.wolfshotz.wyrmroost.entities.projectile;
 
 import com.github.wolfshotz.wyrmroost.registry.WREffects;
-import net.minecraft.block.Blocks;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.particles.BlockParticleData;
 import net.minecraft.particles.ParticleTypes;
 import net.minecraft.potion.EffectInstance;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
 
 public class SilkProjectileEntity extends DragonProjectileEntity
 {
-    public SilkProjectileEntity(EntityType<? extends DragonProjectileEntity> type, World worldIn)
+    public SilkProjectileEntity(EntityType<? extends DragonProjectileEntity> type, Level worldIn)
     {
         super(type, worldIn);
     }
@@ -27,7 +27,7 @@ public class SilkProjectileEntity extends DragonProjectileEntity
         {
             Vector3d pos = result.getHitVec();
             for (int i = 0; i < 20; i++)
-                world.addParticle(new BlockParticleData(ParticleTypes.BLOCK, Blocks.COBWEB.getDefaultState()), pos.getX(), pos.getY(), pos.getZ(), 0, 0, 0);
+                level.addParticle(new BlockParticleData(ParticleTypes.BLOCK, Blocks.COBWEB.defaultBlockState()), pos.getX(), pos.getY(), pos.getZ(), 0, 0, 0);
         }
         else remove();
     }
@@ -35,7 +35,7 @@ public class SilkProjectileEntity extends DragonProjectileEntity
     @Override
     public void onEntityImpact(Entity entity)
     {
-        if (entity.getWidth() < 5 && entity.getHeight() < 5)
+        if (entity.getBbWidth() < 5 && entity.getBbHeight() < 5)
         {
             LivingEntity living = (LivingEntity) entity;
             living.attackEntityFrom(getDamageSource("silk"), 3f);
@@ -51,7 +51,7 @@ public class SilkProjectileEntity extends DragonProjectileEntity
     }
 
     @Override
-    public boolean hasNoGravity()
+    public boolean isNoGravity()
     {
         return false;
     }

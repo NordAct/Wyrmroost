@@ -7,7 +7,7 @@ import com.github.wolfshotz.wyrmroost.entities.dragon.ButterflyLeviathanEntity;
 import com.github.wolfshotz.wyrmroost.util.Mafs;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.Mth;
 import org.apache.commons.lang3.ArrayUtils;
 
 /**
@@ -313,7 +313,7 @@ public class ButterflyLeviathanModel extends WREntityModel<ButterflyLeviathanEnt
     @Override
     public void setRotationAngles(ButterflyLeviathanEntity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch)
     {
-        netHeadYaw = MathHelper.wrapDegrees(netHeadYaw);
+        netHeadYaw = Mth.wrapDegrees(netHeadYaw);
         if (!entity.beached)
         {
             body1.rotateAngleX = headPitch * Mafs.PI / 180f;

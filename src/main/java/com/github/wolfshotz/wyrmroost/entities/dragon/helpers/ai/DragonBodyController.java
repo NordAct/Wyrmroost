@@ -2,7 +2,7 @@ package com.github.wolfshotz.wyrmroost.entities.dragon.helpers.ai;
 
 import com.github.wolfshotz.wyrmroost.entities.dragon.AbstractDragonEntity;
 import net.minecraft.entity.ai.controller.BodyController;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.Mth;
 
 /**
  * Created by com.github.WolfShotz - 8/26/19 - 16:12
@@ -36,7 +36,7 @@ public class DragonBodyController extends BodyController
         if (dragon.canPassengerSteer() || dragon.isFlying())
         {
             clampHeadRotation(120f);
-            dragon.renderYawOffset = dragon.rotationYaw = MathHelper.wrapDegrees(MathHelper.func_219800_b(dragon.rotationYawHead, dragon.renderYawOffset, dragon.getYawRotationSpeed()));
+            dragon.renderYawOffset = dragon.rotationYaw = Mth.wrapDegrees(Mth.func_219800_b(dragon.rotationYawHead, dragon.renderYawOffset, dragon.getYawRotationSpeed()));
             return;
         }
 
@@ -45,6 +45,6 @@ public class DragonBodyController extends BodyController
 
     public void clampHeadRotation(float clampDeg)
     {
-        dragon.rotationYawHead = MathHelper.func_219800_b(dragon.rotationYawHead, dragon.renderYawOffset, clampDeg);
+        dragon.rotationYawHead = Mth.func_219800_b(dragon.rotationYawHead, dragon.renderYawOffset, clampDeg);
     }
 }

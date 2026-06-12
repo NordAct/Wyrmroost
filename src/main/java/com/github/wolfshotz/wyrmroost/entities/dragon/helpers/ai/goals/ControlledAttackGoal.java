@@ -1,10 +1,9 @@
 package com.github.wolfshotz.wyrmroost.entities.dragon.helpers.ai.goals;
 
 import com.github.wolfshotz.wyrmroost.entities.dragon.AbstractDragonEntity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.goal.MeleeAttackGoal;
-
 import java.util.function.Consumer;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
 
 public class ControlledAttackGoal extends MeleeAttackGoal
 {
@@ -52,6 +51,6 @@ public class ControlledAttackGoal extends MeleeAttackGoal
     @Override
     protected double getAttackReachSqr(LivingEntity attackTarget)
     {
-        return attacker.getWidth() * 2 * attacker.getWidth() * 2 + attackTarget.getWidth();
+        return attacker.getWidth() * 2 * attacker.getWidth() * 2 + attackTarget.getBbWidth();
     }
 }

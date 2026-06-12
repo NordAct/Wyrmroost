@@ -1,6 +1,6 @@
 package com.github.wolfshotz.wyrmroost.util;
 
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.Mth;
 
 public class TickFloat
 {
@@ -42,14 +42,14 @@ public class TickFloat
     public void set(float value)
     {
         sync();
-        current = clamp? MathHelper.clamp(value, min, max) : value;
+        current = clamp? Mth.clamp(value, min, max) : value;
     }
 
     public void add(float value)
     {
         sync();
         current += value;
-        if (clamp) current = MathHelper.clamp(current, min, max);
+        if (clamp) current = Mth.clamp(current, min, max);
     }
 
     public void sync()

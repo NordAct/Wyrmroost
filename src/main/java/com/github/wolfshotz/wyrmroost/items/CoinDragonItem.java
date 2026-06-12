@@ -5,10 +5,8 @@ import com.github.wolfshotz.wyrmroost.client.ClientEvents;
 import com.github.wolfshotz.wyrmroost.entities.dragon.CoinDragonEntity;
 import com.github.wolfshotz.wyrmroost.registry.WREntities;
 import com.github.wolfshotz.wyrmroost.registry.WRItems;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
+import net.minecraft.core.BlockPos;
 import net.minecraft.item.ItemModelsProperties;
-import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUseContext;
 import net.minecraft.loot.ItemLootEntry;
 import net.minecraft.loot.LootEntry;
@@ -16,11 +14,13 @@ import net.minecraft.loot.functions.SetNBT;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
 
@@ -41,11 +41,11 @@ public class CoinDragonItem extends Item
     @SuppressWarnings("ConstantConditions")
     public ActionResultType onItemUse(ItemUseContext context)
     {
-        World world = context.getWorld();
+        Level world = context.getWorld();
         CoinDragonEntity entity = WREntities.COIN_DRAGON.get().create(context.getWorld());
         BlockPos pos = context.getPos().offset(context.getFace());
         ItemStack stack = context.getItem();
-        PlayerEntity player = context.getPlayer();
+        Player player = context.getPlayer();
 
         if (!world.isRemote && stack.hasTag()) // read data first!: setting position before reading will reset that position!
         {

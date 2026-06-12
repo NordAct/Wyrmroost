@@ -1,17 +1,17 @@
 package com.github.wolfshotz.wyrmroost.util;
 
 import com.google.common.collect.ImmutableSet;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.IForgeRegistryEntry;
@@ -57,7 +57,7 @@ public final class ModUtils
      * @return An ItemStack if it conatains the specified item, null otherwise
      */
     @Nullable
-    public static ItemStack getHeldStack(PlayerEntity player, Item item)
+    public static ItemStack getHeldStack(Player player, Item item)
     {
         ItemStack main = player.getHeldItemMainhand();
         ItemStack off = player.getHeldItemOffhand();
@@ -83,9 +83,9 @@ public final class ModUtils
      * @param volume so help me god
      * @param pitch  the pitch of the sound. lower values = sulfur hexafloride, higher values = dying chipmunk
      */
-    public static void playLocalSound(World world, BlockPos pos, SoundEvent sound, float volume, float pitch)
+    public static void playLocalSound(Level world, BlockPos pos, SoundEvent sound, float volume, float pitch)
     {
-        world.playSound(pos.getX(), pos.getY(), pos.getZ(), sound, SoundCategory.NEUTRAL, volume, pitch, false);
+        world.playLocalSound(pos.getX(), pos.getY(), pos.getZ(), sound, SoundCategory.NEUTRAL, volume, pitch, false);
     }
 
     /**
@@ -98,12 +98,12 @@ public final class ModUtils
     public static Iterable<BlockPos> getBlockPosesInAABB(AxisAlignedBB aabb)
     {
         return BlockPos.getAllInBoxMutable(
-                MathHelper.floor(aabb.minX),
-                MathHelper.floor(aabb.minY),
-                MathHelper.floor(aabb.minZ),
-                MathHelper.ceil(aabb.maxX),
-                MathHelper.ceil(aabb.maxY),
-                MathHelper.ceil(aabb.maxZ));
+                Mth.floor(aabb.minX),
+                Mth.floor(aabb.minY),
+                Mth.floor(aabb.minZ),
+                Mth.ceil(aabb.maxX),
+                Mth.ceil(aabb.maxY),
+                Mth.ceil(aabb.maxZ));
     }
 
     @SafeVarargs

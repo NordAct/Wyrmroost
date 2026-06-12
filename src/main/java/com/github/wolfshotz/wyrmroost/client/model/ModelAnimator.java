@@ -4,8 +4,7 @@ import com.github.wolfshotz.wyrmroost.util.Mafs;
 import com.github.wolfshotz.wyrmroost.util.animation.Animation;
 import com.github.wolfshotz.wyrmroost.util.animation.IAnimatable;
 import net.minecraft.client.renderer.model.ModelRenderer;
-import net.minecraft.util.math.MathHelper;
-
+import net.minecraft.util.Mth;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -107,7 +106,7 @@ public class ModelAnimator
                 else
                 {
                     float tick = ((float) (animationTick - prevTempTick) + partialTicks) / (tempTick - prevTempTick);
-                    float inc = MathHelper.sin(tick * Mafs.PI / 2f);
+                    float inc = Mth.sin(tick * Mafs.PI / 2f);
                     float dec = 1f - inc;
 
                     for (Map.Entry<WRModelRenderer, BoxPosCache> entry : prevPosCache.entrySet())

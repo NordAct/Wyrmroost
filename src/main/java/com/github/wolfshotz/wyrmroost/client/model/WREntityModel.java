@@ -4,10 +4,9 @@ import com.github.wolfshotz.wyrmroost.util.Mafs;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.model.EntityModel;
 import net.minecraft.client.renderer.model.ModelRenderer;
-import net.minecraft.entity.Entity;
+import net.minecraft.util.Mth;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.MathHelper;
-
+import net.minecraft.world.entity.Entity;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
@@ -121,7 +120,7 @@ public abstract class WREntityModel<T extends Entity> extends EntityModel<T>
 
     private float calculateChainRotation(float speed, float degree, float swing, float swingAmount, float offset, int boxIndex)
     {
-        return MathHelper.cos(swing * speed + offset * boxIndex) * swingAmount * degree;
+        return Mth.cos(swing * speed + offset * boxIndex) * swingAmount * degree;
     }
 
     private float calculateChainOffset(double rootOffset, ModelRenderer... boxes)
@@ -166,8 +165,8 @@ public abstract class WREntityModel<T extends Entity> extends EntityModel<T>
 
     public float getAnimationSwingDelta(float speed, float tick, float partialTick)
     {
-        float end = MathHelper.clamp(-(tick / speed) + 1, 0, 1);
-        float start = MathHelper.clamp(-((tick - 1f) / speed) + 1, 0, 1);
-        return MathHelper.lerp(partialTick, start, end);
+        float end = Mth.clamp(-(tick / speed) + 1, 0, 1);
+        float start = Mth.clamp(-((tick - 1f) / speed) + 1, 0, 1);
+        return Mth.lerp(partialTick, start, end);
     }
 }

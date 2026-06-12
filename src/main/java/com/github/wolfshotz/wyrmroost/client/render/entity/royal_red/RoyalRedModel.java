@@ -7,7 +7,7 @@ import com.github.wolfshotz.wyrmroost.entities.dragon.RoyalRedEntity;
 import com.github.wolfshotz.wyrmroost.util.Mafs;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.Mth;
 import net.minecraft.util.math.vector.Vector3d;
 
 /**
@@ -696,7 +696,7 @@ public class RoyalRedModel extends WREntityModel<RoyalRedEntity>
     @Override
     public void setRotationAngles(RoyalRedEntity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch)
     {
-        netHeadYaw = MathHelper.wrapDegrees(netHeadYaw);
+        netHeadYaw = Mth.wrapDegrees(netHeadYaw);
         if (entity.flightTimer.get() == 1) body2.rotateAngleZ = -(netHeadYaw * (Mafs.PI / 180F)) * 0.3f;
         if (!entity.isSleeping() && !entity.isKnockedOut())
             faceTarget(netHeadYaw, headPitch, 1, headParts);
@@ -795,7 +795,7 @@ public class RoyalRedModel extends WREntityModel<RoyalRedEntity>
             if (entity.isKnockedOut())
             {
                 chainWave(headParts, globalSpeed - 0.48f, 0.04f, -1.5f, frame, 0.5f);
-                jaw.rotateAngleX += MathHelper.cos(frame * (globalSpeed - 0.48f)) * 0.1f + 0.1f;
+                jaw.rotateAngleX += Mth.cos(frame * (globalSpeed - 0.48f)) * 0.1f + 0.1f;
 
                 flap(wingL1, globalSpeed - 0.45f, 0.1f, false, 0, 0, frame, 0.5f);
                 swing(wingL1, globalSpeed - 0.47f, 0.1f, false, 0, 0, frame, 0.5f);
@@ -814,7 +814,7 @@ public class RoyalRedModel extends WREntityModel<RoyalRedEntity>
                 if (entity.isBreathingFire()) chainWave(headParts, 0.3f, 0.4f, 3f, frame, 0.1f);
                 else chainWave(headParts, globalSpeed - 0.45f, 0.075f, -1.5f, frame, 0.5f);
 
-                jaw.rotateAngleX += MathHelper.cos(frame * (globalSpeed - 0.45f)) * 0.1f + 0.1f;
+                jaw.rotateAngleX += Mth.cos(frame * (globalSpeed - 0.45f)) * 0.1f + 0.1f;
 
                 flap(wingL1, globalSpeed - 0.42f, 0.1f, false, 0, 0, frame, 0.5f);
                 swing(wingL1, globalSpeed - 0.44f, 0.1f, false, 0, 0, frame, 0.5f);
@@ -828,7 +828,7 @@ public class RoyalRedModel extends WREntityModel<RoyalRedEntity>
 
                 if (!entity.isSleeping())
                 {
-                    body1.rotateAngleX += MathHelper.cos(frame * (globalSpeed - 0.45f)) * 0.075f;
+                    body1.rotateAngleX += Mth.cos(frame * (globalSpeed - 0.45f)) * 0.075f;
                     walk(arm2R, globalSpeed - 0.45f, 0.25f, false, 0, 0, frame, 0.5f);
                     flap(palmR, globalSpeed - 0.45f, 0.5f, true, 0, 0, frame, 0.5f);
                     walk(arm2L, globalSpeed - 0.45f, 0.25f, false, 0, 0, frame, 0.5f);
@@ -1073,7 +1073,7 @@ public class RoyalRedModel extends WREntityModel<RoyalRedEntity>
         int tick = entity.getAnimationTick();
         if (tick > 5 && tick < 60)
         {
-            float delta = (Math.min(MathHelper.sin(((tick - 6) / 59f) * Mafs.PI) * 2, 1) * 0.5f);
+            float delta = (Math.min(Mth.sin(((tick - 6) / 59f) * Mafs.PI) * 2, 1) * 0.5f);
             chainFlap(headParts, globalSpeed, 0.2f, 2.5, frame, delta);
             chainSwing(headParts, globalSpeed, 0.065f, 1, frame, delta);
         }

@@ -11,9 +11,8 @@ import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererManager;
 import net.minecraft.client.renderer.texture.AtlasTexture;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.entity.Entity;
 import net.minecraft.util.ResourceLocation;
-
+import net.minecraft.world.entity.Entity;
 import java.util.function.Function;
 
 public class BreathWeaponRenderer extends EntityRenderer<DragonProjectileEntity>
@@ -39,10 +38,10 @@ public class BreathWeaponRenderer extends EntityRenderer<DragonProjectileEntity>
         Function<ResourceLocation, TextureAtlasSprite> func = Minecraft.getInstance().getAtlasSpriteGetter(AtlasTexture.LOCATION_BLOCKS_TEXTURE);
         TextureAtlasSprite fireSprite1 = func.apply(BLUE_FIRE);
         ms.push();
-        float width = entity.getWidth() * 1.4F;
+        float width = entity.getBbWidth() * 1.4F;
         ms.scale(width, width, width);
         float x = 0.5F;
-        float height = entity.getHeight() / width;
+        float height = entity.getBbHeight() / width;
         float y = 0.0F;
         ms.rotate(renderManager.getCameraOrientation());
         ms.translate(0, 0, (-0.3f + (float) ((int) height) * 0.02f));

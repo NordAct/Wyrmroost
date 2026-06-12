@@ -17,15 +17,13 @@ import com.github.wolfshotz.wyrmroost.util.Mafs;
 import com.github.wolfshotz.wyrmroost.util.ModUtils;
 import com.github.wolfshotz.wyrmroost.util.TickFloat;
 import com.github.wolfshotz.wyrmroost.util.animation.Animation;
+import net.minecraft.core.BlockPos;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
 import net.minecraft.entity.ai.controller.MovementController;
 import net.minecraft.entity.ai.goal.*;
 import net.minecraft.entity.effect.LightningBoltEntity;
 import net.minecraft.entity.monster.IMob;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
@@ -35,17 +33,23 @@ import net.minecraft.potion.EffectInstance;
 import net.minecraft.potion.Effects;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.*;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.EntityRayTraceResult;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.IServerWorld;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.IWorldReader;
-import net.minecraft.world.World;
-import net.minecraft.world.biome.Biome;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.biome.MobSpawnInfo;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.ai.goal.Goal;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.gen.Heightmap;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.client.event.EntityViewRenderEvent;
 import net.minecraftforge.common.ForgeMod;
 import net.minecraftforge.event.world.BiomeLoadingEvent;
@@ -55,6 +59,14 @@ import java.util.EnumSet;
 import java.util.Random;
 
 import static net.minecraft.entity.ai.attributes.Attributes.*;
+
+import ActionResultType;
+import CreatureAttribute;
+import EntitySize;
+import MobEntity;
+import PathFinder;
+import PathNavigator;
+import SoundEvent;
 
 public class ButterflyLeviathanEntity extends AbstractDragonEntity
 {
@@ -70,7 +82,7 @@ public class ButterflyLeviathanEntity extends AbstractDragonEntity
     public int lightningCooldown = 0;
     public boolean beached = true;
 
-    public ButterflyLeviathanEntity(EntityType<? extends AbstractDragonEntity> dragon, World world)
+    public ButterflyLeviathanEntity(EntityType<? extends AbstractDragonEntity> dragon, Level world)
     {
         super(dragon, world);
         ignoreFrustumCheck = WRConfig.disableFrustumCheck;
@@ -142,10 +154,10 @@ public class ButterflyLeviathanEntity extends AbstractDragonEntity
         // conduit effects
         if (hasConduit())
         {
-            if (world.isRemote && isWet() && getRNG().nextDouble() <= 0.1)
+            if (world.isRemote && isInWaterRainOrBubble() && getRNG().nextDouble() <= 0.1)
             {
                 for (int i = 0; i < 16; ++i)
-                    world.addParticle(ParticleTypes.NAUTILUS,
+                    level.addParticle(ParticleTypes.NAUTILUS,
                             conduitPos.x,
                             conduitPos.y + 2.25,
                             conduitPos.z,
@@ -158,9 +170,9 @@ public class ButterflyLeviathanEntity extends AbstractDragonEntity
             if (ticksExisted % 80 == 0)
             {
                 boolean attacked = false;
-                for (LivingEntity entity : getEntitiesNearby(25, Entity::isWet))
+                for (LivingEntity entity : getEntitiesNearby(25, Entity::isInWaterRainOrBubble))
                 {
-                    if (entity != getAttackTarget() && (entity instanceof PlayerEntity || isOnSameTeam(entity)))
+                    if (entity != getAttackTarget() && (entity instanceof Player || isOnSameTeam(entity)))
                         entity.addPotionEffect(new EffectInstance(Effects.CONDUIT_POWER, 220, 0, true, true));
 
                     if (!attacked && entity instanceof IMob)
@@ -187,7 +199,7 @@ public class ButterflyLeviathanEntity extends AbstractDragonEntity
         {
             lightningCooldown += 6;
             if (animTick == 10) playSound(WRSounds.ENTITY_BFLY_ROAR.get(), 3f, 1f, true);
-            if (!world.isRemote && isWet() && animTick >= 10)
+            if (!world.isRemote && isInWaterRainOrBubble() && animTick >= 10)
             {
                 LivingEntity target = getAttackTarget();
                 if (target != null)
@@ -197,10 +209,10 @@ public class ButterflyLeviathanEntity extends AbstractDragonEntity
                         if (animTick % 10 == 0)
                         {
                             Vector3d vec3d = target.getPositionVec().add(Mafs.nextDouble(getRNG()) * 2.333, 0, Mafs.nextDouble(getRNG()) * 2.333);
-                            createLightning(world, vec3d, false);
+                            createLightning(level, vec3d, false);
                         }
                     }
-                    else if (animTick == 10) createLightning(world, target.getPositionVec(), false);
+                    else if (animTick == 10) createLightning(level, target.getPositionVec(), false);
                 }
             }
         }
@@ -211,14 +223,14 @@ public class ButterflyLeviathanEntity extends AbstractDragonEntity
             else if (animTick == 15)
             {
                 playSound(SoundEvents.BLOCK_BEACON_ACTIVATE, 1, 1);
-                if (!world.isRemote) createLightning(world, getConduitPos().add(0, 1, 0), true);
+                if (!world.isRemote) createLightning(level, getConduitPos().add(0, 1, 0), true);
                 else
                 {
                     for (int i = 0; i < 26; ++i)
                     {
                         double velX = Math.cos(i);
                         double velZ = Math.sin(i);
-                        world.addParticle(ParticleTypes.CLOUD, conduitPos.x, conduitPos.y + 0.8, conduitPos.z, velX, 0, velZ);
+                        level.addParticle(ParticleTypes.CLOUD, conduitPos.x, conduitPos.y + 0.8, conduitPos.z, velX, 0, velZ);
                     }
                 }
             }
@@ -227,14 +239,14 @@ public class ButterflyLeviathanEntity extends AbstractDragonEntity
         {
             if (animTick == 0) playSound(WRSounds.ENTITY_BFLY_HURT.get(), 1, 1, true);
             else if (animTick == 6)
-                attackInBox(getBoundingBox().offset(Vector3d.fromPitchYaw(isInWater()? rotationPitch : 0, rotationYawHead).scale(5.5f)).grow(0.85), 40);
+                attackInBox(getBoundingBox().move(Vector3d.fromPitchYaw(isInWater()? rotationPitch : 0, rotationYawHead).scale(5.5f)).grow(0.85), 40);
         }
     }
 
     @Override
-    public ActionResultType playerInteraction(PlayerEntity player, Hand hand, ItemStack stack)
+    public ActionResultType playerInteraction(Player player, InteractionHand hand, ItemStack stack)
     {
-        if (((beached && lightningCooldown > 60 && world.isRainingAt(getPosition())) || player.isCreative() || isChild()) && isFoodItem(stack))
+        if (((beached && lightningCooldown > 60 && level.isRainingAt(getPosition())) || player.isCreative() || isChild()) && isFoodItem(stack))
         {
             eat(stack);
             if (!world.isRemote) tame(getRNG().nextDouble() < 0.2, player);
@@ -267,7 +279,7 @@ public class ButterflyLeviathanEntity extends AbstractDragonEntity
             }
 
             // add motion if were coming out of water fast; jump out of water like a dolphin
-            if (getMotion().y > 0.25 && world.getBlockState(new BlockPos(getEyePosition(1)).up()).getFluidState().isEmpty())
+            if (getMotion().y > 0.25 && level.getBlockState(new BlockPos(getEyePosition(1)).above()).getFluidState().isEmpty())
                 setMotion(getMotion().mul(1.2, 1.5f, 1.2d));
 
             moveRelative(getAIMoveSpeed(), vec3d);
@@ -279,7 +291,7 @@ public class ButterflyLeviathanEntity extends AbstractDragonEntity
             double yDiff = getPosY() - prevPosY;
             double zDiff = getPosZ() - prevPosZ;
             if (yDiff < 0.2) yDiff = 0;
-            float amount = MathHelper.sqrt(xDiff * xDiff + yDiff * yDiff + zDiff * zDiff) * 4f;
+            float amount = Mth.sqrt(xDiff * xDiff + yDiff * yDiff + zDiff * zDiff) * 4f;
             if (amount > 1f) amount = 1f;
 
             limbSwingAmount += (amount - limbSwingAmount) * 0.4f;
@@ -301,7 +313,7 @@ public class ButterflyLeviathanEntity extends AbstractDragonEntity
     }
 
     @Override
-    public ItemStack onFoodEaten(World world, ItemStack stack)
+    public ItemStack onFoodEaten(Level world, ItemStack stack)
     {
         lightningCooldown = 0;
         return super.onFoodEaten(world, stack);
@@ -312,10 +324,10 @@ public class ButterflyLeviathanEntity extends AbstractDragonEntity
     {
         if (getVariant() == -1 && ticksExisted % 25 == 0)
         {
-            double x = getPosX() + (Mafs.nextDouble(getRNG()) * getWidth() + 1);
-            double y = getPosY() + (getRNG().nextDouble() * getHeight() + 1);
-            double z = getPosZ() + (Mafs.nextDouble(getRNG()) * getWidth() + 1);
-            world.addParticle(ParticleTypes.END_ROD, x, y, z, 0, 0.05f, 0);
+            double x = getPosX() + (Mafs.nextDouble(getRNG()) * getBbWidth() + 1);
+            double y = getPosY() + (getRNG().nextDouble() * getBbHeight() + 1);
+            double z = getPosZ() + (Mafs.nextDouble(getRNG()) * getBbWidth() + 1);
+            level.addParticle(ParticleTypes.END_ROD, x, y, z, 0, 0.05f, 0);
         }
     }
 
@@ -425,7 +437,7 @@ public class ButterflyLeviathanEntity extends AbstractDragonEntity
     }
 
     @Override
-    protected PathNavigator createNavigator(World world)
+    protected PathNavigator createNavigator(Level world)
     {
         return new Navigator();
     }
@@ -448,7 +460,7 @@ public class ButterflyLeviathanEntity extends AbstractDragonEntity
 
     public boolean canZap()
     {
-        return isWet() && lightningCooldown <= 0;
+        return isInWaterRainOrBubble() && lightningCooldown <= 0;
     }
 
     @Override
@@ -489,7 +501,7 @@ public class ButterflyLeviathanEntity extends AbstractDragonEntity
     @Override
     protected boolean canBeRidden(Entity entityIn)
     {
-        return isTamed() && !isChild();
+        return isTame() && !isChild();
     }
 
     @Override // 2 passengers
@@ -535,12 +547,12 @@ public class ButterflyLeviathanEntity extends AbstractDragonEntity
     }
 
     @Override
-    public boolean canSpawn(IWorld worldIn, SpawnReason spawnReasonIn)
+    public boolean canSpawn(IWorld worldIn, MobSpawnType spawnReasonIn)
     {
         return true;
     }
 
-    private static void createLightning(World world, Vector3d position, boolean effectOnly)
+    private static void createLightning(Level world, Vector3d position, boolean effectOnly)
     {
         if (world.isRemote) return;
         LightningBoltEntity entity = EntityType.LIGHTNING_BOLT.create(world);
@@ -555,14 +567,14 @@ public class ButterflyLeviathanEntity extends AbstractDragonEntity
             event.getSpawns().func_242575_a(EntityClassification.CREATURE, new MobSpawnInfo.Spawners(WREntities.BUTTERFLY_LEVIATHAN.get(), 1, 1, 1));
     }
 
-    public static <F extends MobEntity> boolean getSpawnPlacement(EntityType<F> fEntityType, IServerWorld world, SpawnReason reason, BlockPos pos, Random random)
+    public static <F extends MobEntity> boolean getSpawnPlacement(EntityType<F> fEntityType, IServerWorld world, MobSpawnType reason, BlockPos pos, Random random)
     {
-        if (reason == SpawnReason.SPAWNER) return true;
+        if (reason == MobSpawnType.SPAWNER) return true;
         if (world.getFluidState(pos).getFluid().isIn(FluidTags.WATER))
         {
             final double chance = random.nextDouble();
-            if (reason == SpawnReason.CHUNK_GENERATION) return chance < 0.325;
-            else if (reason == SpawnReason.NATURAL) return chance < 0.001;
+            if (reason == MobSpawnType.CHUNK_GENERATION) return chance < 0.325;
+            else if (reason == MobSpawnType.NATURAL) return chance < 0.001;
         }
         return false;
     }
@@ -582,7 +594,7 @@ public class ButterflyLeviathanEntity extends AbstractDragonEntity
     {
         public Navigator()
         {
-            super(ButterflyLeviathanEntity.this, ButterflyLeviathanEntity.this.world);
+            super(ButterflyLeviathanEntity.this, ButterflyLeviathanEntity.this.level);
         }
 
         @Override
@@ -594,7 +606,7 @@ public class ButterflyLeviathanEntity extends AbstractDragonEntity
         @Override
         public boolean canEntityStandOnPos(BlockPos pos)
         {
-            return !world.getBlockState(pos.down()).isAir(world, pos.down());
+            return !level.getBlockState(pos.below()).isAir(level, pos.below());
         }
 
         @Override
@@ -623,9 +635,9 @@ public class ButterflyLeviathanEntity extends AbstractDragonEntity
                 if (distSq < 2.5000003E-7) setMoveForward(0f); // why move...
                 else
                 {
-                    float yaw = (float) Math.toDegrees(MathHelper.atan2(z, x)) - 90f;
-                    float pitch = -((float) (MathHelper.atan2(y, MathHelper.sqrt(x * x + z * z)) * 180 / Math.PI));
-                    pitch = MathHelper.clamp(MathHelper.wrapDegrees(pitch), -85f, 85f);
+                    float yaw = (float) Math.toDegrees(Mth.atan2(z, x)) - 90f;
+                    float pitch = -((float) (Mth.atan2(y, Mth.sqrt(x * x + z * z)) * 180 / Math.PI));
+                    pitch = Mth.clamp(Mth.wrapDegrees(pitch), -85f, 85f);
 
                     rotationYawHead = yaw;
                     renderYawOffset = rotationYaw = limitAngle(rotationYaw, rotationYawHead, getYawRotationSpeed());
@@ -635,8 +647,8 @@ public class ButterflyLeviathanEntity extends AbstractDragonEntity
                     setAIMoveSpeed(speed);
                     if (isInWater())
                     {
-                        moveForward = MathHelper.cos(pitch * (Mafs.PI / 180f)) * speed;
-                        moveVertical = -MathHelper.sin(pitch * (Mafs.PI / 180f)) * speed;
+                        moveForward = Mth.cos(pitch * (Mafs.PI / 180f)) * speed;
+                        moveVertical = -Mth.sin(pitch * (Mafs.PI / 180f)) * speed;
                     }
                 }
             }
@@ -681,9 +693,9 @@ public class ButterflyLeviathanEntity extends AbstractDragonEntity
 
             if (noActiveAnimation())
             {
-                if (distFromTarget > 225 && (isTamed() || target.getType() == EntityType.PLAYER) && canZap())
+                if (distFromTarget > 225 && (isTame() || target.getType() == EntityType.PLAYER) && canZap())
                     AnimationPacket.send(ButterflyLeviathanEntity.this, LIGHTNING_ANIMATION);
-                else if (isClose && MathHelper.degreesDifferenceAbs((float) Mafs.getAngle(ButterflyLeviathanEntity.this, target) + 90, rotationYaw) < 30)
+                else if (isClose && Mth.degreesDifferenceAbs((float) Mafs.getAngle(ButterflyLeviathanEntity.this, target) + 90, rotationYaw) < 30)
                     AnimationPacket.send(ButterflyLeviathanEntity.this, BITE_ANIMATION);
             }
         }
@@ -704,7 +716,7 @@ public class ButterflyLeviathanEntity extends AbstractDragonEntity
             if (func_233684_eK_()) return false;
             if (canPassengerSteer()) return false;
             if (!canSwim()) return false;
-            if (world.getFluidState(this.pos = world.getHeight(Heightmap.Type.WORLD_SURFACE, getPosition()).down()).isEmpty())
+            if (level.getFluidState(this.pos = level.getHeight(Heightmap.Type.WORLD_SURFACE, getPosition()).down()).isEmpty())
                 return false;
             if (pos.getY() <= 0) return false;
             return getRNG().nextDouble() < 0.001;
@@ -720,7 +732,7 @@ public class ButterflyLeviathanEntity extends AbstractDragonEntity
         public void startExecuting()
         {
             getNavigator().clearPath();
-            this.pos = pos.offset(getHorizontalFacing(), (int) ((pos.getY() - getPosY()) * 0.5d));
+            this.pos = pos.relative(getDirection(), (int) ((pos.getY() - getPosY()) * 0.5d));
         }
 
         @Override

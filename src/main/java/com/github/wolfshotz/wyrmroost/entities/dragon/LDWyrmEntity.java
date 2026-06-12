@@ -6,34 +6,38 @@ import com.github.wolfshotz.wyrmroost.registry.WRItems;
 import com.github.wolfshotz.wyrmroost.registry.WRSounds;
 import com.github.wolfshotz.wyrmroost.util.animation.Animation;
 import com.github.wolfshotz.wyrmroost.util.animation.IAnimatable;
-import net.minecraft.block.Block;
-import net.minecraft.block.Blocks;
 import net.minecraft.block.material.Material;
+import net.minecraft.core.BlockPos;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
 import net.minecraft.entity.ai.goal.AvoidEntityGoal;
-import net.minecraft.entity.ai.goal.Goal;
-import net.minecraft.entity.ai.goal.SwimGoal;
 import net.minecraft.entity.ai.goal.WaterAvoidingRandomWalkingGoal;
-import net.minecraft.entity.passive.AnimalEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.projectile.FishingBobberEntity;
 import net.minecraft.inventory.InventoryHelper;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.SpawnEggItem;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.util.*;
 import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.IServerWorld;
 import net.minecraft.world.IWorldReader;
-import net.minecraft.world.World;
-import net.minecraft.world.biome.Biome;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.biome.MobSpawnInfo;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.ai.goal.FloatGoal;
+import net.minecraft.world.entity.ai.goal.Goal;
+import net.minecraft.world.entity.animal.Animal;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.FishingHook;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.SpawnEggItem;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.event.world.BiomeLoadingEvent;
@@ -44,12 +48,17 @@ import java.util.function.Predicate;
 
 import static net.minecraft.entity.ai.attributes.Attributes.*;
 
+import ActionResultType;
+import AgeableEntity;
+import MobEntity;
+import SoundEvent;
+
 /**
  * Desertwyrm Dragon Entity
  * Seperated from AbstractDragonEntity:
  * This does not need/require much from that class and would instead create redundancies. do this instead.
  */
-public class LDWyrmEntity extends AnimalEntity implements IAnimatable
+public class LDWyrmEntity extends Animal implements IAnimatable
 {
     public static final String DATA_BURROWED = "Burrowed";
     public static final Animation BITE_ANIMATION = new Animation(10);
@@ -59,7 +68,7 @@ public class LDWyrmEntity extends AnimalEntity implements IAnimatable
     public Animation animation = NO_ANIMATION;
     public int animationTick;
 
-    public LDWyrmEntity(EntityType<? extends LDWyrmEntity> minutus, World world)
+    public LDWyrmEntity(EntityType<? extends LDWyrmEntity> minutus, Level world)
     {
         super(minutus, world);
     }
@@ -67,7 +76,7 @@ public class LDWyrmEntity extends AnimalEntity implements IAnimatable
     @Override
     protected void registerGoals()
     {
-        goalSelector.addGoal(1, new SwimGoal(this));
+        goalSelector.addGoal(1, new FloatGoal(this));
         goalSelector.addGoal(2, new AvoidEntityGoal<>(this, LivingEntity.class, 6f, 0.8d, 1.2d, AVOIDING));
         goalSelector.addGoal(3, new BurrowGoal());
         goalSelector.addGoal(4, new WaterAvoidingRandomWalkingGoal(this, 1));
@@ -125,7 +134,7 @@ public class LDWyrmEntity extends AnimalEntity implements IAnimatable
 
         if (isBurrowed())
         {
-            if (world.getBlockState(getPosition().down(1)).getMaterial() != Material.SAND) setBurrowed(false);
+            if (level.getBlockState(getPosition().down(1)).getMaterial() != Material.SAND) setBurrowed(false);
             attackAbove();
         }
     }
@@ -150,15 +159,15 @@ public class LDWyrmEntity extends AnimalEntity implements IAnimatable
         Predicate<Entity> predicateFilter = filter ->
         {
             if (filter instanceof LDWyrmEntity) return false;
-            return filter instanceof FishingBobberEntity || (filter instanceof LivingEntity && filter.getWidth() < 0.9f && filter.getHeight() < 0.9f);
+            return filter instanceof FishingHook || (filter instanceof LivingEntity && filter.getBbWidth() < 0.9f && filter.getBbHeight() < 0.9f);
         };
-        AxisAlignedBB aabb = getBoundingBox().expand(0, 2, 0).grow(0.5, 0, 0.5);
-        List<Entity> entities = world.getEntitiesInAABBexcluding(this, aabb, predicateFilter);
+        AxisAlignedBB aabb = getBoundingBox().inflate(0, 2, 0).grow(0.5, 0, 0.5);
+        List<Entity> entities = level.getEntitiesInAABBexcluding(this, aabb, predicateFilter);
         if (entities.isEmpty()) return;
 
         Optional<Entity> closest = entities.stream().min(Comparator.comparingDouble(entity -> entity.getDistance(this)));
         Entity entity = closest.get();
-        if (entity instanceof FishingBobberEntity)
+        if (entity instanceof FishingHook)
         {
             entity.remove();
             setMotion(0, 0.8, 0);
@@ -172,7 +181,7 @@ public class LDWyrmEntity extends AnimalEntity implements IAnimatable
     }
 
     @Override
-    public ActionResultType func_230254_b_(PlayerEntity player, Hand hand)
+    public ActionResultType func_230254_b_(Player player, InteractionHand hand)
     {
         if (player.getHeldItem(hand).isEmpty())
         {
@@ -184,7 +193,7 @@ public class LDWyrmEntity extends AnimalEntity implements IAnimatable
                 tag.put(LDWyrmItem.DATA_CONTENTS, subTag);
                 if (hasCustomName()) stack.setDisplayName(getCustomName());
                 stack.setTag(tag);
-                InventoryHelper.spawnItemStack(world, getPosX(), getPosY(), getPosZ(), stack);
+                InventoryHelper.spawnItemStack(level, getPosX(), getPosY(), getPosZ(), stack);
                 remove();
             }
             return ActionResultType.func_233537_a_(world.isRemote);
@@ -227,8 +236,8 @@ public class LDWyrmEntity extends AnimalEntity implements IAnimatable
                 break;
         }
 
-        Entity player = world.getClosestPlayer(this, 32);
-        if (player == null && (getRNG().nextDouble() < 0.0075 || !world.isDaytime())) remove();
+        Entity player = level.getClosestPlayer(this, 32);
+        if (player == null && (getRNG().nextDouble() < 0.0075 || !level.isDaytime())) remove();
         else idleTime = 0;
     }
 
@@ -320,10 +329,10 @@ public class LDWyrmEntity extends AnimalEntity implements IAnimatable
         setAnimationTick(0);
     }
 
-    public static <F extends MobEntity> boolean getSpawnPlacement(EntityType<F> fEntityType, IServerWorld world, SpawnReason reason, BlockPos pos, Random random)
+    public static <F extends MobEntity> boolean getSpawnPlacement(EntityType<F> fEntityType, IServerWorld world, MobSpawnType reason, BlockPos pos, Random random)
     {
-        if (reason == SpawnReason.SPAWNER) return true;
-        Block block = world.getBlockState(pos.down()).getBlock();
+        if (reason == MobSpawnType.SPAWNER) return true;
+        Block block = world.getBlockState(pos.below()).getBlock();
         return block == Blocks.SAND && world.getLightSubtracted(pos, 0) > 8;
     }
 
@@ -377,7 +386,7 @@ public class LDWyrmEntity extends AnimalEntity implements IAnimatable
 
         private boolean belowIsSand()
         {
-            return world.getBlockState(getPosition().down(1)).getMaterial() == Material.SAND;
+            return level.getBlockState(getPosition().down(1)).getMaterial() == Material.SAND;
         }
     }
 }

@@ -4,24 +4,24 @@ import com.github.wolfshotz.wyrmroost.Wyrmroost;
 import com.github.wolfshotz.wyrmroost.entities.dragon.AbstractDragonEntity;
 import com.github.wolfshotz.wyrmroost.entities.dragon.helpers.DragonInvHandler;
 import com.github.wolfshotz.wyrmroost.registry.WRIO;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.inventory.container.Slot;
-import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 
 public class DragonInvContainer extends Container
 {
     public static final int MAX_PLAYER_SLOTS = 36;
 
     public final DragonInvHandler inventory;
-    public final PlayerInventory playerInv;
+    public final Inventory playerInv;
 
-    public DragonInvContainer(DragonInvHandler inv, PlayerInventory playerInv, int windowID)
+    public DragonInvContainer(DragonInvHandler inv, Inventory playerInv, int windowID)
     {
         super(WRIO.DRAGON_INVENTORY.get(), windowID);
         this.inventory = inv;
@@ -34,10 +34,10 @@ public class DragonInvContainer extends Container
     public Slot addSlot(Slot slotIn) { return super.addSlot(slotIn); }
 
     @Override
-    public boolean canInteractWith(PlayerEntity playerIn) { return inventory.dragon.getOwner() == playerIn; }
+    public boolean canInteractWith(Player playerIn) { return inventory.dragon.getOwner() == playerIn; }
 
     @Override
-    public ItemStack transferStackInSlot(PlayerEntity playerIn, int index)
+    public ItemStack transferStackInSlot(Player playerIn, int index)
     {
         Slot slot = inventorySlots.get(index);
         if (slot != null && slot.getHasStack())
@@ -86,7 +86,7 @@ public class DragonInvContainer extends Container
         }
     }
 
-    public void makePlayerSlots(PlayerInventory playerInv, int initialX, int initialY)
+    public void makePlayerSlots(Inventory playerInv, int initialX, int initialY)
     {
         makeSlots(playerInv, 9, initialX, initialY, 9, 3); // Player inv
         makeSlots(playerInv, 0, initialX, initialY + 58, 9, 1); // Hotbar
@@ -100,7 +100,7 @@ public class DragonInvContainer extends Container
             public ITextComponent getDisplayName() { return new StringTextComponent("Dragon Inventory"); }
 
             @Override
-            public Container createMenu(int id, PlayerInventory playersInv, PlayerEntity player)
+            public Container createMenu(int id, Inventory playersInv, Player player)
             {
                 return new DragonInvContainer(dragon.getInvHandler(), playersInv, id);
             }

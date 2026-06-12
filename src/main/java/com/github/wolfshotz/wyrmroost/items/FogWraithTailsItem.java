@@ -8,22 +8,26 @@ import com.github.wolfshotz.wyrmroost.util.TickFloat;
 import com.github.wolfshotz.wyrmroost.util.animation.Animation;
 import com.github.wolfshotz.wyrmroost.util.animation.IAnimatable;
 import com.google.common.collect.ImmutableSet;
-import net.minecraft.block.BlockState;
-import net.minecraft.enchantment.Enchantment;
-import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.enchantment.Enchantments;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.particles.BlockParticleData;
 import net.minecraft.particles.ParticleTypes;
 import net.minecraft.util.*;
 import net.minecraft.util.math.*;
 import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.util.LazyOptional;
 
@@ -48,7 +52,7 @@ public class FogWraithTailsItem extends Item
     }
 
     @Override
-    public void onPlayerStoppedUsing(ItemStack stack, World worldIn, LivingEntity entity, int timeLeft)
+    public void onPlayerStoppedUsing(ItemStack stack, Level worldIn, LivingEntity entity, int timeLeft)
     {
         timeLeft = stack.getUseDuration() - timeLeft;
         Capability cap = getCapability(stack);
@@ -64,7 +68,7 @@ public class FogWraithTailsItem extends Item
     }
 
     @Override
-    public void inventoryTick(ItemStack stack, World world, Entity entity, int itemSlot, boolean isSelected)
+    public void inventoryTick(ItemStack stack, Level world, Entity entity, int itemSlot, boolean isSelected)
     {
         Capability cap = getCapability(stack);
         cap.updateAnimations();
@@ -93,26 +97,26 @@ public class FogWraithTailsItem extends Item
                 else if (world.isRemote)
                 {
                     BlockState state = world.getBlockState(pos);
-                    pos = pos.offset(rtr.getFace());
+                    pos = pos.relative(rtr.getFace());
                     for (int i = 0; i < 30; i++)
                         world.addParticle(new BlockParticleData(ParticleTypes.BLOCK, state), pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, 0, 0, 0);
-                    world.playSound(pos.getX(), pos.getY(), pos.getZ(), state.getSoundType().getBreakSound(), SoundCategory.BLOCKS, state.getSoundType().getVolume(), state.getSoundType().getPitch(), false);
+                    world.playLocalSound(pos.getX(), pos.getY(), pos.getZ(), state.getSoundType().getBreakSound(), SoundCategory.BLOCKS, state.getSoundType().getVolume(), state.getSoundType().getPitch(), false);
                 }
             }
         }
-        else if (entity instanceof PlayerEntity && animation == TAIL_SWIPE_ANIMATION && (tick == 2 || tick == 6))
+        else if (entity instanceof Player && animation == TAIL_SWIPE_ANIMATION && (tick == 2 || tick == 6))
         {
             AxisAlignedBB aabb = entity.getBoundingBox().grow(1).offset(entity.getLookVec().mul(1.7, 0.7f, 1.7));
             RenderHelper.DebugBox.INSTANCE.queue(aabb, 100);
             boolean playHitSound = false;
             for (Entity attacking : world.getEntitiesInAABBexcluding(entity, aabb, e -> e instanceof LivingEntity && !e.isOnSameTeam(entity)))
-                playHitSound |= attackEntity((PlayerEntity) entity, (LivingEntity) attacking, 8);
-            world.playSound(null, entity.getPosX(), entity.getPosY(), entity.getPosZ(), playHitSound? SoundEvents.ENTITY_PLAYER_ATTACK_STRONG : SoundEvents.ENTITY_PLAYER_ATTACK_WEAK, entity.getSoundCategory(), 1f, 1f);
+                playHitSound |= attackEntity((Player) entity, (LivingEntity) attacking, 8);
+            world.playSound(null, entity.getPosX(), entity.getPosY(), entity.getPosZ(), playHitSound? SoundEvents.ENTITY_PLAYER_ATTACK_STRONG : SoundEvents.ENTITY_PLAYER_ATTACK_WEAK, entity.getSoundSource(), 1f, 1f);
         }
     }
 
     @Override
-    public ActionResult<ItemStack> onItemRightClick(World worldIn, PlayerEntity playerIn, Hand handIn)
+    public InteractionResult<ItemStack> onItemRightClick(Level worldIn, Player playerIn, InteractionHand handIn)
     {
         playerIn.setActiveHand(handIn);
         return super.onItemRightClick(worldIn, playerIn, handIn);
@@ -165,7 +169,7 @@ public class FogWraithTailsItem extends Item
         boolean flag = attacking.attackEntityFrom(DamageSource.causeMobDamage(attacker), damage);
         if (flag)
         {
-            attacking.applyKnockback(knockback, MathHelper.sin(attacker.rotationYaw * Mafs.PI / 180f), -MathHelper.cos(attacker.rotationYaw * Mafs.PI / 180F));
+            attacking.applyKnockback(knockback, Mth.sin(attacker.rotationYaw * Mafs.PI / 180f), -Mth.cos(attacker.rotationYaw * Mafs.PI / 180F));
             attacker.setMotion(attacker.getMotion().mul(0.6, 1, 0.6));
 
             attacker.applyEnchantments(attacker, attacking);

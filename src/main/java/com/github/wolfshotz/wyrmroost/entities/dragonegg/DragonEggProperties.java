@@ -1,8 +1,7 @@
 package com.github.wolfshotz.wyrmroost.entities.dragonegg;
 
 import net.minecraft.entity.EntitySize;
-import net.minecraft.entity.EntityType;
-
+import net.minecraft.world.entity.EntityType;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Predicate;
@@ -73,7 +72,7 @@ public class DragonEggProperties
     {
         DragonEggProperties props = MAP.get(type);
         if (props == null)
-            throw new NullPointerException(String.format("Missing Egg Properties for key: %s, Wolf did a hickup go scream at him", type.getName().getUnformattedComponentText()));
+            throw new NullPointerException(String.format("Missing Egg Properties for key: %s, Wolf did a hickup go scream at him", type.getDescription().getUnformattedComponentText()));
         return props;
     }
 }

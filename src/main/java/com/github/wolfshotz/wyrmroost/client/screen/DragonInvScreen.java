@@ -5,16 +5,16 @@ import com.github.wolfshotz.wyrmroost.containers.DragonInvContainer;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
-import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.container.Slot;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.world.entity.player.Inventory;
 
 public class DragonInvScreen extends ContainerScreen<DragonInvContainer>
 {
     public static final ResourceLocation TEXTURE = Wyrmroost.rl("textures/io/dragon_inv_screen.png");
 
-    public DragonInvScreen(DragonInvContainer screenContainer, PlayerInventory inv, ITextComponent titleIn)
+    public DragonInvScreen(DragonInvContainer screenContainer, Inventory inv, ITextComponent titleIn)
     {
         super(screenContainer, inv, titleIn);
         xSize = 194;

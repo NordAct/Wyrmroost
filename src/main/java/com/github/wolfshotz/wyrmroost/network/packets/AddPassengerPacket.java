@@ -2,9 +2,9 @@ package com.github.wolfshotz.wyrmroost.network.packets;
 
 import com.github.wolfshotz.wyrmroost.Wyrmroost;
 import com.github.wolfshotz.wyrmroost.client.ClientEvents;
-import net.minecraft.entity.Entity;
 import net.minecraft.network.PacketBuffer;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.DistExecutor;
@@ -44,7 +44,7 @@ public class AddPassengerPacket
     @OnlyIn(Dist.CLIENT)
     public void handleClient()
     {
-        World world = ClientEvents.getWorld();
+        Level world = ClientEvents.getWorld();
         Entity passenger = world.getEntityByID(passengerID);
         Entity vehicle = world.getEntityByID(vehicleID);
         if (passenger == null || vehicle == null || !passenger.startRiding(vehicle, true))
