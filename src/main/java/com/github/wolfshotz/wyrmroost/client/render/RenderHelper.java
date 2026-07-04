@@ -29,6 +29,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.neoforged.neoforge.client.event.RenderLivingEvent;
 import org.joml.Matrix4f;
@@ -66,6 +67,7 @@ public class RenderHelper
 
     // == [Rendering] ==
 
+    @SubscribeEvent
     public static void renderWorld(RenderLevelStageEvent evt)
     {
         PoseStack ms = evt.getPoseStack();

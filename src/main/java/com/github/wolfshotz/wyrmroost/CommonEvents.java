@@ -3,7 +3,6 @@ package com.github.wolfshotz.wyrmroost;
 import com.github.wolfshotz.wyrmroost.client.screen.DebugScreen;
 import com.github.wolfshotz.wyrmroost.data.DataGatherer;
 import com.github.wolfshotz.wyrmroost.entities.dragon.AbstractDragonEntity;
-import com.github.wolfshotz.wyrmroost.entities.util.VillagerHelper;
 import com.github.wolfshotz.wyrmroost.items.CoinDragonItem;
 import com.github.wolfshotz.wyrmroost.items.LazySpawnEggItem;
 import com.github.wolfshotz.wyrmroost.items.base.ArmorBase;
@@ -18,6 +17,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.event.LootTableLoadEvent;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
@@ -38,19 +38,10 @@ public class CommonEvents
 {
     public static final List<Runnable> CALLBACKS = new ArrayList<>();
 
-    public static void load(IEventBus bus)
-    {
-
+    public static void load(IEventBus bus) {
         bus.addListener(CommonEvents::commonSetup);
         bus.addListener(WRConfig::configLoad);
         bus.addListener(DataGatherer::gather);
-
-        bus.addListener(CommonEvents::debugStick);
-        bus.addListener(CommonEvents::onChangeEquipment);
-        bus.addListener(CommonEvents::loadLoot);
-        bus.addListener(VillagerHelper::addWandererTrades);
-        bus.addListener(CommonEvents::entityAttributes);
-        bus.addListener(CommonEvents::spawnPlacements);
     }
 
     // ====================
@@ -72,6 +63,7 @@ public class CommonEvents
     //      Forge Bus
     // =====================
 
+    @SubscribeEvent
     public static void debugStick(PlayerInteractEvent.EntityInteract evt)
     {
         if (!WRConfig.debugMode) return;
@@ -97,6 +89,7 @@ public class CommonEvents
         }
     }
 
+    @SubscribeEvent
     public static void onChangeEquipment(LivingEquipmentChangeEvent evt)
     {
         ArmorBase initial;
@@ -108,6 +101,7 @@ public class CommonEvents
         initial.applyFullSetBonus(entity, ArmorBase.hasFullSet(entity));
     }
 
+    @SubscribeEvent
     public static void loadLoot(LootTableLoadEvent evt)
     {
         if (evt.getName().equals(BuiltInLootTables.ABANDONED_MINESHAFT))
@@ -117,11 +111,13 @@ public class CommonEvents
                     .build());
     }
 
+    @SubscribeEvent
     public static void entityAttributes(EntityAttributeCreationEvent event) {
-        WREntities.ATTRIBUTES.forEach(pair -> event.put((EntityType<? extends LivingEntity>) pair.getFirst(), pair.getSecond()));
+        WREntities.ATTRIBUTES.forEach(pair -> event.put((EntityType<? extends LivingEntity>) EntityType.byString(pair.getFirst().toString()).orElseThrow(), pair.getSecond().get().build()));
     }
 
+    @SubscribeEvent
     public static void spawnPlacements (RegisterSpawnPlacementsEvent event) {
-        WREntities.SPAWN_PREDICATES.forEach(pair -> event.register(pair.getFirst(), pair.getSecond().build()));
+        WREntities.SPAWN_PREDICATES.forEach(pair -> event.register(EntityType.byString(pair.getFirst().toString()).orElseThrow(), pair.getSecond().build()));
     }
 }

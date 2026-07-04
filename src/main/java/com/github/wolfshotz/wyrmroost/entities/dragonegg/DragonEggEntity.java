@@ -37,8 +37,8 @@ public class DragonEggEntity extends Entity implements IEntityWithComplexSpawn
 {
     private static final int HATCH_ID = 1;
     private static final int WIGGLE_ID = 2;
-    public static final String DATA_HATCH_TIME = "HatchTime";
-    public static final String DATA_DRAGON_TYPE = "DragonType";
+    public static final String DATA_HATCH_TIME = "hatch_time";
+    public static final String DATA_DRAGON_TYPE = "dragon_type";
     private static final int UPDATE_CONDITIONS_INTERVAL = 50; // in ticks, this is for performance reasons
 
     public DragonEggProperties properties; // cache for speed

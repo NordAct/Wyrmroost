@@ -25,8 +25,8 @@ import java.util.List;
 
 public class DragonStaffItem extends Item
 {
-    public static final String DATA_DRAGON_ID = "BoundDragon"; // int
-    public static final String DATA_ACTION = "Action";
+    public static final String DATA_DRAGON_ID = "bound_dragon"; // int
+    public static final String DATA_ACTION = "action";
 
     public DragonStaffItem() {
         super(WRItems.builder().stacksTo(1));

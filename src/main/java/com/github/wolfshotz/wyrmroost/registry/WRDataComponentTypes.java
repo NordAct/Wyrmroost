@@ -22,7 +22,7 @@ public class WRDataComponentTypes {
     public static final Supplier<DataComponentType<Integer>> DRAGON_ID_COMPONENT = register(DragonStaffItem.DATA_DRAGON_ID, ByteBufCodecs.INT, null);
     public static final Supplier<DataComponentType<Integer>> HATCH_TIME_COMPONENT = register(DragonEggEntity.DATA_HATCH_TIME, ByteBufCodecs.INT, Codec.INT);
     public static final Supplier<DataComponentType<String>> DRAGON_TYPE_COMPONENT = register(DragonEggEntity.DATA_DRAGON_TYPE, ByteBufCodecs.STRING_UTF8, Codec.STRING);
-    public static final Supplier<DataComponentType<CompoundTag>> DRAGON_TAG_COMPONENT = register("DragonTag", ByteBufCodecs.COMPOUND_TAG, CompoundTag.CODEC);
+    public static final Supplier<DataComponentType<CompoundTag>> DRAGON_TAG_COMPONENT = register("dragon_tag", ByteBufCodecs.COMPOUND_TAG, CompoundTag.CODEC);
 
     private static <T> Supplier<DataComponentType<T>> register(String name, @Nullable StreamCodec<ByteBuf, T> streamCodec, @Nullable Codec<T> codec) {
         return REGISTRY.register(

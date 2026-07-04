@@ -9,6 +9,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.trading.ItemCost;
 import net.minecraft.world.item.trading.MerchantOffer;
+import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.village.WandererTradesEvent;
 
 import javax.annotation.Nullable;
@@ -17,6 +18,7 @@ import java.util.Optional;
 
 public class VillagerHelper
 {
+    @SubscribeEvent
     public static void addWandererTrades(WandererTradesEvent evt)
     {
         List<VillagerTrades.ItemListing> list = evt.getGenericTrades();

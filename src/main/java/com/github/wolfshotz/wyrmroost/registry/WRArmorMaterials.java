@@ -37,7 +37,7 @@ public class WRArmorMaterials {
             ),
             1, 0
     ));
-    public static final Holder<ArmorMaterial> RED_GEODE = register("purple_geode", () -> new ArmorMaterial(
+    public static final Holder<ArmorMaterial> RED_GEODE = register("red_geode", () -> new ArmorMaterial(
             Util.make(new HashMap<>(), map -> {
                 map.put(ArmorItem.Type.HELMET, 3);
                 map.put(ArmorItem.Type.CHESTPLATE, 6);
@@ -49,7 +49,7 @@ public class WRArmorMaterials {
             SoundEvents.ARMOR_EQUIP_DIAMOND,
             () -> Ingredient.of(WRItems.RED_GEODE.value()),
             List.of(
-                    new ArmorMaterial.Layer(Wyrmroost.rl("purple_geode"), "1", false),
+                    new ArmorMaterial.Layer(Wyrmroost.rl("red_geode"), "1", false),
                     new ArmorMaterial.Layer(Wyrmroost.rl("red_geode"), "2", false)
             ),
             2.5f, 0

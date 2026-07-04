@@ -28,6 +28,7 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.NoopRenderer;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
@@ -53,9 +54,9 @@ import java.util.function.Supplier;
  * Entity type generics are defined because a) forge told me so and b) because its broken without it.
  */
 public class WREntities {
-    public static final Collection<Pair<EntityType, RegisterSpawnPlacementsEvent.MergedSpawnPredicate<?>>> SPAWN_PREDICATES = new ArrayList<>();
-    public static final Collection<Pair<EntityType<?>, AttributeSupplier>> ATTRIBUTES = new ArrayList<>();
-    @OnlyIn(Dist.CLIENT) public static final Collection<Pair<EntityType<?>, Function<EntityRendererProvider.Context, EntityRenderer<?>>>> RENDERERS = new ArrayList<>();
+    public static final Collection<Pair<ResourceLocation, RegisterSpawnPlacementsEvent.MergedSpawnPredicate>> SPAWN_PREDICATES = new ArrayList<>();
+    public static final Collection<Pair<ResourceLocation, Supplier<AttributeSupplier.Builder>>> ATTRIBUTES = new ArrayList<>();
+    @OnlyIn(Dist.CLIENT) public static final Collection<Pair<ResourceLocation, Function<EntityRendererProvider.Context, EntityRenderer>>> RENDERERS = new ArrayList<>();
 
     public static final DeferredRegister<EntityType<?>> REGISTRY = DeferredRegister.create(Registries.ENTITY_TYPE, Wyrmroost.MOD_ID);
 
@@ -185,23 +186,23 @@ public class WREntities {
             return this;
         }
 
-        private Builder<T> renderer(Function<EntityRendererProvider.Context, EntityRenderer<?>> renderFactory)
+        private Builder<T> renderer(Function<EntityRendererProvider.Context, EntityRenderer> renderFactory)
         {
             if (FMLLoader.getDist() == Dist.CLIENT) {
-                RENDERERS.add(new Pair<>(registered.value(), renderFactory));
+                RENDERERS.add(new Pair<>(Wyrmroost.rl(name), renderFactory));
             }
             return this;
         }
 
         private Builder<T> attributes(Supplier<AttributeSupplier.Builder> supplier)
         {
-            ATTRIBUTES.add(new Pair<>(registered.value(), supplier.get().build()));
+            ATTRIBUTES.add(new Pair<>(Wyrmroost.rl(name), supplier));
             return this;
         }
 
         private <F extends Mob> Builder<T> spawnPlacement(SpawnPlacementType type, Heightmap.Types height, SpawnPlacements.SpawnPredicate<F> predicate)
         {
-            SPAWN_PREDICATES.add(new Pair<>(registered.value(), new RegisterSpawnPlacementsEvent.MergedSpawnPredicate<>(predicate, type, height)));
+            SPAWN_PREDICATES.add(new Pair<>(Wyrmroost.rl(name), new RegisterSpawnPlacementsEvent.MergedSpawnPredicate<>(predicate, type, height)));
             return this;
         }
 

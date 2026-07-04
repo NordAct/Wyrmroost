@@ -1,9 +1,9 @@
 package com.github.wolfshotz.wyrmroost.client;
 
-import com.github.wolfshotz.wyrmroost.client.render.RenderHelper;
 import com.github.wolfshotz.wyrmroost.client.render.entity.projectile.BreathWeaponRenderer;
 import com.github.wolfshotz.wyrmroost.entities.dragon.AbstractDragonEntity;
 import com.github.wolfshotz.wyrmroost.items.LazySpawnEggItem;
+import com.github.wolfshotz.wyrmroost.registry.WREntities;
 import com.github.wolfshotz.wyrmroost.util.animation.IAnimatable;
 import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
@@ -11,12 +11,15 @@ import net.minecraft.client.color.item.ItemColor;
 import net.minecraft.client.color.item.ItemColors;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.CalculateDetachedCameraDistanceEvent;
+import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 import net.neoforged.neoforge.client.event.RegisterMaterialAtlasesEvent;
 
@@ -37,12 +40,6 @@ public class ClientEvents
         bus.addListener(ClientEvents::clientSetup);
         bus.addListener(ClientEvents::addAtlas);
         bus.addListener(ClientEvents::itemColors);
-
-        bus.addListener(RenderHelper::renderWorld);
-        bus.addListener(RenderHelper::renderEntities);
-//        forgeBus.addListener(RenderHelper::renderFog);
-//        forgeBus.addListener(RenderHelper::fogColors);
-        bus.addListener(ClientEvents::cameraPerspective);
     }
 
     // ====================
@@ -70,6 +67,7 @@ public class ClientEvents
     //      Forge Bus
     // =====================
 
+    @SubscribeEvent
     public static void cameraPerspective(CalculateDetachedCameraDistanceEvent event)
     {
         Minecraft mc = getClient();
@@ -117,5 +115,16 @@ public class ClientEvents
         if (animationIndex < 0) entity.setAnimation(IAnimatable.NO_ANIMATION);
         else entity.setAnimation(entity.getAnimations()[animationIndex]);
         return true;
+    }
+
+    @SubscribeEvent // on the mod event bus only on the physical client
+    public static void registerEntityRenderers(EntityRenderersEvent.RegisterRenderers event) {
+        WREntities.RENDERERS.forEach((pair) -> {
+            event.registerEntityRenderer(EntityType.byString(pair.getFirst().toString()).orElseThrow(),
+                    // Pass the context to an empty (default) constructor call
+                    context -> pair.getSecond().apply(context)
+            );
+        });
+
     }
 }
