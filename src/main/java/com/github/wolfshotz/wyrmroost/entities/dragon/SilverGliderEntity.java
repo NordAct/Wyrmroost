@@ -11,7 +11,6 @@ import com.github.wolfshotz.wyrmroost.registry.WRSounds;
 import com.github.wolfshotz.wyrmroost.util.TickFloat;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.DustParticleOptions;
-import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.RandomSource;
@@ -69,13 +68,6 @@ public class SilverGliderEntity extends AbstractDragonEntity
         goalSelector.addGoal(8, new FlyerWanderGoal(this, 1));
         goalSelector.addGoal(9, new LookAtPlayerGoal(this, LivingEntity.class, 7f));
         goalSelector.addGoal(10, new RandomLookAroundGoal(this));
-    }
-
-    @Override
-    protected void defineSynchedData(SynchedEntityData.Builder builder)
-    {
-        super.defineSynchedData(builder);
-        builder.define(FLYING, false);
     }
 
     @Override

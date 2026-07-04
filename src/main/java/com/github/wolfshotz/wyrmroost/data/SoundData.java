@@ -46,7 +46,7 @@ public class SoundData implements DataProvider
         for (SoundEvent value : WRSounds.REGISTRY.getEntries().stream().map(DeferredHolder::value).toList())
             if (!REGISTERED.contains(value))
                 throw new IllegalArgumentException("Unregistered Sound event: " + value.getLocation());
-        return DataProvider.saveStable(cache, json, output.getOutputFolder(PackOutput.Target.RESOURCE_PACK).resolve("assets/" + Wyrmroost.MOD_ID + "/sounds.json"));
+        return DataProvider.saveStable(cache, json, output.getOutputFolder(PackOutput.Target.RESOURCE_PACK).resolve( Wyrmroost.MOD_ID + "/sounds.json"));
     }
 
     public void registerSounds(JsonObject json)

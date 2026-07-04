@@ -26,6 +26,9 @@ import java.util.concurrent.CompletableFuture;
 
 // Honestly, I like Neo's way of making injections in stuff to existing biomes more than Fabric's
 // One of things they did actually correctly. And the rest is a pile of unmaintained garbage - Nord
+
+// UPD: whoever at Neo or Forge decided to name weight as minCount and minCount as maxCount for SpawnerData - screw you
+// Although I probably should've suspected that it was too smooth of a ride. Forge is not Forge if something is not broken
 public class BiomeModifiersData extends DatapackBuiltinEntriesProvider {
 
     public BiomeModifiersData(PackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
@@ -42,7 +45,7 @@ public class BiomeModifiersData extends DatapackBuiltinEntriesProvider {
                         biomes.getOrThrow(Tags.Biomes.IS_MOUNTAIN_PEAK),
                         new MobSpawnSettings.SpawnerData(
                                 WREntities.ALPINE.value(),
-                                1, 4, 2
+                                2, 1, 4
                         )
                 )
         );
@@ -64,7 +67,7 @@ public class BiomeModifiersData extends DatapackBuiltinEntriesProvider {
                         biomes.getOrThrow(Tags.Biomes.IS_SWAMP),
                         new MobSpawnSettings.SpawnerData(
                                 WREntities.CANARI_WYVERN.value(),
-                                2, 5, 9
+                                9, 2, 5
                         )
                 )
         );
@@ -75,7 +78,7 @@ public class BiomeModifiersData extends DatapackBuiltinEntriesProvider {
                         biomes.getOrThrow(Tags.Biomes.IS_JUNGLE),
                         new MobSpawnSettings.SpawnerData(
                                 WREntities.DRAGON_FRUIT_DRAKE.value(),
-                                4, 5, 23
+                                23, 4, 5
                         )
                 )
         );
@@ -86,7 +89,7 @@ public class BiomeModifiersData extends DatapackBuiltinEntriesProvider {
                         biomes.getOrThrow(Tags.Biomes.IS_DESERT),
                         new MobSpawnSettings.SpawnerData(
                                 WREntities.LESSER_DESERTWYRM.value(),
-                                1, 3, 13
+                                13, 1, 3
                         )
                 )
         );
@@ -97,7 +100,7 @@ public class BiomeModifiersData extends DatapackBuiltinEntriesProvider {
                         biomes.getOrThrow(Tags.Biomes.IS_SAVANNA),
                         new MobSpawnSettings.SpawnerData(
                                 WREntities.OVERWORLD_DRAKE.value(),
-                                1, 3, 8
+                                8, 1, 3
                         )
                 )
         );
@@ -108,7 +111,7 @@ public class BiomeModifiersData extends DatapackBuiltinEntriesProvider {
                         biomes.getOrThrow(Tags.Biomes.IS_PLAINS),
                         new MobSpawnSettings.SpawnerData(
                                 WREntities.OVERWORLD_DRAKE.value(),
-                                1, 3, 8
+                                8, 1, 3
                         )
                 )
         );
@@ -119,7 +122,7 @@ public class BiomeModifiersData extends DatapackBuiltinEntriesProvider {
                         biomes.getOrThrow(Tags.Biomes.IS_PLAINS),
                         new MobSpawnSettings.SpawnerData(
                                 WREntities.ROOSTSTALKER.value(),
-                                2, 9, 7
+                                7, 2, 9
                         )
                 )
         );
@@ -130,7 +133,7 @@ public class BiomeModifiersData extends DatapackBuiltinEntriesProvider {
                         biomes.getOrThrow(Tags.Biomes.IS_FOREST),
                         new MobSpawnSettings.SpawnerData(
                                 WREntities.ROOSTSTALKER.value(),
-                                2, 9, 7
+                                7, 2, 9
                         )
                 )
         );
@@ -141,7 +144,7 @@ public class BiomeModifiersData extends DatapackBuiltinEntriesProvider {
                         biomes.getOrThrow(Tags.Biomes.IS_MOUNTAIN_SLOPE),
                         new MobSpawnSettings.SpawnerData(
                                 WREntities.ROOSTSTALKER.value(),
-                                2, 9, 7
+                                7, 2, 9
                         )
                 )
         );
@@ -163,7 +166,7 @@ public class BiomeModifiersData extends DatapackBuiltinEntriesProvider {
                         biomes.getOrThrow(Tags.Biomes.IS_OCEAN),
                         new MobSpawnSettings.SpawnerData(
                                 WREntities.SILVER_GLIDER.value(),
-                                1, 4, 10
+                                10, 1, 4
                         )
                 )
         );
@@ -174,7 +177,7 @@ public class BiomeModifiersData extends DatapackBuiltinEntriesProvider {
                         biomes.getOrThrow(Tags.Biomes.IS_BEACH),
                         new MobSpawnSettings.SpawnerData(
                                 WREntities.SILVER_GLIDER.value(),
-                                1, 4, 10
+                                10, 1, 4
                         )
                 )
         );

@@ -40,6 +40,7 @@ public class ClientEvents
         bus.addListener(ClientEvents::clientSetup);
         bus.addListener(ClientEvents::addAtlas);
         bus.addListener(ClientEvents::itemColors);
+        bus.addListener(ClientEvents::registerEntityRenderers);
     }
 
     // ====================
@@ -117,7 +118,7 @@ public class ClientEvents
         return true;
     }
 
-    @SubscribeEvent // on the mod event bus only on the physical client
+     // on the mod event bus only on the physical client
     public static void registerEntityRenderers(EntityRenderersEvent.RegisterRenderers event) {
         WREntities.RENDERERS.forEach((pair) -> {
             event.registerEntityRenderer(EntityType.byString(pair.getFirst().toString()).orElseThrow(),

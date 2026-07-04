@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:smelting",
+  "category": "food",
+  "cookingtime": 150,
+  "experience": 0.35,
+  "ingredient": {
+    "item": "wyrmroost:raw_lowtier_meat"
+  },
+  "result": {
+    "count": 1,
+    "id": "wyrmroost:cooked_lowtier_meat"
+  }
+}

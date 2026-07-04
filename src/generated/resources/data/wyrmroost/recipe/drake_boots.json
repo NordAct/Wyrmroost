@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "equipment",
+  "ingredients": [
+    {
+      "item": "wyrmroost:drake_backplate"
+    },
+    {
+      "item": "wyrmroost:drake_backplate"
+    },
+    {
+      "item": "wyrmroost:platinum_boots"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "wyrmroost:drake_boots"
+  }
+}

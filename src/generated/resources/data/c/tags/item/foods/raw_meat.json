@@ -1,0 +1,10 @@
+{
+  "values": [
+    "wyrmroost:raw_lowtier_meat",
+    "wyrmroost:cooked_lowtier_meat",
+    "wyrmroost:raw_common_meat",
+    "wyrmroost:cooked_common_meat",
+    "wyrmroost:raw_apex_meat",
+    "wyrmroost:desert_wyrm"
+  ]
+}

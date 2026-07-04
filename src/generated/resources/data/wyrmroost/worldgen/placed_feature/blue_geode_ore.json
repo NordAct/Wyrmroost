@@ -1,0 +1,21 @@
+{
+  "feature": "wyrmroost:blue_geode_ore",
+  "placement": [
+    {
+      "type": "minecraft:height_range",
+      "height": {
+        "type": "minecraft:uniform",
+        "max_inclusive": {
+          "absolute": 16
+        },
+        "min_inclusive": {
+          "absolute": 0
+        }
+      }
+    },
+    {
+      "type": "minecraft:count",
+      "count": 1
+    }
+  ]
+}

@@ -13,7 +13,6 @@ import com.github.wolfshotz.wyrmroost.registry.WRItems;
 import com.github.wolfshotz.wyrmroost.registry.WRSounds;
 import com.github.wolfshotz.wyrmroost.util.TickFloat;
 import com.github.wolfshotz.wyrmroost.util.animation.Animation;
-import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
@@ -66,13 +65,6 @@ public class AlpineEntity extends AbstractDragonEntity
 
         targetSelector.addGoal(0, new HurtByTargetGoal(this));
         targetSelector.addGoal(1, new NonTameRandomTargetGoal<>(this, Bee.class, false, e -> ((Bee) e).hasNectar()));
-    }
-
-    @Override
-    protected void defineSynchedData(SynchedEntityData.Builder builder)
-    {
-        super.defineSynchedData(builder);
-        builder.define(FLYING, false);
     }
 
     @Override

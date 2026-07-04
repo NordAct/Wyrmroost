@@ -1,0 +1,16 @@
+{
+  "values": [
+    {
+      "id": "wyrmroost:fire_breath_0",
+      "required": false
+    },
+    {
+      "id": "wyrmroost:fire_breath_1",
+      "required": false
+    },
+    {
+      "id": "wyrmroost:wind_gust",
+      "required": false
+    }
+  ]
+}

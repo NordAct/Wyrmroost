@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_drake_backplate": {
+      "conditions": {
+        "items": [
+          {
+            "items": "wyrmroost:drake_backplate"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "wyrmroost:drake_chestplate"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_drake_backplate"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "wyrmroost:drake_chestplate"
+    ]
+  }
+}

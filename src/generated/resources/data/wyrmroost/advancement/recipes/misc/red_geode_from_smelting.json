@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_red_geode_ore": {
+      "conditions": {
+        "items": [
+          {
+            "items": "wyrmroost:red_geode_ore"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "wyrmroost:red_geode_from_smelting"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_red_geode_ore"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "wyrmroost:red_geode_from_smelting"
+    ]
+  }
+}

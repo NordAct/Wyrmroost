@@ -50,10 +50,10 @@ public class WRBlocks
     public static class Tags {
         public static final Map<TagKey<Block>, TagKey<Item>> ITEM_BLOCK_TAGS = new HashMap<>();
 
-        public static final TagKey<Block> ORES_GEODE = tag("ores/geode");
-        public static final TagKey<Block> ORES_PLATINUM = tag("ores/platinum");
-        public static final TagKey<Block> STORAGE_BLOCKS_GEODE = tag("storage_blocks/geode");
-        public static final TagKey<Block> STORAGE_BLOCKS_PLATINUM = tag("storage_blocks/platinum");
+        public static final TagKey<Block> ORES_GEODE = blockItemTag("ores/geode");
+        public static final TagKey<Block> ORES_PLATINUM = blockItemTag("ores/platinum");
+        public static final TagKey<Block> STORAGE_BLOCKS_GEODE = blockItemTag("storage_blocks/geode");
+        public static final TagKey<Block> STORAGE_BLOCKS_PLATINUM = blockItemTag("storage_blocks/platinum");
 
         public static final TagKey<Block> ALPINE_CAN_SPAWN_ON = tag("alpine_can_spawn_on");
         public static final TagKey<Block> BUTTERFLY_LEVIATHAN_CAN_SPAWN_ON = tag("butterfly_leviathan_can_spawn_on");
@@ -65,8 +65,13 @@ public class WRBlocks
         public static final TagKey<Block> ROYAL_RED_CAN_SPAWN_ON = tag("roost_stalker_can_spawn_on");
         public static final TagKey<Block> SILVER_GLIDER_CAN_SPAWN_ON = tag("roost_stalker_can_spawn_on");
 
-        public static TagKey<Block> tag(String path) {
+        public static TagKey<Block> blockItemTag(String path) {
             return getFor(Wyrmroost.MOD_ID + ":" + path);
+        }
+
+
+        public static TagKey<Block> tag(String path) {
+            return TagKey.create(Registries.BLOCK, Wyrmroost.rl(path));
         }
 
         public static TagKey<Block> getFor(String path) {

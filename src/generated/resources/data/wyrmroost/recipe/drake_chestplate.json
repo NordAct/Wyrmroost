@@ -1,0 +1,31 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "equipment",
+  "ingredients": [
+    {
+      "item": "wyrmroost:drake_backplate"
+    },
+    {
+      "item": "wyrmroost:drake_backplate"
+    },
+    {
+      "item": "wyrmroost:drake_backplate"
+    },
+    {
+      "item": "wyrmroost:drake_backplate"
+    },
+    {
+      "item": "wyrmroost:drake_backplate"
+    },
+    {
+      "item": "wyrmroost:drake_backplate"
+    },
+    {
+      "item": "wyrmroost:platinum_chestplate"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "wyrmroost:drake_chestplate"
+  }
+}

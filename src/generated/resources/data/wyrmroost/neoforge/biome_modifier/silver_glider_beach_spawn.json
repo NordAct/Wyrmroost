@@ -1,0 +1,10 @@
+{
+  "type": "neoforge:add_spawns",
+  "biomes": "#c:is_beach",
+  "spawners": {
+    "type": "wyrmroost:silver_glider",
+    "maxCount": 4,
+    "minCount": 1,
+    "weight": 10
+  }
+}

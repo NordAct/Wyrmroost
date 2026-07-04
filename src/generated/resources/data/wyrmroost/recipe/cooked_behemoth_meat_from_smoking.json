@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:smoking",
+  "category": "food",
+  "cookingtime": 150,
+  "experience": 0.5,
+  "ingredient": {
+    "item": "wyrmroost:raw_behemoth_meat"
+  },
+  "result": {
+    "count": 1,
+    "id": "wyrmroost:cooked_behemoth_meat"
+  }
+}

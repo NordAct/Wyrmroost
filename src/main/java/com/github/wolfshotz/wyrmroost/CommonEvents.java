@@ -42,6 +42,8 @@ public class CommonEvents
         bus.addListener(CommonEvents::commonSetup);
         bus.addListener(WRConfig::configLoad);
         bus.addListener(DataGatherer::gather);
+        bus.addListener(CommonEvents::entityAttributes);
+        bus.addListener(Wyrmroost::registerPayloads);
     }
 
     // ====================
@@ -111,7 +113,6 @@ public class CommonEvents
                     .build());
     }
 
-    @SubscribeEvent
     public static void entityAttributes(EntityAttributeCreationEvent event) {
         WREntities.ATTRIBUTES.forEach(pair -> event.put((EntityType<? extends LivingEntity>) EntityType.byString(pair.getFirst().toString()).orElseThrow(), pair.getSecond().get().build()));
     }

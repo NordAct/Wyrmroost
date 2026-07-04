@@ -69,7 +69,7 @@ neoForge {
     }
 }
 
-sourceSets.main.resources { srcDir 'src/main/generated_resources' }
+sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 
 dependencies {}

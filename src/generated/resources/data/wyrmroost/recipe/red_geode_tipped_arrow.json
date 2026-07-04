@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "F": {
+      "item": "minecraft:feather"
+    },
+    "G": {
+      "item": "wyrmroost:red_geode"
+    },
+    "|": {
+      "item": "minecraft:stick"
+    }
+  },
+  "pattern": [
+    "G",
+    "|",
+    "F"
+  ],
+  "result": {
+    "count": 8,
+    "id": "wyrmroost:red_geode_tipped_arrow"
+  }
+}

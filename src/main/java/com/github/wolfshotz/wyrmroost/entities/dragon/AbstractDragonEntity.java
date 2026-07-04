@@ -19,7 +19,6 @@ import com.github.wolfshotz.wyrmroost.util.Mafs;
 import com.github.wolfshotz.wyrmroost.util.TickFloat;
 import com.github.wolfshotz.wyrmroost.util.animation.Animation;
 import com.github.wolfshotz.wyrmroost.util.animation.IAnimatable;
-import cpw.mods.util.Lazy;
 import net.minecraft.ChatFormatting;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
@@ -86,7 +85,8 @@ public abstract class AbstractDragonEntity extends TamableAnimal implements IAni
     public static final EntityDataAccessor<Optional<BlockPos>> HOME_POS = SynchedEntityData.defineId(AbstractDragonEntity.class, EntityDataSerializers.OPTIONAL_BLOCK_POS);
 
     private final Set<EntityDataEntry<?>> dataEntries = new HashSet<>();
-    public final Lazy<DragonInvHandler> invHandler;
+    @Nullable
+    public final DragonInvHandler invHandler;
     public final TickFloat sleepTimer = new TickFloat().setLimit(0, 1);
     private int sleepCooldown;
     public boolean wingsDown;
@@ -98,14 +98,29 @@ public abstract class AbstractDragonEntity extends TamableAnimal implements IAni
     {
         super(dragon, world);
 
-        DragonInvHandler inv = createInv();
-        invHandler = Lazy.of(inv == null? null : () -> inv);
+        invHandler = createInv();
         lookControl = new LessShitLookController(this);
         if (hasEntityDataAccessor(FLYING)) moveControl = new FlyerMoveController(this);
 
         registerDataEntry("HomePos", EntityDataEntry.BLOCK_POS.optional(), HOME_POS, Optional.empty());
         registerDataEntry("BreedCount", EntityDataEntry.INTEGER, () -> breedCount, i -> breedCount = i);
-        invHandler.ifPresent(i -> registerDataEntry("Inv", EntityDataEntry.COMPOUND, () -> i.serializeNBT(level().registryAccess()), (tag) -> i.deserializeNBT(level().registryAccess(), tag)));
+        if (invHandler != null) {
+            registerDataEntry(
+                    "Inv", EntityDataEntry.COMPOUND,
+                    () -> invHandler.serializeNBT(level().registryAccess()),
+                    (tag) -> invHandler.deserializeNBT(level().registryAccess(), tag)
+            );
+        }
+    }
+
+    @Override
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        super.defineSynchedData(builder);
+        builder.define(FLYING, false);
+        builder.define(VARIANT, 0);
+        builder.define(SLEEPING, false);
+        builder.define(GENDER, false);
+        builder.define(HOME_POS, Optional.empty());
     }
 
     @Override
@@ -264,8 +279,8 @@ public abstract class AbstractDragonEntity extends TamableAnimal implements IAni
 
     public DragonInvHandler getInvHandler()
     {
-        if (invHandler.get() == null) throw new NoSuchElementException("This boi doesn't have an inventory wtf are u doing");
-        return invHandler.get();
+        if (invHandler == null) throw new NoSuchElementException("This boi doesn't have an inventory wtf are u doing");
+        return invHandler;
     }
 
     public DragonInvHandler createInv()
@@ -579,7 +594,7 @@ public abstract class AbstractDragonEntity extends TamableAnimal implements IAni
 
     public ItemStack getStackInSlot(int slot)
     {
-        return invHandler.map(i -> i.getStackInSlot(slot)).orElse(ItemStack.EMPTY);
+        return invHandler != null ? invHandler.getStackInSlot(slot) : ItemStack.EMPTY;
     }
 
     /**
@@ -589,7 +604,7 @@ public abstract class AbstractDragonEntity extends TamableAnimal implements IAni
      */
     public void setStackInSlot(int slot, ItemStack stack)
     {
-        invHandler.ifPresent(i -> i.setStackInSlot(slot, stack));
+        if (invHandler != null) invHandler.setStackInSlot(slot, stack);
     }
 
     public void attackInBox(AABB box)
@@ -752,7 +767,7 @@ public abstract class AbstractDragonEntity extends TamableAnimal implements IAni
     @Override
     protected void dropEquipment()
     {
-        invHandler.ifPresent(i -> i.getStacks().forEach(this::spawnAtLocation));
+        if (invHandler != null) invHandler.getStacks().forEach(this::spawnAtLocation);
     }
 
     public void setRot(float yaw, float pitch)

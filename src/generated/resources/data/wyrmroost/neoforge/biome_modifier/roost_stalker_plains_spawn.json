@@ -1,0 +1,10 @@
+{
+  "type": "neoforge:add_spawns",
+  "biomes": "#c:is_plains",
+  "spawners": {
+    "type": "wyrmroost:roost_stalker",
+    "maxCount": 9,
+    "minCount": 2,
+    "weight": 7
+  }
+}

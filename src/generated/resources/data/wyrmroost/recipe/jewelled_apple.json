@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "A": {
+      "item": "minecraft:apple"
+    },
+    "G": {
+      "tag": "wyrmroost:geodes"
+    }
+  },
+  "pattern": [
+    " G ",
+    "GAG",
+    " G "
+  ],
+  "result": {
+    "count": 1,
+    "id": "wyrmroost:jewelled_apple"
+  }
+}

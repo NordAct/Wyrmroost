@@ -1,0 +1,6 @@
+{
+  "type": "neoforge:add_features",
+  "biomes": "#c:is_end",
+  "features": "wyrmroost:purple_geode_ore",
+  "step": "underground_ores"
+}

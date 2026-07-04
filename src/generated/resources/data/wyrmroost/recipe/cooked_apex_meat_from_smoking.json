@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:smoking",
+  "category": "food",
+  "cookingtime": 100,
+  "experience": 0.35,
+  "ingredient": {
+    "item": "wyrmroost:raw_apex_meat"
+  },
+  "result": {
+    "count": 1,
+    "id": "wyrmroost:cooked_apex_meat"
+  }
+}

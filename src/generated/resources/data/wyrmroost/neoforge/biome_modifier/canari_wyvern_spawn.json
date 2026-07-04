@@ -1,0 +1,10 @@
+{
+  "type": "neoforge:add_spawns",
+  "biomes": "#c:is_swamp",
+  "spawners": {
+    "type": "wyrmroost:canari_wyvern",
+    "maxCount": 5,
+    "minCount": 2,
+    "weight": 9
+  }
+}

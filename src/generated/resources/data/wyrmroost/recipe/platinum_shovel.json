@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "X": {
+      "tag": "wyrmroost:platinum_ingots"
+    },
+    "|": {
+      "item": "minecraft:stick"
+    }
+  },
+  "pattern": [
+    "X",
+    "|",
+    "|"
+  ],
+  "result": {
+    "count": 1,
+    "id": "wyrmroost:platinum_shovel"
+  }
+}

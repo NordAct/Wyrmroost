@@ -87,13 +87,11 @@ public class RoyalRedEntity extends AbstractDragonEntity
     }
 
     @Override
-    protected void defineSynchedData(SynchedEntityData.Builder builder)
-    {
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
         super.defineSynchedData(builder);
 
         builder.define(BREATHING_FIRE, false);
         builder.define(KNOCKED_OUT, false);
-        builder.define(FLYING, false);
     }
 
     @Override

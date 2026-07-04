@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "#": {
+      "item": "wyrmroost:platinum_block"
+    },
+    "X": {
+      "item": "wyrmroost:platinum_ingot"
+    }
+  },
+  "pattern": [
+    "X# ",
+    "X #",
+    " X "
+  ],
+  "result": {
+    "count": 1,
+    "id": "wyrmroost:platinum_dragon_armor"
+  }
+}

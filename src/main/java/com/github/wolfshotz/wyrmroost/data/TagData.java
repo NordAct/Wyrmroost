@@ -147,8 +147,7 @@ public class TagData
         }
 
         @Override
-        protected void addTags(HolderLookup.Provider var1)
-        {
+        protected void addTags(HolderLookup.Provider var1) {
             tag(EntityTypeTags.ARROWS).add(WREntities.GEODE_TIPPED_ARROW.value());
             tag(EntityTypeTags.CAN_BREATHE_UNDER_WATER).add(WREntities.BUTTERFLY_LEVIATHAN.value());
             tag(EntityTypeTags.AQUATIC).add(WREntities.BUTTERFLY_LEVIATHAN.value());
@@ -169,13 +168,13 @@ public class TagData
         @Override
         protected void addTags(HolderLookup.Provider p_270108_) {
             tag(DamageTypeTags.IS_FIRE)
-                    .add(WRDamageTypes.FIRE_BREATH_0)
-                    .add(WRDamageTypes.FIRE_BREATH_1)
+                    .addOptional(WRDamageTypes.FIRE_BREATH_0.location())
+                    .addOptional(WRDamageTypes.FIRE_BREATH_1.location())
             ;
             tag(DamageTypeTags.IS_PROJECTILE)
-                    .add(WRDamageTypes.FIRE_BREATH_0)
-                    .add(WRDamageTypes.FIRE_BREATH_1)
-                    .add(WRDamageTypes.WIND_GUST)
+                    .addOptional(WRDamageTypes.FIRE_BREATH_0.location())
+                    .addOptional(WRDamageTypes.FIRE_BREATH_1.location())
+                    .addOptional(WRDamageTypes.WIND_GUST.location())
             ;
         }
     }

@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "#": {
+      "item": "minecraft:diamond_block"
+    },
+    "X": {
+      "item": "minecraft:diamond"
+    }
+  },
+  "pattern": [
+    "X# ",
+    "X #",
+    " X "
+  ],
+  "result": {
+    "count": 1,
+    "id": "wyrmroost:diamond_dragon_armor"
+  }
+}

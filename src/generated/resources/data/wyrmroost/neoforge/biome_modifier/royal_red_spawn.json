@@ -1,0 +1,10 @@
+{
+  "type": "neoforge:add_spawns",
+  "biomes": "#c:is_mountain/peak",
+  "spawners": {
+    "type": "wyrmroost:royal_red",
+    "maxCount": 1,
+    "minCount": 1,
+    "weight": 1
+  }
+}

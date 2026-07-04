@@ -6,7 +6,6 @@ import com.github.wolfshotz.wyrmroost.registry.*;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
-import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
@@ -42,7 +41,6 @@ public class Wyrmroost
         container.registerConfig(ModConfig.Type.SERVER, WRConfig.Server.SPEC);
     }
 
-    @SubscribeEvent
     public static void registerPayloads(RegisterPayloadHandlersEvent event) {
         PayloadRegistrar registrar = event.registrar("1.0").executesOn(HandlerThread.MAIN);
         registrar.playToClient(AddPassengerPacket.TYPE, AddPassengerPacket.STREAM_CODEC, AddPassengerPacket::handle);
