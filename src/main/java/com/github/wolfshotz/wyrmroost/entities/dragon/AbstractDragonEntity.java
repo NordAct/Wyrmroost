@@ -236,17 +236,15 @@ public abstract class AbstractDragonEntity extends TamableAnimal implements IAni
         return level().isDay() && random.nextDouble() < 0.0065;
     }
 
-    public boolean isFlying()
-    {
-        return hasEntityDataAccessor(FLYING)? entityData.get(FLYING) : false;
+    public boolean isFlying() {
+        return entityData.get(FLYING);
     }
 
     public void setFlying(boolean fly)
     {
         if (isFlying() == fly) return;
         entityData.set(FLYING, fly);
-        if (fly)
-        {
+        if (fly) {
             // make sure NOT to switch the navigator if liftoff fails
             if (liftOff()) navigation = new FlyerPathNavigator(this);
         }
@@ -494,7 +492,7 @@ public abstract class AbstractDragonEntity extends TamableAnimal implements IAni
 
         if (isControlledByLocalInstance()) // Were being controlled; override ai movement
         {
-            LivingEntity entity = (LivingEntity) getControllingPassenger();
+            LivingEntity entity = getControllingPassenger();
             double moveY = vec3d.y;
             double moveX = entity.xxa * 0.5;
             double moveZ = entity.zza;
@@ -556,9 +554,9 @@ public abstract class AbstractDragonEntity extends TamableAnimal implements IAni
         //@formatter:on
     }
 
-    public boolean shouldFly()
-    {
-        return canFly() && getAltitude() > getFlightThreshold();
+    public boolean shouldFly() {
+        boolean ignoreAltitude = getY() <= level().getMinBuildHeight() + 1;
+        return canFly() && (ignoreAltitude || getAltitude() > getFlightThreshold());
     }
 
     @Override
@@ -570,6 +568,9 @@ public abstract class AbstractDragonEntity extends TamableAnimal implements IAni
             refreshDimensions();
             if (level().isClientSide() && key == FLYING && isFlying() && isControlledByLocalInstance())
                 FlyingSound.play(this);
+        }
+        if (key.equals(FLYING)) {
+
         }
         else super.onSyncedDataUpdated(key);
 
@@ -780,7 +781,7 @@ public abstract class AbstractDragonEntity extends TamableAnimal implements IAni
         BlockPos.MutableBlockPos pos = blockPosition().mutable();
 
         // cap to the world void (y = 0)
-        while (pos.getY() > 0 && !level().getBlockState(pos.below()).isSolid()) pos.move(0, -1, 0);
+        while (pos.getY() >= level().getMinBuildHeight() && !level().getBlockState(pos.below()).isSolid()) pos.move(0, -1, 0);
         return getY() - pos.getY();
     }
 
@@ -1160,9 +1161,9 @@ public abstract class AbstractDragonEntity extends TamableAnimal implements IAni
         return super.causeFallDamage(distance - (int) (getBbHeight() * 0.8), damageMultiplier, damageSource);
     }
 
-    public int getFlightThreshold()
+    public float getFlightThreshold()
     {
-        return (int) getBbHeight();
+        return getBbHeight() * 0.5f;
     }
 
     public void setMountCameraAngles(boolean backView, CalculateDetachedCameraDistanceEvent event)

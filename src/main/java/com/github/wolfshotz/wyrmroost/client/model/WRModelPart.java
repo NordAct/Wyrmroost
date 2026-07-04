@@ -82,7 +82,7 @@ public class WRModelPart extends ModelPart {
     public void flap(float speed, float degree, boolean invert, float offset, float weight, float limbSwing, float limbSwingAmount)
     {
         float rotation = Mth.cos(limbSwing * speed + offset) * degree * limbSwingAmount + weight * limbSwingAmount;
-        xRot += invert? -rotation : rotation;
+        zRot += invert? -rotation : rotation;
     }
 
     public void bob(float speed, float degree, boolean bounce, float limbSwing, float limbSwingAmount)
