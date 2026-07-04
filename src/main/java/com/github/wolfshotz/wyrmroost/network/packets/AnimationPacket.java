@@ -4,50 +4,46 @@ import com.github.wolfshotz.wyrmroost.Wyrmroost;
 import com.github.wolfshotz.wyrmroost.client.ClientEvents;
 import com.github.wolfshotz.wyrmroost.util.animation.Animation;
 import com.github.wolfshotz.wyrmroost.util.animation.IAnimatable;
-import net.minecraft.network.PacketBuffer;
+import io.netty.buffer.ByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.entity.Entity;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.fml.network.NetworkEvent;
-import net.minecraftforge.fml.network.PacketDistributor;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.fml.loading.FMLLoader;
+import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.apache.commons.lang3.ArrayUtils;
 
-import java.util.function.Supplier;
+public record AnimationPacket(int entityID, int animationIndex) implements CustomPacketPayload {
+    public static final Type<AnimationPacket> TYPE = new Type<>(Wyrmroost.rl("animation"));
+    public static final StreamCodec<ByteBuf, AnimationPacket> STREAM_CODEC = StreamCodec.of(
+            (buf, payload) -> payload.encode(buf),
+            AnimationPacket::new
+    );
 
-public class AnimationPacket
-{
-    private final int entityID, animationIndex;
-
-    public AnimationPacket(int entityID, int index)
-    {
-        this.entityID = entityID;
-        this.animationIndex = index;
-    }
-
-    public AnimationPacket(PacketBuffer buf)
-    {
-        entityID = buf.readInt();
-        animationIndex = buf.readInt();
+    public AnimationPacket(ByteBuf buf) {
+        this(buf.readInt(), buf.readInt());
     }
     
-    public void encode(PacketBuffer buf)
+    public void encode(ByteBuf buf)
     {
         buf.writeInt(entityID);
         buf.writeInt(animationIndex);
     }
 
-    public boolean handle(Supplier<NetworkEvent.Context> context)
-    {
-        return DistExecutor.unsafeCallWhenOn(Dist.CLIENT, () -> () -> ClientEvents.handleAnimationPacket(entityID, animationIndex));
+    public boolean handle(IPayloadContext context) {
+        return FMLLoader.getDist() == Dist.CLIENT && ClientEvents.handleAnimationPacket(entityID, animationIndex);
     }
 
-    public static <T extends Entity & IAnimatable> void send(T entity, Animation animation)
-    {
-        if (!entity.world.isRemote)
-        {
+    public static <T extends Entity & IAnimatable> void send(T entity, Animation animation) {
+        if (!entity.level().isClientSide()) {
             entity.setAnimation(animation);
-            Wyrmroost.NETWORK.send(PacketDistributor.TRACKING_ENTITY.with(() -> entity),
-                    new AnimationPacket(entity.getEntityId(), ArrayUtils.indexOf(entity.getAnimations(), animation)));
+            PacketDistributor.sendToAllPlayers(new AnimationPacket(entity.getId(), ArrayUtils.indexOf(entity.getAnimations(), animation)));
         }
+    }
+
+    @Override
+    public Type<? extends CustomPacketPayload> type() {
+        return TYPE;
     }
 }

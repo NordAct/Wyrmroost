@@ -2,9 +2,9 @@ package com.github.wolfshotz.wyrmroost.entities.dragon.helpers.ai.goals;
 
 import com.github.wolfshotz.wyrmroost.WRConfig;
 import com.github.wolfshotz.wyrmroost.entities.dragon.AbstractDragonEntity;
-import net.minecraft.entity.EntityPredicate;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.goal.Goal;
-import net.minecraft.world.server.ServerWorld;
 
 import javax.annotation.Nullable;
 import java.util.Comparator;
@@ -13,33 +13,27 @@ import java.util.EnumSet;
 public class DragonBreedGoal extends Goal
 {
     protected final AbstractDragonEntity dragon;
-    protected final EntityPredicate predicate;
     protected AbstractDragonEntity targetMate;
     protected int spawnBabyDelay;
 
     public DragonBreedGoal(AbstractDragonEntity dragon)
     {
-        setMutexFlags(EnumSet.of(Flag.MOVE, Flag.LOOK));
+        setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK));
         this.dragon = dragon;
-        this.predicate = new EntityPredicate()
-                .setDistance(dragon.getBbWidth() * 8)
-                .allowInvulnerable()
-                .allowFriendlyFire()
-                .setLineOfSiteRequired()
-                .setCustomPredicate(e -> ((AbstractDragonEntity) e).canMateWith(dragon));
     }
 
     /**
      * Returns whether execution should begin. You can also read and cache any state necessary for execution in this
      * method as well.
      */
-    public boolean shouldExecute()
+    @Override
+    public boolean canUse()
     {
         if (!dragon.isInLove()) return false;
-        final int breedLimit = WRConfig.breedLimits.getOrDefault(dragon.getType().getRegistryName().getPath(), 0);
+        final int breedLimit = WRConfig.breedLimits.getOrDefault(EntityType.getKey(dragon.getType()).getPath(), 0);
         if (breedLimit > 0 && dragon.breedCount >= breedLimit)
         {
-            dragon.resetInLove();
+            dragon.resetLove();
             return false;
         }
         return (targetMate = getNearbyMate()) != null;
@@ -48,7 +42,8 @@ public class DragonBreedGoal extends Goal
     /**
      * Returns whether an in-progress EntityAIBase should continue executing
      */
-    public boolean shouldContinueExecuting()
+    @Override
+    public boolean canContinueToUse()
     {
         return targetMate.isAlive() && targetMate.isInLove() && dragon.isInLove() && spawnBabyDelay < 60;
     }
@@ -56,7 +51,8 @@ public class DragonBreedGoal extends Goal
     /**
      * Reset the task's internal state. Called when this task is interrupted by another one
      */
-    public void resetTask()
+    @Override
+    public void stop()
     {
         targetMate = null;
         spawnBabyDelay = 0;
@@ -65,12 +61,13 @@ public class DragonBreedGoal extends Goal
     /**
      * Keep ticking a continuous task that has already been started
      */
+    @Override
     public void tick()
     {
-        dragon.getLookController().setLookPositionWithEntity(targetMate, 10f, dragon.getVerticalFaceSpeed());
-        dragon.getNavigator().tryMoveToEntityLiving(targetMate, 1);
-        if (++spawnBabyDelay >= 60 && dragon.getDistance(targetMate) < dragon.getBbWidth() * 2)
-            dragon.func_234177_a_((ServerWorld) dragon.level, targetMate);
+        dragon.getLookControl().setLookAt(targetMate, 10f, dragon.getHeadRotSpeed());
+        dragon.getNavigation().moveTo(targetMate, 1);
+        if (++spawnBabyDelay >= 60 && dragon.distanceTo(targetMate) < dragon.getBbWidth() * 2)
+            dragon.spawnChildFromBreeding((ServerLevel) dragon.level(), targetMate);
     }
 
     /**
@@ -80,8 +77,9 @@ public class DragonBreedGoal extends Goal
     @Nullable
     protected AbstractDragonEntity getNearbyMate()
     {
-        return dragon.level.getTargettableEntitiesWithinAABB(dragon.getClass(), predicate, dragon, dragon.getBoundingBox().grow(dragon.getBbWidth() * 8))
+        return dragon.level()
+                .getEntitiesOfClass(dragon.getClass(), dragon.getBoundingBox().inflate(dragon.getBbWidth() * 8), e -> e != dragon && e instanceof AbstractDragonEntity abstractDragonEntity && abstractDragonEntity.canMate(dragon))
                 .stream()
-                .min(Comparator.comparingDouble(dragon::getDistanceSq)).orElse(null);
+                .min(Comparator.comparingDouble(dragon::distanceToSqr)).orElse(null);
     }
 }

@@ -2,11 +2,13 @@ package com.github.wolfshotz.wyrmroost.items;
 
 import com.github.wolfshotz.wyrmroost.entities.projectile.GeodeTippedArrowEntity;
 import com.github.wolfshotz.wyrmroost.registry.WRItems;
-import net.minecraft.entity.projectile.AbstractArrowEntity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.item.ArrowItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+
+import javax.annotation.Nullable;
 
 public class GeodeTippedArrowItem extends ArrowItem
 {
@@ -19,12 +21,10 @@ public class GeodeTippedArrowItem extends ArrowItem
     }
 
     @Override
-    public AbstractArrowEntity createArrow(Level world, ItemStack stack, LivingEntity shooter)
-    {
-        GeodeTippedArrowEntity arrow = new GeodeTippedArrowEntity(world, this);
-        arrow.setPosition(shooter.getPosX(), shooter.getPosYEye() - 0.1d, shooter.getPosZ());
-        arrow.setShooter(shooter);
-        arrow.setDamage(damage);
+    public AbstractArrow createArrow(Level level, ItemStack ammo, LivingEntity shooter, @Nullable ItemStack weapon) {
+        GeodeTippedArrowEntity arrow = new GeodeTippedArrowEntity(level, this);
+        arrow.setOwner(shooter);
+        arrow.setBaseDamage(damage);
         return arrow;
     }
 }

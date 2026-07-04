@@ -9,35 +9,30 @@ import com.github.wolfshotz.wyrmroost.entities.util.EntityDataEntry;
 import com.github.wolfshotz.wyrmroost.network.packets.AnimationPacket;
 import com.github.wolfshotz.wyrmroost.network.packets.KeybindPacket;
 import com.github.wolfshotz.wyrmroost.registry.WREntities;
+import com.github.wolfshotz.wyrmroost.registry.WRItems;
 import com.github.wolfshotz.wyrmroost.registry.WRSounds;
-import com.github.wolfshotz.wyrmroost.util.ModUtils;
 import com.github.wolfshotz.wyrmroost.util.TickFloat;
 import com.github.wolfshotz.wyrmroost.util.animation.Animation;
-import net.minecraft.entity.*;
-import net.minecraft.entity.ai.attributes.AttributeModifierMap;
-import net.minecraft.entity.ai.goal.*;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.SoundEvents;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.biome.MobSpawnInfo;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
 import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
+import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
+import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
+import net.minecraft.world.entity.ai.goal.target.NonTameRandomTargetGoal;
 import net.minecraft.world.entity.animal.Bee;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.client.event.EntityViewRenderEvent;
-import net.minecraftforge.event.world.BiomeLoadingEvent;
+import net.neoforged.neoforge.client.event.CalculateDetachedCameraDistanceEvent;
 
 import javax.annotation.Nullable;
-
-import static net.minecraft.entity.ai.attributes.Attributes.*;
-
-import EntitySize;
 
 public class AlpineEntity extends AbstractDragonEntity
 {
@@ -66,30 +61,30 @@ public class AlpineEntity extends AbstractDragonEntity
         goalSelector.addGoal(6, new WRFollowOwnerGoal(this));
         goalSelector.addGoal(7, new DragonBreedGoal(this));
         goalSelector.addGoal(8, new FlyerWanderGoal(this, 1, 0.01f));
-        goalSelector.addGoal(9, new LookAtGoal(this, LivingEntity.class, 10));
-        goalSelector.addGoal(10, new LookRandomlyGoal(this));
+        goalSelector.addGoal(9, new LookAtPlayerGoal(this, LivingEntity.class, 10));
+        goalSelector.addGoal(10, new RandomLookAroundGoal(this));
 
         targetSelector.addGoal(0, new HurtByTargetGoal(this));
-        targetSelector.addGoal(1, new NonTamedTargetGoal<>(this, Bee.class, false, e -> ((BeeEntity) e).hasNectar()));
+        targetSelector.addGoal(1, new NonTameRandomTargetGoal<>(this, Bee.class, false, e -> ((Bee) e).hasNectar()));
     }
 
     @Override
-    protected void registerData()
+    protected void defineSynchedData(SynchedEntityData.Builder builder)
     {
-        super.registerData();
-        dataManager.register(FLYING, false);
+        super.defineSynchedData(builder);
+        builder.define(FLYING, false);
     }
 
     @Override
-    public void livingTick()
+    public void aiStep()
     {
-        super.livingTick();
+        super.aiStep();
 
-        sitTimer.add(func_233684_eK_() || isSleeping()? 0.1f : -0.1f);
+        sitTimer.add(isInSittingPose() || isSleeping()? 0.1f : -0.1f);
         sleepTimer.add(isSleeping()? 0.1f : -0.1f);
         flightTimer.add(isFlying()? 0.1f : -0.05f);
 
-        if (!world.isRemote && noActiveAnimation() && !isSleeping() && !isChild() && getRNG().nextDouble() < 0.0005)
+        if (!level().isClientSide() && noActiveAnimation() && !isSleeping() && !isBaby() && random.nextDouble() < 0.0005)
             AnimationPacket.send(this, ROAR_ANIMATION);
 
         Animation animation = getAnimation();
@@ -97,10 +92,10 @@ public class AlpineEntity extends AbstractDragonEntity
 
         if (animation == ROAR_ANIMATION)
         {
-            if (tick == 0) playSound(WRSounds.ENTITY_ALPINE_ROAR.get(), 3f, 1f);
+            if (tick == 0) playSound(WRSounds.ENTITY_ALPINE_ROAR.value(), 3f, 1f);
             else if (tick == 25)
             {
-                for (LivingEntity entity : getEntitiesNearby(20, e -> e.getType() == WREntities.ALPINE.get()))
+                for (LivingEntity entity : getEntitiesNearby(20, e -> e.getType() == WREntities.ALPINE.value()))
                 {
                     AlpineEntity alpine = ((AlpineEntity) entity);
                     if (alpine.noActiveAnimation() && alpine.isIdling() && !alpine.isSleeping())
@@ -110,25 +105,25 @@ public class AlpineEntity extends AbstractDragonEntity
         }
         else if (animation == WIND_GUST_ANIMATION)
         {
-            if (tick == 0) setMotion(getMotion().add(0, -0.35, 0));
+            if (tick == 0) setDeltaMovement(getDeltaMovement().add(0, -0.35, 0));
             if (tick == 4)
             {
-                if (!world.isRemote) level.addEntity(new WindGustEntity(this));
-                setMotion(getMotion().add(getLookVec().inverse().mul(1.5, 0, 1.5).add(0, 1, 0)));
-                playSound(WRSounds.WING_FLAP.get(), 3, 1f, true);
+                if (!level().isClientSide()) level().addFreshEntity(new WindGustEntity(this));
+                setDeltaMovement(getDeltaMovement().add(getLookAngle().reverse().multiply(1.5, 0, 1.5).add(0, 1, 0)));
+                playSound(WRSounds.WING_FLAP.value(), 3, 1f, true);
             }
         }
     }
 
     @Override
-    public boolean attackEntityAsMob(Entity enemy)
+    public boolean doHurtTarget(Entity enemy)
     {
-        boolean flag = super.attackEntityAsMob(enemy);
+        boolean flag = super.doHurtTarget(enemy);
 
         if (!isTame() && flag && !enemy.isAlive() && enemy.getType() == EntityType.BEE)
         {
             Bee bee = (Bee) enemy;
-            if (bee.hasNectar() && bee.getLeashed())
+            if (bee.hasNectar() && bee.isLeashed())
             {
                 Entity holder = bee.getLeashHolder();
                 if (holder instanceof Player) tame(true, (Player) holder);
@@ -140,20 +135,20 @@ public class AlpineEntity extends AbstractDragonEntity
     @Override
     public boolean isInvulnerableTo(DamageSource source)
     {
-        Entity attacker = source.getImmediateSource();
+        Entity attacker = source.getDirectEntity();
         if (attacker != null && attacker.getType() == EntityType.BEE)
         {
-            setAttackTarget((Bee) attacker);
+            setTarget((Bee) attacker);
             return true;
         }
         return super.isInvulnerableTo(source);
     }
 
     @Override
-    public EntitySize getSize(Pose poseIn)
+    public EntityDimensions getDimensions(Pose poseIn)
     {
-        EntitySize size = getType().getSize().scale(getRenderScale());
-        return size.scale(1, func_233684_eK_() || isSleeping()? 0.7f : 1);
+        EntityDimensions size = getType().getDimensions().scale(getScale());
+        return size.scale(1, isInSittingPose() || isSleeping()? 0.7f : 1).withEyeHeight(getBbHeight() * (isFlying()? 0.8f : 1.25f));
     }
 
     @Override
@@ -164,78 +159,76 @@ public class AlpineEntity extends AbstractDragonEntity
     }
 
     @Override
-    public void setMountCameraAngles(boolean backView, EntityViewRenderEvent.CameraSetup event)
+    public void setMountCameraAngles(boolean backView, CalculateDetachedCameraDistanceEvent event)
     {
-        if (backView) event.getInfo().movePosition(-5d, 0.75d, 0);
-        else event.getInfo().movePosition(-3, 0.3, 0);
+        if (backView) event.getCamera().move(-5f, 0.75f, 0);
+        else event.getCamera().move(-3, 0.3f, 0);
     }
 
     @Override
-    protected void jumpFromGround()
+    public void jumpFromGround()
     {
         super.jumpFromGround();
-        if (!world.isRemote)
-            level.addEntity(new WindGustEntity(this, getPositionVec().add(0, 7, 0), getVectorForRotation(90, rotationYaw)));
+        if (!level().isClientSide())
+            level().addFreshEntity(new WindGustEntity(this, position().add(0, 7, 0), calculateViewVector(90, getYRot())));
     }
 
     @Override
-    protected float getJumpUpwardsMotion()
+    protected float getJumpPower()
     {
-        if (canFly()) return (getBbHeight() * getJumpFactor());
-        else return super.getJumpUpwardsMotion();
+        if (canFly()) return (getBbHeight() * getBlockJumpFactor());
+        else return super.getJumpPower();
     }
 
     @Override
-    public void swingArm(InteractionHand hand)
+    public void swing(InteractionHand hand)
     {
         setAnimation(BITE_ANIMATION);
-        playSound(SoundEvents.ENTITY_GENERIC_EAT, 1, 1, true);
-        super.swingArm(hand);
+        playSound(SoundEvents.GENERIC_EAT, 1, 1, true);
+        super.swing(hand);
     }
 
     @Override
     public int determineVariant()
     {
-        return getRNG().nextInt(6);
+        return random.nextInt(6);
     }
 
     @Override
-    protected boolean canBeRidden(Entity entity)
+    protected boolean canRide(Entity entity)
     {
-        return !isChild() && entity instanceof LivingEntity && isOwnedBy((LivingEntity) entity);
+        return !isBaby() && entity instanceof LivingEntity && isOwnedBy((LivingEntity) entity);
     }
 
     @Override
-    public boolean isFoodItem(ItemStack stack)
-    {
-        return ModUtils.equalsAny(stack.getItem(), Items.HONEYCOMB, Items.HONEY_BOTTLE);
+    public boolean isFoodItem(ItemStack stack) {
+        return stack.is(WRItems.Tags.ALPINE_FOOD);
     }
 
     @Override
-    protected float getStandingEyeHeight(Pose poseIn, EntitySize sizeIn)
-    {
-        return sizeIn.height * (isFlying()? 0.8f : 1.25f);
+    public boolean isBreedingItem(ItemStack stack) {
+        return stack.is(WRItems.Tags.ALPINE_BREEDING_ITEMS);
     }
 
     @Nullable
     @Override
     protected SoundEvent getAmbientSound()
     {
-        return WRSounds.ENTITY_ALPINE_IDLE.get();
+        return WRSounds.ENTITY_ALPINE_IDLE.value();
     }
 
     @Nullable
     @Override
     protected SoundEvent getHurtSound(DamageSource damageSourceIn)
     {
-        return WRSounds.ENTITY_ALPINE_ROAR.get();
+        return WRSounds.ENTITY_ALPINE_ROAR.value();
     }
 
     @Nullable
     @Override
     protected SoundEvent getDeathSound()
     {
-        return WRSounds.ENTITY_ALPINE_DEATH.get();
+        return WRSounds.ENTITY_ALPINE_DEATH.value();
     }
 
     @Override
@@ -244,20 +237,14 @@ public class AlpineEntity extends AbstractDragonEntity
         return new Animation[] {ROAR_ANIMATION, WIND_GUST_ANIMATION, BITE_ANIMATION};
     }
 
-    public static void setSpawnBiomes(BiomeLoadingEvent event)
+    public static AttributeSupplier.Builder createAttributes()
     {
-        if (event.getCategory() == Biome.Category.EXTREME_HILLS)
-            event.getSpawns().func_242575_a(EntityClassification.CREATURE, new MobSpawnInfo.Spawners(WREntities.ALPINE.get(), 2, 1, 4));
-    }
-
-    public static AttributeModifierMap.MutableAttribute getAttributes()
-    {
-        return MobEntity.func_233666_p_()
-                .createMutableAttribute(MAX_HEALTH, 40)
-                .createMutableAttribute(MOVEMENT_SPEED, 0.22)
-                .createMutableAttribute(KNOCKBACK_RESISTANCE, 1)
-                .createMutableAttribute(ATTACK_DAMAGE, 3)
-                .createMutableAttribute(FLYING_SPEED, 0.185f)
-                .createMutableAttribute(WREntities.Attributes.PROJECTILE_DAMAGE.get(), 1);
+        return AbstractDragonEntity.createDragonAttributes()
+                .add(Attributes.MAX_HEALTH, 40)
+                .add(Attributes.MOVEMENT_SPEED, 0.22)
+                .add(Attributes.KNOCKBACK_RESISTANCE, 1)
+                .add(Attributes.ATTACK_DAMAGE, 3)
+                .add(Attributes.FLYING_SPEED, 0.185f)
+                .add(WREntities.Attributes.PROJECTILE_DAMAGE, 1);
     }
 }

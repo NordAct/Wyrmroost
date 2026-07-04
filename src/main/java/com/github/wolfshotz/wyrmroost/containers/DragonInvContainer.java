@@ -4,17 +4,16 @@ import com.github.wolfshotz.wyrmroost.Wyrmroost;
 import com.github.wolfshotz.wyrmroost.entities.dragon.AbstractDragonEntity;
 import com.github.wolfshotz.wyrmroost.entities.dragon.helpers.DragonInvHandler;
 import com.github.wolfshotz.wyrmroost.registry.WRIO;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.INamedContainerProvider;
-import net.minecraft.inventory.container.Slot;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.Container;
+import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
-public class DragonInvContainer extends Container
+public class DragonInvContainer extends AbstractContainerMenu
 {
     public static final int MAX_PLAYER_SLOTS = 36;
 
@@ -23,7 +22,7 @@ public class DragonInvContainer extends Container
 
     public DragonInvContainer(DragonInvHandler inv, Inventory playerInv, int windowID)
     {
-        super(WRIO.DRAGON_INVENTORY.get(), windowID);
+        super(WRIO.DRAGON_INVENTORY.value(), windowID);
         this.inventory = inv;
         this.playerInv = playerInv;
         inv.dragon.addContainerInfo(this);
@@ -34,20 +33,20 @@ public class DragonInvContainer extends Container
     public Slot addSlot(Slot slotIn) { return super.addSlot(slotIn); }
 
     @Override
-    public boolean canInteractWith(Player playerIn) { return inventory.dragon.getOwner() == playerIn; }
+    public boolean stillValid(Player playerIn) { return inventory.dragon.getOwner() == playerIn; }
 
     @Override
-    public ItemStack transferStackInSlot(Player playerIn, int index)
+    public ItemStack quickMoveStack(Player playerIn, int index)
     {
-        Slot slot = inventorySlots.get(index);
-        if (slot != null && slot.getHasStack())
+        Slot slot = slots.get(index);
+        if (slot != null && slot.hasItem())
         {
-            ItemStack transferring = slot.getStack();
-            if ((index < MAX_PLAYER_SLOTS && mergeItemStack(transferring, MAX_PLAYER_SLOTS, inventorySlots.size(), false))
-                    || (index >= MAX_PLAYER_SLOTS && mergeItemStack(transferring, 0, MAX_PLAYER_SLOTS, true)))
+            ItemStack transferring = slot.getItem();
+            if ((index < MAX_PLAYER_SLOTS && moveItemStackTo(transferring, MAX_PLAYER_SLOTS, slots.size(), false))
+                    || (index >= MAX_PLAYER_SLOTS && moveItemStackTo(transferring, 0, MAX_PLAYER_SLOTS, true)))
             {
-                if (transferring.isEmpty()) slot.putStack(ItemStack.EMPTY);
-                else slot.onSlotChanged();
+                if (transferring.isEmpty()) slot.set(ItemStack.EMPTY);
+                else slot.setChanged();
                 return transferring.copy();
             }
         }
@@ -70,13 +69,13 @@ public class DragonInvContainer extends Container
         }
     }
 
-    public void makeSlots(IInventory inventory, int index, int initialX, int initialY, int length, int height)
+    public void makeSlots(Container inventory, int index, int initialX, int initialY, int length, int height)
     {
         for (int y = 0; y < height; ++y)
         {
             for (int x = 0; x < length; ++x)
             {
-                if (inventory.getSizeInventory() <= index)
+                if (inventory.getContainerSize() <= index)
                 {
                     Wyrmroost.LOG.error("TOO MANY SLOTS! ABORTING THE REST!");
                     return;
@@ -92,15 +91,15 @@ public class DragonInvContainer extends Container
         makeSlots(playerInv, 0, initialX, initialY + 58, 9, 1); // Hotbar
     }
 
-    public static INamedContainerProvider getProvider(AbstractDragonEntity dragon)
+    public static MenuProvider getProvider(AbstractDragonEntity dragon)
     {
-        return new INamedContainerProvider()
+        return new MenuProvider()
         {
             @Override
-            public ITextComponent getDisplayName() { return new StringTextComponent("Dragon Inventory"); }
+            public Component getDisplayName() { return Component.literal("Dragon Inventory"); }
 
             @Override
-            public Container createMenu(int id, Inventory playersInv, Player player)
+            public DragonInvContainer createMenu(int id, Inventory playersInv, Player player)
             {
                 return new DragonInvContainer(dragon.getInvHandler(), playersInv, id);
             }

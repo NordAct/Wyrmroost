@@ -1,15 +1,17 @@
 package com.github.wolfshotz.wyrmroost.util.animation;
 
-import net.minecraft.nbt.INBT;
-import net.minecraft.util.Direction;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.CapabilityInject;
-import net.minecraftforge.common.capabilities.CapabilityManager;
+import com.github.wolfshotz.wyrmroost.Wyrmroost;
+import com.github.wolfshotz.wyrmroost.registry.WREntities;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.capabilities.EntityCapability;
+import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 
-import javax.annotation.Nullable;
-
-public interface IAnimatable
-{
+public interface IAnimatable {
+    EntityCapability<IAnimatable, Void> CAPABILITY = EntityCapability.create(
+            Wyrmroost.rl("animatable"),
+            IAnimatable.class,
+            Void.class
+    );
 
     Animation NO_ANIMATION = new Animation(0)
     {
@@ -44,24 +46,14 @@ public interface IAnimatable
         }
     }
 
-    static void registerCapability()
-    {
-        CapabilityManager.INSTANCE.register(IAnimatable.class, new Capability.IStorage<IAnimatable>()
-        {
-            // There is no data needed to be stored.
-            @Nullable
-            @Override
-            public INBT writeNBT(Capability<IAnimatable> capability, IAnimatable instance, Direction side) { return null; }
-
-            @Override
-            public void readNBT(Capability<IAnimatable> capability, IAnimatable instance, Direction side, INBT nbt) {}
-        }, CapImpl::new);
+    @SubscribeEvent
+    static void registerCapability(RegisterCapabilitiesEvent event) {
+        WREntities.REGISTRY.getEntries().forEach(holder -> {
+            if (IAnimatable.class.isAssignableFrom(holder.value().getBaseClass())) event.registerEntity(CAPABILITY, holder.value(), ((o, unused) -> null));
+        });
     }
 
-    class CapImpl implements IAnimatable
-    {
-        @CapabilityInject(IAnimatable.class)
-        public static final Capability<IAnimatable> CAPABILITY = null;
+    class CapImpl implements IAnimatable {
 
         private int animationTick = 0;
         private Animation animation;

@@ -4,19 +4,20 @@ import com.github.wolfshotz.wyrmroost.WRConfig;
 import com.github.wolfshotz.wyrmroost.Wyrmroost;
 import com.github.wolfshotz.wyrmroost.client.render.entity.AbstractDragonRenderer;
 import com.github.wolfshotz.wyrmroost.entities.dragon.AlpineEntity;
-import net.minecraft.client.renderer.entity.EntityRendererManager;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 
 public class AlpineRenderer extends AbstractDragonRenderer<AlpineEntity, AlpineModel>
 {
     private static final ResourceLocation[] TEXTURES = new ResourceLocation[6];
 
-    public AlpineRenderer(EntityRendererManager manager) { super(manager, new AlpineModel(), 2f); }
+    public AlpineRenderer(EntityRendererProvider.Context manager) { super(manager, new AlpineModel(), 2f); }
 
     @Override
-    public ResourceLocation getEntityTexture(AlpineEntity entity)
+    public ResourceLocation getTextureLocation(AlpineEntity entity)
     {
-        int variant = entity.getVariant();
+        int variant = Mth.clamp(entity.getVariant(), 0, TEXTURES.length - 1);
         if (TEXTURES[variant] == null)
         {
             String path = BASE_PATH + "alpine/body_" + variant;

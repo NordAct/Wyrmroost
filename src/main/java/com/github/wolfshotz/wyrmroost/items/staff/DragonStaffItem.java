@@ -2,25 +2,24 @@ package com.github.wolfshotz.wyrmroost.items.staff;
 
 import com.github.wolfshotz.wyrmroost.client.screen.StaffScreen;
 import com.github.wolfshotz.wyrmroost.entities.dragon.AbstractDragonEntity;
+import com.github.wolfshotz.wyrmroost.registry.WRDataComponentTypes;
 import com.github.wolfshotz.wyrmroost.registry.WRItems;
 import com.github.wolfshotz.wyrmroost.util.ModUtils;
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.item.ItemUseContext;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.text.IFormattableTextComponent;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
+
 import javax.annotation.Nullable;
 import java.util.List;
 
@@ -29,26 +28,29 @@ public class DragonStaffItem extends Item
     public static final String DATA_DRAGON_ID = "BoundDragon"; // int
     public static final String DATA_ACTION = "Action";
 
-    public DragonStaffItem() { super(WRItems.builder().maxStackSize(1)); }
+    public DragonStaffItem() {
+        super(WRItems.builder().stacksTo(1));
+    }
+
 
     /**
      * Triggered when right clicked on air
      */
     @Override
-    public InteractionResult<ItemStack> onItemRightClick(Level world, Player player, InteractionHand hand)
+    public InteractionResultHolder<ItemStack> use(Level world, Player player, InteractionHand hand)
     {
-        ItemStack stack = player.getHeldItem(hand);
-        if (player.isShiftKeyDown() && stack.hasTag() && stack.getTag().contains(DATA_DRAGON_ID))
+        ItemStack stack = player.getItemInHand(hand);
+        if (player.isShiftKeyDown() && stack.getComponents().has(WRDataComponentTypes.DRAGON_ID_COMPONENT.get()))
         {
-            reset(stack.getTag());
-            ModUtils.playLocalSound(world, player.getPosition(), SoundEvents.BLOCK_SCAFFOLDING_STEP, 1, 1);
-            return InteractionResult.resultSuccess(stack);
+            reset(stack);
+            ModUtils.playLocalSound(world, player.blockPosition(), SoundEvents.SCAFFOLDING_STEP, 1, 1);
+            return InteractionResultHolder.success(stack);
         }
 
         AbstractDragonEntity dragon = getBoundDragon(world, stack);
         if (dragon != null && getAction(stack).rightClick(dragon, player, stack))
-            return InteractionResult.resultSuccess(stack);
-        return InteractionResult.resultPass(stack);
+            return InteractionResultHolder.success(stack);
+        return InteractionResultHolder.pass(stack);
     }
 
     /**
@@ -63,7 +65,7 @@ public class DragonStaffItem extends Item
             if (dragon.isOwnedBy(player))
             {
                 bindDragon(dragon, stack);
-                ModUtils.playLocalSound(player.level, player.getPosition(), SoundEvents.BLOCK_ENCHANTMENT_TABLE_USE, 1, 1);
+                ModUtils.playLocalSound(player.level(), player.blockPosition(), SoundEvents.ENCHANTMENT_TABLE_USE, 1, 1);
                 return true;
             }
         }
@@ -74,46 +76,41 @@ public class DragonStaffItem extends Item
      * Triggered when Right clicking an entity
      */
     @Override
-    public ActionResultType itemInteractionForEntity(ItemStack stack, Player playerIn, LivingEntity target, InteractionHand hand)
-    {
+    public InteractionResult interactLivingEntity(ItemStack stack, Player playerIn, LivingEntity target, InteractionHand hand) {
         if (target instanceof AbstractDragonEntity)
         {
             AbstractDragonEntity dragon = (AbstractDragonEntity) target;
             if (dragon.isOwnedBy(playerIn))
             {
                 bindDragon(dragon, stack);
-                if (playerIn.world.isRemote) StaffScreen.open(dragon, stack);
-                return ActionResultType.func_233537_a_(playerIn.world.isRemote);
+                if (playerIn.level().isClientSide()) StaffScreen.open(dragon, stack);
+                return InteractionResult.sidedSuccess(playerIn.level().isClientSide());
             }
         }
-        return ActionResultType.PASS;
+        return InteractionResult.PASS;
     }
 
     /**
      * Triggered when right clicked on a block
      */
+
     @Override
-    public ActionResultType onItemUse(ItemUseContext context)
-    {
-        if (context.getPlayer().isSneaking()) return ActionResultType.PASS;
-        ItemStack stack = context.getItem();
-        AbstractDragonEntity dragon = getBoundDragon(context.getWorld(), stack);
-        if (dragon != null && getAction(stack).clickBlock(dragon, context)) return ActionResultType.SUCCESS;
-        return ActionResultType.PASS;
+    public InteractionResult useOn(UseOnContext context) {
+        if (context.getPlayer().isCrouching()) return InteractionResult.PASS;
+        ItemStack stack = context.getItemInHand();
+        AbstractDragonEntity dragon = getBoundDragon(context.getLevel(), stack);
+        if (dragon != null && getAction(stack).clickBlock(dragon, context)) return InteractionResult.SUCCESS;
+        return InteractionResult.PASS;
     }
 
     @Override
-    public void addInformation(ItemStack stack, @Nullable Level worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn)
-    {
-        tooltip.add(new TranslationTextComponent("item.wyrmroost.dragon_staff.desc").mergeStyle(TextFormatting.GRAY));
-        if (stack.hasTag())
+    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flags) {
+        tooltip.add(Component.translatable("item.wyrmroost.dragon_staff.desc").withStyle(ChatFormatting.GRAY));
+        AbstractDragonEntity dragon = getBoundDragon(context.level(), stack);
+        if (dragon != null)
         {
-            AbstractDragonEntity dragon = getBoundDragon(worldIn, stack);
-            if (dragon != null)
-            {
-                tooltip.add(new TranslationTextComponent("item.wyrmroost.dragon_staff.bound", ((IFormattableTextComponent) dragon.getName()).mergeStyle(TextFormatting.AQUA)));
-                tooltip.add(new TranslationTextComponent("item.wyrmroost.dragon_staff.action", getAction(stack).getTranslation(dragon)).mergeStyle(TextFormatting.AQUA));
-            }
+            tooltip.add(Component.translatable("item.wyrmroost.dragon_staff.bound", dragon.getName()).withStyle(ChatFormatting.AQUA));
+            tooltip.add(Component.translatable("item.wyrmroost.dragon_staff.action", getAction(stack).getTranslation(dragon)).withStyle(ChatFormatting.AQUA));
         }
     }
 
@@ -124,60 +121,48 @@ public class DragonStaffItem extends Item
      * The solution is to just remove everything.
      */
     @Override
-    public boolean updateItemStackNBT(CompoundNBT nbt)
-    {
-        reset(nbt);
-        return false;
+    public void verifyComponentsAfterLoad(ItemStack stack) {
+        reset(stack);
     }
 
     @Override
-    public boolean hasEffect(ItemStack stack) { return getAction(stack) != StaffAction.DEFAULT; }
+    public boolean useOnRelease(ItemStack stack) { return getAction(stack) != StaffAction.DEFAULT; }
 
-    public static void reset(@Nullable CompoundNBT tag)
+    public static void reset(ItemStack stack)
     {
-        if (tag == null) return;
-        if (tag.contains(DATA_DRAGON_ID)) tag.remove(DATA_DRAGON_ID);
-        if (tag.contains(DATA_ACTION)) tag.remove(DATA_ACTION);
+        if (stack.getComponents().has(WRDataComponentTypes.DRAGON_ID_COMPONENT.get())) stack.remove(WRDataComponentTypes.DRAGON_ID_COMPONENT.get());
+        if (stack.getComponents().has(WRDataComponentTypes.ACTION_COMPONENT.get())) stack.remove(WRDataComponentTypes.ACTION_COMPONENT.get());
     }
 
     public static void setAction(StaffAction action, Player player, ItemStack stack)
     {
         assertStaff(stack);
-        CompoundNBT tag = stack.getOrCreateTag();
-        tag.putInt(DATA_ACTION, action.ordinal());
-        getAction(stack).onSelected(getBoundDragon(player.level, stack), player, stack);
+        stack.set(WRDataComponentTypes.ACTION_COMPONENT, action.ordinal());
+        getAction(stack).onSelected(getBoundDragon(player.level(), stack), player, stack);
     }
 
     public static StaffAction getAction(ItemStack stack)
     {
         assertStaff(stack);
-        if (stack.hasTag())
-        {
-            CompoundNBT tag = stack.getTag();
-            if (tag.contains(DATA_ACTION)) return StaffAction.VALUES[tag.getInt(DATA_ACTION)];
-        }
+        if (stack.getComponents().has(WRDataComponentTypes.ACTION_COMPONENT.get()))
+            return StaffAction.VALUES[stack.getComponents().get(WRDataComponentTypes.ACTION_COMPONENT.get())];
         return StaffAction.DEFAULT;
     }
 
     public static void bindDragon(AbstractDragonEntity dragon, ItemStack stack)
     {
         assertStaff(stack);
-        CompoundNBT nbt = stack.getOrCreateTag();
-        nbt.putInt(DATA_DRAGON_ID, dragon.getEntityId());
+
+        stack.set(WRDataComponentTypes.DRAGON_ID_COMPONENT.get(), dragon.getId());
     }
 
     @Nullable
     public static AbstractDragonEntity getBoundDragon(Level world, ItemStack stack)
     {
         assertStaff(stack);
-        if (stack.hasTag())
-        {
-            CompoundNBT tag = stack.getTag();
-            if (tag.contains(DATA_DRAGON_ID))
-            {
-                Entity entity = world.getEntityByID(tag.getInt(DATA_DRAGON_ID));
-                if (entity instanceof AbstractDragonEntity) return ((AbstractDragonEntity) entity);
-            }
+        if (stack.getComponents().has(WRDataComponentTypes.DRAGON_ID_COMPONENT.get())) {
+            Entity entity = world.getEntity(stack.getComponents().get(WRDataComponentTypes.DRAGON_ID_COMPONENT.get()));
+            if (entity instanceof AbstractDragonEntity) return ((AbstractDragonEntity) entity);
         }
         return null;
     }
@@ -185,6 +170,6 @@ public class DragonStaffItem extends Item
     public static void assertStaff(ItemStack stack)
     {
         if (!(stack.getItem() instanceof DragonStaffItem))
-            throw new AssertionError(String.format("This isnt a staff wtf? [%s] Please contact the mod author", stack.getItem().getRegistryName()));
+            throw new AssertionError(String.format("This isnt a staff wtf? [%s] Please contact the mod author", stack.getItem().builtInRegistryHolder().getKey().location()));
     }
 }

@@ -2,24 +2,27 @@ package com.github.wolfshotz.wyrmroost.client.render.entity.butterfly;
 
 import com.github.wolfshotz.wyrmroost.WRConfig;
 import com.github.wolfshotz.wyrmroost.Wyrmroost;
+import com.github.wolfshotz.wyrmroost.client.model.WRModelPart;
 import com.github.wolfshotz.wyrmroost.client.render.RenderHelper;
 import com.github.wolfshotz.wyrmroost.client.render.entity.AbstractDragonRenderer;
 import com.github.wolfshotz.wyrmroost.entities.dragon.ButterflyLeviathanEntity;
 import com.github.wolfshotz.wyrmroost.util.Mafs;
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Axis;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.entity.EntityRendererManager;
-import net.minecraft.client.renderer.entity.layers.LayerRenderer;
-import net.minecraft.client.renderer.model.ModelRenderer;
-import net.minecraft.client.renderer.model.RenderMaterial;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.inventory.container.PlayerContainer;
+import net.minecraft.client.resources.model.Material;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.FastColor;
 import net.minecraft.util.Mth;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.vector.Quaternion;
-import net.minecraft.util.math.vector.Vector3f;
+import net.minecraft.world.inventory.InventoryMenu;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 
 import javax.annotation.Nullable;
 
@@ -35,12 +38,12 @@ public class ButterflyLeviathanRenderer extends AbstractDragonRenderer<Butterfly
     public static final ResourceLocation GLOW = resource("activated.png");
     public static final ResourceLocation CHRISTMAS_GLOW = resource("christmas_activated.png");
 
-    private static final RenderMaterial CONDUIT_CAGE_TEXTURE = new RenderMaterial(PlayerContainer.LOCATION_BLOCKS_TEXTURE, new ResourceLocation("entity/conduit/cage"));
-    private static final RenderMaterial CONDUIT_WIND_TEXTURE = new RenderMaterial(PlayerContainer.LOCATION_BLOCKS_TEXTURE, new ResourceLocation("entity/conduit/wind"));
-    private static final RenderMaterial CONDUIT_VERTICAL_WIND_TEXTURE = new RenderMaterial(PlayerContainer.LOCATION_BLOCKS_TEXTURE, new ResourceLocation("entity/conduit/wind_vertical"));
-    private static final RenderMaterial CONDUIT_OPEN_EYE_TEXTURE = new RenderMaterial(PlayerContainer.LOCATION_BLOCKS_TEXTURE, new ResourceLocation("entity/conduit/open_eye"));
+    private static final Material CONDUIT_CAGE_TEXTURE = new Material(InventoryMenu.BLOCK_ATLAS, ResourceLocation.withDefaultNamespace("entity/conduit/cage"));
+    private static final Material CONDUIT_WIND_TEXTURE = new Material(InventoryMenu.BLOCK_ATLAS, ResourceLocation.withDefaultNamespace("entity/conduit/wind"));
+    private static final Material CONDUIT_VERTICAL_WIND_TEXTURE = new Material(InventoryMenu.BLOCK_ATLAS, ResourceLocation.withDefaultNamespace("entity/conduit/wind_vertical"));
+    private static final Material CONDUIT_OPEN_EYE_TEXTURE = new Material(InventoryMenu.BLOCK_ATLAS, ResourceLocation.withDefaultNamespace("entity/conduit/open_eye"));
 
-    public ButterflyLeviathanRenderer(EntityRendererManager manager)
+    public ButterflyLeviathanRenderer(EntityRendererProvider.Context manager)
     {
         super(manager, new ButterflyLeviathanModel(), 2f);
         addLayer(new LightningLayer());
@@ -48,15 +51,15 @@ public class ButterflyLeviathanRenderer extends AbstractDragonRenderer<Butterfly
     }
 
     @Override
-    protected void preRenderCallback(ButterflyLeviathanEntity entity, MatrixStack ms, float partialTicks)
-    {
-        ms.scale(3, 3, 3);
-        super.preRenderCallback(entity, ms, partialTicks);
+    public void render(ButterflyLeviathanEntity entity, float entityYaw, float partialTicks, PoseStack ms, MultiBufferSource buffer, int packedLightIn) {
+        float scale = 3;
+        ms.scale(scale, scale, scale);
+        super.render(entity, entityYaw, partialTicks, ms, buffer, packedLightIn);
     }
 
     @Nullable
     @Override
-    public ResourceLocation getEntityTexture(ButterflyLeviathanEntity entity)
+    public ResourceLocation getTextureLocation(ButterflyLeviathanEntity entity)
     {
         int variant = entity.getVariant();
 
@@ -82,7 +85,7 @@ public class ButterflyLeviathanRenderer extends AbstractDragonRenderer<Butterfly
         return Wyrmroost.rl(BASE_PATH + "butterfly_leviathan/" + png);
     }
 
-    public class LightningLayer extends LayerRenderer<ButterflyLeviathanEntity, ButterflyLeviathanModel>
+    public class LightningLayer extends RenderLayer<ButterflyLeviathanEntity, ButterflyLeviathanModel>
     {
         public LightningLayer()
         {
@@ -90,89 +93,89 @@ public class ButterflyLeviathanRenderer extends AbstractDragonRenderer<Butterfly
         }
 
         @Override
-        public void render(MatrixStack ms, IRenderTypeBuffer buffer, int packedLight, ButterflyLeviathanEntity entity, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch)
+        public void render(PoseStack ms, MultiBufferSource buffer, int packedLight, ButterflyLeviathanEntity entity, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch)
         {
-            float alpha = Mth.clamp(entity.lightningCooldown, 1, 255);
-            IVertexBuilder builder = buffer.getBuffer(RenderHelper.getTranslucentGlow(WRConfig.deckTheHalls? CHRISTMAS_GLOW : GLOW));
-            getEntityModel().render(ms, builder, 15728640, OverlayTexture.NO_OVERLAY, 1, 1, 1, alpha);
+            int alpha = Mth.clamp(entity.lightningCooldown, 1, 255);
+            VertexConsumer builder = buffer.getBuffer(RenderHelper.getTranslucentGlow(WRConfig.deckTheHalls? CHRISTMAS_GLOW : GLOW));
+            getModel().renderToBuffer(ms, builder, 15728640, OverlayTexture.NO_OVERLAY, FastColor.ARGB32.color(alpha, 0xFFFFFFFF));
         }
     }
 
-    public class ConduitLayer extends LayerRenderer<ButterflyLeviathanEntity, ButterflyLeviathanModel>
+    public class ConduitLayer extends RenderLayer<ButterflyLeviathanEntity, ButterflyLeviathanModel>
     {
-        public ModelRenderer conduitEye;
-        public ModelRenderer conduitWind;
-        public ModelRenderer conduitCage;
+        public WRModelPart conduitEye;
+        public WRModelPart conduitWind;
+        public WRModelPart conduitCage;
 
         public ConduitLayer()
         {
             super(ButterflyLeviathanRenderer.this);
 
-            conduitEye = new ModelRenderer(16, 16, 0, 0);
-            conduitWind = new ModelRenderer(64, 32, 0, 0);
-            conduitCage = new ModelRenderer(32, 16, 0, 0);
+            conduitEye = new WRModelPart(getModel(),16, 16);
+            conduitWind = new WRModelPart(getModel(),64, 32);
+            conduitCage = new WRModelPart(getModel(),32, 16);
             conduitEye.addBox(-4.0F, -4.0F, 0.0F, 8.0F, 8.0F, 0.0F, 0.01F);
-            conduitWind.addBox(-8.0F, -8.0F, -8.0F, 16.0F, 16.0F, 16.0F);
-            conduitCage.addBox(-4.0F, -4.0F, -4.0F, 8.0F, 8.0F, 8.0F);
+            conduitWind.addBox(-8.0F, -8.0F, -8.0F, 16.0F, 16.0F, 16.0F, 0);
+            conduitCage.addBox(-4.0F, -4.0F, -4.0F, 8.0F, 8.0F, 8.0F, 0);
         }
 
         @Override
-        public void render(MatrixStack ms, IRenderTypeBuffer buffer, int light, ButterflyLeviathanEntity entity, float limbSwing, float limbSwingAmount, float partialTicks, float tick, float netHeadYaw, float headPitch)
+        public void render(PoseStack ms, MultiBufferSource buffer, int light, ButterflyLeviathanEntity entity, float limbSwing, float limbSwingAmount, float partialTicks, float tick, float netHeadYaw, float headPitch)
         {
             if ((entity.getAnimation() == ButterflyLeviathanEntity.CONDUIT_ANIMATION && entity.getAnimationTick() < 15) || !entity.hasConduit())
                 return;
 
-            int overlay = getPackedOverlay(entity, getOverlayProgress(entity, partialTicks));
+            int overlay = getOverlayCoords(entity, getWhiteOverlayProgress(entity, partialTicks));
             float rotation = (tick * -0.0375f) * (180f / Mafs.PI);
             float translation = Mth.sin(tick * 0.1F) / 2.0F + 0.5F;
             translation = translation * translation + translation;
-            if (!entity.canSwim()) headPitch /= 2;
+            if (!entity.isUnderWater()) headPitch /= 2;
 
-            ms.push();
+            ms.pushPose();
             ms.scale(0.33f, 0.33f, 0.33f);
-            ms.translate(entityModel.head.rotationPointX / 16, entityModel.head.rotationPointY / 16, entityModel.head.rotationPointZ / 16);
-            ms.rotate(Vector3f.YP.rotationDegrees(netHeadYaw * 0.75f)); // rotate to match head rotations
-            ms.rotate(Vector3f.XP.rotationDegrees(headPitch));
+            ms.translate(getModel().head.x / 16, getModel().head.y / 16, getModel().head.z / 16);
+            ms.mulPose(Axis.YP.rotationDegrees(netHeadYaw * 0.75f)); // mulPose();(); to match head rotations
+            ms.mulPose(Axis.XP.rotationDegrees(headPitch));
             ms.translate(0,  0.5f - (entity.beachedTimer.get(partialTicks) * 1.1f), -3.65);
 
             // Cage
-            ms.push();
+            ms.pushPose();
             ms.translate(0, (0.3F + translation * 0.2F), 0);
             Vector3f vector3f = new Vector3f(0.5F, 1.0F, 0.5F);
             vector3f.normalize();
-            ms.rotate(new Quaternion(vector3f, rotation, true));
-            conduitCage.render(ms, CONDUIT_CAGE_TEXTURE.getBuffer(buffer, RenderType::getEntityCutoutNoCull), light, overlay);
-            ms.pop();
+            ms.mulPose(new Quaternionf(vector3f.x, vector3f.y, vector3f.z, rotation));
+            conduitCage.render(ms, CONDUIT_CAGE_TEXTURE.buffer(buffer, RenderType::entityCutoutNoCull), light, overlay);
+            ms.popPose();
 
             // Wind
-            int gen = entity.ticksExisted / 66 % 3;
-            ms.push();
+            int gen = entity.tickCount / 66 % 3;
+            ms.pushPose();
             ms.translate(0, 0.5d, 0);
-            if (gen == 1) ms.rotate(Vector3f.XP.rotationDegrees(90));
-            else if (gen == 2) ms.rotate(Vector3f.ZP.rotationDegrees(90));
-            IVertexBuilder builder = (gen == 1? CONDUIT_VERTICAL_WIND_TEXTURE : CONDUIT_WIND_TEXTURE).getBuffer(buffer, RenderType::getEntityCutoutNoCull);
+            if (gen == 1) ms.mulPose(Axis.XP.rotationDegrees(90));
+            else if (gen == 2) ms.mulPose(Axis.ZP.rotationDegrees(90));
+            VertexConsumer builder = (gen == 1? CONDUIT_VERTICAL_WIND_TEXTURE : CONDUIT_WIND_TEXTURE).buffer(buffer, RenderType::entityCutoutNoCull);
             conduitWind.render(ms, builder, light, overlay);
-            ms.pop();
+            ms.popPose();
 
             // Wind but its the second time
-            ms.push();
+            ms.pushPose();
             ms.scale(0.875f, 0.875f, 0.875f);
-            ms.rotate(Vector3f.XP.rotationDegrees(180f));
-            ms.rotate(Vector3f.ZP.rotationDegrees(180f));
+            ms.mulPose(Axis.XP.rotationDegrees(180f));
+            ms.mulPose(Axis.ZP.rotationDegrees(180f));
             conduitWind.render(ms, builder, light, overlay);
-            ms.pop();
+            ms.popPose();
 
             // Eye
-            ms.push();
+            ms.pushPose();
             ms.translate(0, (0.3F + translation * 0.2F), 0);
-            ms.rotate(Vector3f.YN.rotationDegrees(entity.rotationYaw)); // negate stack rotation from entity for full rotation control
-            ms.rotate(Vector3f.YP.rotationDegrees(getRenderManager().info.getYaw()));
-            ms.rotate(Vector3f.XP.rotationDegrees(getRenderManager().info.getPitch()));
+            ms.mulPose(Axis.YN.rotationDegrees(entity.yHeadRot)); // negate stack rotation from entity for full rotation control
+            ms.mulPose(Axis.YP.rotationDegrees(Minecraft.getInstance().getEntityRenderDispatcher().camera.getYRot()));
+            ms.mulPose(Axis.XP.rotationDegrees(Minecraft.getInstance().getEntityRenderDispatcher().camera.getXRot()));
             ms.scale(0.8f, 0.8f, 0.8f);
-            conduitEye.render(ms, CONDUIT_OPEN_EYE_TEXTURE.getBuffer(buffer, RenderType::getEntityCutoutNoCull), light, overlay);
-            ms.pop();
+            conduitEye.render(ms, CONDUIT_OPEN_EYE_TEXTURE.buffer(buffer, RenderType::entityCutoutNoCull), light, overlay);
+            ms.popPose();
 
-            ms.pop();
+            ms.popPose();
         }
     }
 }

@@ -2,10 +2,10 @@ package com.github.wolfshotz.wyrmroost.client.render.entity.ldwyrm;
 
 import com.github.wolfshotz.wyrmroost.client.model.ModelAnimator;
 import com.github.wolfshotz.wyrmroost.client.model.WREntityModel;
-import com.github.wolfshotz.wyrmroost.client.model.WRModelRenderer;
+import com.github.wolfshotz.wyrmroost.client.model.WRModelPart;
 import com.github.wolfshotz.wyrmroost.entities.dragon.LDWyrmEntity;
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 
 /**
  * WR Lesser Desertwyrm - Ukan
@@ -13,23 +13,23 @@ import com.mojang.blaze3d.vertex.IVertexBuilder;
  */
 public class LDWyrmModel extends WREntityModel<LDWyrmEntity>
 {
-    public WRModelRenderer body1;
-    public WRModelRenderer body2;
-    public WRModelRenderer neck;
-    public WRModelRenderer leg1;
-    public WRModelRenderer leg1_1;
-    public WRModelRenderer wingL;
-    public WRModelRenderer wingR;
-    public WRModelRenderer body3;
-    public WRModelRenderer body4;
-    public WRModelRenderer body5;
-    public WRModelRenderer tail1;
-    public WRModelRenderer tail2;
-    public WRModelRenderer tail3;
-    public WRModelRenderer jaw;
-    public WRModelRenderer head;
+    public WRModelPart body1;
+    public WRModelPart body2;
+    public WRModelPart neck;
+    public WRModelPart leg1;
+    public WRModelPart leg1_1;
+    public WRModelPart wingL;
+    public WRModelPart wingR;
+    public WRModelPart body3;
+    public WRModelPart body4;
+    public WRModelPart body5;
+    public WRModelPart tail1;
+    public WRModelPart tail2;
+    public WRModelPart tail3;
+    public WRModelPart jaw;
+    public WRModelPart head;
 
-    private final WRModelRenderer[] body;
+    private final WRModelPart[] body;
 
     private final ModelAnimator animator;
     private final float globalSpeed = 0.5f;
@@ -37,57 +37,56 @@ public class LDWyrmModel extends WREntityModel<LDWyrmEntity>
 
     public LDWyrmModel()
     {
-        this.textureWidth = 30;
-        this.textureHeight = 30;
-        this.wingL = new WRModelRenderer(this, 0, 22);
+        super(30, 30);
+        this.wingL = new WRModelPart(this, 0, 22);
         this.wingL.setRotationPoint(0.5F, -0.7F, 2.0F);
         this.wingL.addBox(0.0F, -2.0F, 0.0F, 0, 2, 3, 0.0F);
         this.setRotateAngle(wingL, 0.6829473363053812F, 0.0F, 0.5462880558742251F);
-        this.body5 = new WRModelRenderer(this, 0, 0);
+        this.body5 = new WRModelPart(this, 0, 0);
         this.body5.setRotationPoint(-0.02F, -0.02F, 3.0F);
         this.body5.addBox(-1.5F, -1.0F, 0.0F, 3, 2, 4, 0.0F);
-        this.tail3 = new WRModelRenderer(this, 0, 17);
+        this.tail3 = new WRModelPart(this, 0, 17);
         this.tail3.setRotationPoint(0.0F, 0.0F, 3.0F);
         this.tail3.addBox(-0.5F, -0.5F, 0.0F, 1, 1, 4, 0.0F);
-        this.leg1_1 = new WRModelRenderer(this, 18, 22);
+        this.leg1_1 = new WRModelPart(this, 18, 22);
         this.leg1_1.setRotationPoint(-0.7F, 0.0F, 0.5F);
         this.leg1_1.addBox(-2.0F, -0.5F, -0.5F, 2, 1, 1, 0.0F);
         this.setRotateAngle(leg1_1, 0.0F, 0.0F, -0.40980330836826856F);
-        this.body1 = new WRModelRenderer(this, 0, 9);
+        this.body1 = new WRModelPart(this, 0, 9);
         this.body1.setRotationPoint(0.02F, 23.0F, -5.5F);
         this.body1.addBox(-1.0F, -1.0F, -2.0F, 2, 2, 4, 0.0F);
-        this.body4 = new WRModelRenderer(this, 0, 0);
+        this.body4 = new WRModelPart(this, 0, 0);
         this.body4.setRotationPoint(0.02F, 0.02F, 3.0F);
         this.body4.addBox(-1.5F, -1.0F, 0.0F, 3, 2, 4, 0.0F);
-        this.neck = new WRModelRenderer(this, 16, 0);
+        this.neck = new WRModelPart(this, 16, 0);
         this.neck.setRotationPoint(-0.02F, 0.02F, -1.0F);
         this.neck.addBox(-1.0F, -1.0F, -3.0F, 2, 2, 3, 0.0F);
         this.setRotateAngle(neck, 0.0F, 0.0F, 0.0F);
-        this.body3 = new WRModelRenderer(this, 0, 0);
+        this.body3 = new WRModelPart(this, 0, 0);
         this.body3.setRotationPoint(-0.02F, -0.02F, 3.0F);
         this.body3.addBox(-1.5F, -1.0F, 0.0F, 3, 2, 4, 0.0F);
-        this.wingR = new WRModelRenderer(this, 0, 22);
+        this.wingR = new WRModelPart(this, 0, 22);
         this.wingR.setRotationPoint(-0.5F, -0.7F, 2.0F);
         this.wingR.addBox(0.0F, -2.0F, 0.0F, 0, 2, 3, 0.0F);
         this.setRotateAngle(wingR, 0.6829473363053812F, 0.0F, -0.5462880558742251F);
-        this.head = new WRModelRenderer(this, 18, 14);
+        this.head = new WRModelPart(this, 18, 14);
         this.head.setRotationPoint(0.02F, -0.6F, -2.5F);
         this.head.addBox(-1.0F, -0.5F, -3.0F, 2, 1, 3, 0.0F);
         this.setRotateAngle(head, 0.0F, 0.0F, 0.0F);
-        this.tail1 = new WRModelRenderer(this, 0, 9);
+        this.tail1 = new WRModelPart(this, 0, 9);
         this.tail1.setRotationPoint(0.0F, 0.02F, 3.0F);
         this.tail1.addBox(-1.0F, -1.0F, 0.0F, 2, 2, 4, 0.0F);
-        this.leg1 = new WRModelRenderer(this, 18, 22);
+        this.leg1 = new WRModelPart(this, 18, 22);
         this.leg1.setRotationPoint(0.7F, 0.0F, 0.5F);
         this.leg1.addBox(0.0F, -0.5F, -0.5F, 2, 1, 1, 0.0F);
         this.setRotateAngle(leg1, 0.0F, 0.0F, 0.40980330836826856F);
-        this.body2 = new WRModelRenderer(this, 0, 0);
+        this.body2 = new WRModelPart(this, 0, 0);
         this.body2.setRotationPoint(0.02F, 0.02F, 1.0F);
         this.body2.addBox(-1.5F, -1.0F, 0.0F, 3, 2, 4, 0.0F);
-        this.tail2 = new WRModelRenderer(this, 0, 9);
+        this.tail2 = new WRModelPart(this, 0, 9);
         this.tail2.setRotationPoint(0.02F, 0.02F, 3.0F);
         this.tail2.addBox(-1.0F, -1.0F, 0.0F, 2, 2, 4, 0.0F);
-        this.jaw = new WRModelRenderer(this, 18, 7);
+        this.jaw = new WRModelPart(this, 18, 7);
         this.jaw.setRotationPoint(0.02F, 0.6F, -2.2F);
         this.jaw.addBox(-1.0F, -0.5F, -3.0F, 2, 1, 3, 0.0F);
         this.setRotateAngle(jaw, 0.0F, 0.0F, 0.0F);
@@ -108,19 +107,19 @@ public class LDWyrmModel extends WREntityModel<LDWyrmEntity>
 
         setDefaultPose();
 
-        body = new WRModelRenderer[] {body1, body2, body3, body4, body5, tail1, tail2, tail3};
+        body = new WRModelPart[] {body1, body2, body3, body4, body5, tail1, tail2, tail3};
 
         animator = ModelAnimator.create();
     }
 
     @Override
-    public void render(MatrixStack matrixStackIn, IVertexBuilder bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha)
+    public void renderToBuffer(PoseStack matrixStackIn, VertexConsumer bufferIn, int packedLightIn, int packedOverlayIn, int color)
     {
-        body1.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha);
+        body1.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn, color);
     }
 
     @Override
-    public void setRotationAngles(LDWyrmEntity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch)
+    public void setupAnim(LDWyrmEntity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch)
     {
         chainSwing(body, globalSpeed, 0.3f, 5, -limbSwing, limbSwingAmount);
 
@@ -128,21 +127,21 @@ public class LDWyrmModel extends WREntityModel<LDWyrmEntity>
     }
 
     @Override
-    public void setLivingAnimations(LDWyrmEntity minutus, float limbSwing, float limbSwingAmount, float partialTick)
+    public void prepareMobModel(LDWyrmEntity minutus, float limbSwing, float limbSwingAmount, float partialTick)
     {
-        float frame = minutus.ticksExisted;
+        float frame = minutus.tickCount + partialTick;
 
         animator.update(minutus, partialTick);
         resetToDefaultPose();
 
         if (minutus.isBurrowed())
         {
-            body1.rotateAngleX = -0.8f;
-            body1.rotationPointY = 26.5f;
-            body2.rotateAngleX = 0.8f;
-            neck.rotateAngleX = -0.8f;
-            jaw.rotateAngleX = 1f;
-            head.rotateAngleX = -1f;
+            body1.xRot = -0.8f;
+            body1.y = 26.5f;
+            body2.xRot = 0.8f;
+            neck.xRot = -0.8f;
+            jaw.xRot = 1f;
+            head.xRot = -1f;
             
             bob(neck, 0.45f - globalSpeed, 0.15f, false, frame, f);
         }

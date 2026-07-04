@@ -2,19 +2,20 @@ package com.github.wolfshotz.wyrmroost.client.render.entity.rooststalker;
 
 import com.github.wolfshotz.wyrmroost.WRConfig;
 import com.github.wolfshotz.wyrmroost.Wyrmroost;
+import com.github.wolfshotz.wyrmroost.client.model.WRModelPart;
 import com.github.wolfshotz.wyrmroost.client.render.entity.AbstractDragonRenderer;
 import com.github.wolfshotz.wyrmroost.entities.dragon.RoostStalkerEntity;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Axis;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.entity.EntityRendererManager;
-import net.minecraft.client.renderer.entity.layers.LayerRenderer;
-import net.minecraft.client.renderer.model.ItemCameraTransforms;
-import net.minecraft.client.renderer.model.ModelRenderer;
-import net.minecraft.item.TieredItem;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.vector.Vector3f;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.client.renderer.entity.layers.RenderLayer;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TieredItem;
+
 import javax.annotation.Nullable;
 
 public class RoostStalkerRenderer extends AbstractDragonRenderer<RoostStalkerEntity, RoostStalkerModel>
@@ -27,7 +28,7 @@ public class RoostStalkerRenderer extends AbstractDragonRenderer<RoostStalkerEnt
     public static final ResourceLocation SHINY_EYES = resource("body_spe_glow.png");
     public static final ResourceLocation CHRISTMAS_EYES = resource("christmas_layer.png");
 
-    public RoostStalkerRenderer(EntityRendererManager manager)
+    public RoostStalkerRenderer(EntityRendererProvider.Context manager)
     {
         super(manager, new RoostStalkerModel(), 0.5f);
         addLayer(new MouthItemLayer());
@@ -36,7 +37,7 @@ public class RoostStalkerRenderer extends AbstractDragonRenderer<RoostStalkerEnt
 
     @Nullable
     @Override
-    public ResourceLocation getEntityTexture(RoostStalkerEntity entity)
+    public ResourceLocation getTextureLocation(RoostStalkerEntity entity)
     {
         if (entity.getVariant() == -1) return SHINY;
         return WRConfig.deckTheHalls? CHRISTMAS : BODY;
@@ -53,43 +54,43 @@ public class RoostStalkerRenderer extends AbstractDragonRenderer<RoostStalkerEnt
         return Wyrmroost.rl(BASE_PATH + "roost_stalker/" + png);
     }
 
-    class MouthItemLayer extends LayerRenderer<RoostStalkerEntity, RoostStalkerModel>
+    class MouthItemLayer extends RenderLayer<RoostStalkerEntity, RoostStalkerModel>
     {
         public MouthItemLayer() { super(RoostStalkerRenderer.this); }
 
         @Override
-        public void render(MatrixStack ms, IRenderTypeBuffer bufferIn, int packedLightIn, RoostStalkerEntity stalker, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch)
+        public void render(PoseStack ms, MultiBufferSource bufferIn, int packedLightIn, RoostStalkerEntity stalker, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch)
         {
             ItemStack stack = stalker.getItem();
 
             if (!stack.isEmpty())
             {
-                ms.push();
+                ms.pushPose();
 
                 if (stalker.isSleeping())
                 {
                     // just set the item on the ground
                     ms.translate(-0.4, 1.47, 0.1);
-                    ms.rotate(Vector3f.YP.rotationDegrees(135));
+                    ms.mulPose(Axis.YP.rotationDegrees(135));
                 }
                 else
                 {
-                    ModelRenderer head = getEntityModel().head;
-                    ms.translate(head.rotationPointX / 8, -(head.rotationPointY * 2.4), head.rotationPointZ / 8); // translate to heads rotation point (rough estimate) to allow for the same rotations while rotating; fixes connection issues
-                    ms.rotate(Vector3f.YP.rotationDegrees(netHeadYaw)); // rotate to match head rotations
-                    ms.rotate(Vector3f.XP.rotationDegrees(headPitch));
-                    ms.translate(0, stalker.func_233684_eK_()? 0.11 : 0.03, -0.4); // offset
+                    WRModelPart head = getModel().head;
+                    ms.translate(head.x / 8, -(head.y * 2.4), head.z / 8); // translate to heads rotation point (rough estimate) to allow for the same rotations while rotating; fixes connection issues
+                    ms.mulPose(Axis.YP.rotationDegrees(netHeadYaw)); // rotate to match head rotations
+                    ms.mulPose(Axis.XP.rotationDegrees(headPitch));
+                    ms.translate(0, stalker.isInSittingPose()? 0.11 : 0.03, -0.4); // offset
                     if (stack.getItem() instanceof TieredItem) // offsets for tools, looks way fucking better
                     {
                         ms.translate(0.1, 0, 0);
-                        ms.rotate(Vector3f.YP.rotationDegrees(45));
+                        ms.mulPose(Axis.YP.rotationDegrees(45));
                     }
                 }
 
-                ms.rotate(Vector3f.XP.rotationDegrees(90)); // flip the item
+                ms.mulPose(Axis.XP.rotationDegrees(90)); // flip the item
 
-                Minecraft.getInstance().getFirstPersonRenderer().renderItemSide(stalker, stack, ItemCameraTransforms.TransformType.GROUND, false, ms, bufferIn, packedLightIn);
-                ms.pop();
+                Minecraft.getInstance().gameRenderer.itemInHandRenderer.renderItem(stalker, stack, ItemDisplayContext.GROUND, false, ms, bufferIn, packedLightIn);
+                ms.popPose();
             }
         }
     }

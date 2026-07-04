@@ -2,9 +2,11 @@ package com.github.wolfshotz.wyrmroost;
 
 import com.github.wolfshotz.wyrmroost.util.ModUtils;
 import com.google.common.collect.ImmutableList;
+import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.fml.config.ModConfig;
+import net.neoforged.fml.config.IConfigSpec;
+import net.neoforged.fml.event.config.ModConfigEvent;
+import net.neoforged.neoforge.common.ModConfigSpec;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.core.util.Integers;
 
@@ -35,14 +37,14 @@ public class WRConfig
 
     public static boolean canGrief(Level world)
     {
-        return respectMobGriefing? world.getGameRules().getBoolean(GameRules.MOB_GRIEFING) : dragonGriefing;
+        return respectMobGriefing? world.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING) : dragonGriefing;
     }
 
-    public static void configLoad(ModConfig.ModConfigEvent evt)
+    public static void configLoad(ModConfigEvent evt)
     {
         try
         {
-            ForgeConfigSpec spec = evt.getConfig().getSpec();
+            IConfigSpec spec = evt.getConfig().getSpec();
             if (spec == Common.SPEC) Common.reload();
             else if (spec == Client.SPEC) Client.reload();
             else if (spec == Server.SPEC) Server.reload();
@@ -59,18 +61,18 @@ public class WRConfig
     public static class Common
     {
         public static final Common INSTANCE;
-        public static final ForgeConfigSpec SPEC;
+        public static final ModConfigSpec SPEC;
 
         static
         {
-            Pair<Common, ForgeConfigSpec> pair = new ForgeConfigSpec.Builder().configure(Common::new);
+            Pair<Common, ModConfigSpec> pair = new ModConfigSpec.Builder().configure(Common::new);
             INSTANCE = pair.getLeft();
             SPEC = pair.getRight();
         }
 
-        public final ForgeConfigSpec.BooleanValue debugMode;
+        public final ModConfigSpec.BooleanValue debugMode;
 
-        Common(ForgeConfigSpec.Builder builder)
+        Common(ModConfigSpec.Builder builder)
         {
             builder.comment("Wyrmroost General Options").push("general");
             debugMode = builder.comment("Do not enable this unless you are told to!")
@@ -89,20 +91,20 @@ public class WRConfig
     public static class Client
     {
         public static final Client INSTANCE;
-        public static final ForgeConfigSpec SPEC;
+        public static final ModConfigSpec SPEC;
 
         static
         {
-            Pair<Client, ForgeConfigSpec> pair = new ForgeConfigSpec.Builder().configure(Client::new);
+            Pair<Client, ModConfigSpec> pair = new ModConfigSpec.Builder().configure(Client::new);
             INSTANCE = pair.getLeft();
             SPEC = pair.getRight();
         }
 
-        public final ForgeConfigSpec.BooleanValue disableFrustumCheck;
-        public final ForgeConfigSpec.BooleanValue renderEntityOutlines;
-        public final ForgeConfigSpec.BooleanValue deckTheHalls;
+        public final ModConfigSpec.BooleanValue disableFrustumCheck;
+        public final ModConfigSpec.BooleanValue renderEntityOutlines;
+        public final ModConfigSpec.BooleanValue deckTheHalls;
 
-        Client(ForgeConfigSpec.Builder builder)
+        Client(ModConfigSpec.Builder builder)
         {
             builder.comment("Wyrmroost Client Options").push("General");
             disableFrustumCheck = builder.comment("Disables Frustum check when rendering (Dragons parts dont go poof when looking too far) - Only applies to bigger bois")
@@ -129,23 +131,23 @@ public class WRConfig
     public static class Server
     {
         public static final Server INSTANCE;
-        public static final ForgeConfigSpec SPEC;
+        public static final ModConfigSpec SPEC;
 
         static
         {
-            Pair<Server, ForgeConfigSpec> pair = new ForgeConfigSpec.Builder().configure(Server::new);
+            Pair<Server, ModConfigSpec> pair = new ModConfigSpec.Builder().configure(Server::new);
             INSTANCE = pair.getLeft();
             SPEC = pair.getRight();
         }
 
-        public final ForgeConfigSpec.IntValue homeRadius;
-        public final ForgeConfigSpec.DoubleValue breathFlammability;
-        public final ForgeConfigSpec.BooleanValue respectMobGriefing;
-        public final ForgeConfigSpec.BooleanValue dragonGriefing;
+        public final ModConfigSpec.IntValue homeRadius;
+        public final ModConfigSpec.DoubleValue breathFlammability;
+        public final ModConfigSpec.BooleanValue respectMobGriefing;
+        public final ModConfigSpec.BooleanValue dragonGriefing;
         private static final List<String> BREED_LIMIT_DEFAULTS = ImmutableList.of("butterfly_leviathan:1", "royal_red:2");
-        public final ForgeConfigSpec.ConfigValue<List<? extends String>> breedLimits;
+        public final ModConfigSpec.ConfigValue<List<? extends String>> breedLimits;
 
-        Server(ForgeConfigSpec.Builder builder)
+        Server(ModConfigSpec.Builder builder)
         {
             builder.comment("Wyrmroost Dragon Options").push("dragons");
             homeRadius = builder

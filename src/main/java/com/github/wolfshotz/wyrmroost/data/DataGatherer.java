@@ -1,7 +1,11 @@
 package com.github.wolfshotz.wyrmroost.data;
 
+import net.minecraft.core.HolderLookup;
 import net.minecraft.data.DataGenerator;
-import net.minecraftforge.fml.event.lifecycle.GatherDataEvent;
+import net.minecraft.data.PackOutput;
+import net.neoforged.neoforge.data.event.GatherDataEvent;
+
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Data is data. It <I>could</I> be cleaner to integrate this data inside the registry logic and have the registry
@@ -16,17 +20,18 @@ public class DataGatherer
     public static void gather(GatherDataEvent event)
     {
         DataGenerator gen = event.getGenerator();
+        CompletableFuture<HolderLookup.Provider> lookupProvider = event.getLookupProvider();
+        PackOutput output = gen.getPackOutput();
 
-        if (event.includeServer())
-        {
-            TagData.provide(gen, event.getExistingFileHelper());
-            gen.addProvider(new RecipeData(gen));
-            gen.addProvider(new LootTableData(gen));
-        }
-        if (event.includeClient())
-        {
-            ModelData.provide(gen, event.getExistingFileHelper());
-            gen.addProvider(new SoundData(gen, event.getExistingFileHelper()));
-        }
+        TagData.provide(gen, event.includeServer(), event.getExistingFileHelper(), output, lookupProvider);
+        gen.addProvider(event.includeServer(), new RecipeData(output, lookupProvider));
+        gen.addProvider(event.includeServer(), new LootTableData(output, lookupProvider));
+        gen.addProvider(event.includeServer(), new DamageTypeData(output, lookupProvider));
+        gen.addProvider(event.includeServer(), new BiomeModifiersData(output, lookupProvider));
+        gen.addProvider(event.includeServer(), new ConfiguredFeatureData(output, lookupProvider));
+        gen.addProvider(event.includeServer(), new PlacedFeatureData(output, lookupProvider));
+
+        ModelData.provide(gen, event.includeClient(), event.getExistingFileHelper(), output);
+        gen.addProvider(event.includeClient(), new SoundData(output, event.getExistingFileHelper()));
     }
 }

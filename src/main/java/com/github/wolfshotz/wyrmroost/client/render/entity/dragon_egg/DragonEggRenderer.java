@@ -1,20 +1,19 @@
 package com.github.wolfshotz.wyrmroost.client.render.entity.dragon_egg;
 
 import com.github.wolfshotz.wyrmroost.Wyrmroost;
-import com.github.wolfshotz.wyrmroost.client.model.WRModelRenderer;
+import com.github.wolfshotz.wyrmroost.client.model.WREntityModel;
+import com.github.wolfshotz.wyrmroost.client.model.WRModelPart;
 import com.github.wolfshotz.wyrmroost.entities.dragonegg.DragonEggEntity;
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.github.wolfshotz.wyrmroost.registry.WREntities;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderer;
-import net.minecraft.client.renderer.entity.EntityRendererManager;
-import net.minecraft.client.renderer.entity.model.EntityModel;
-import net.minecraft.client.renderer.model.ModelRenderer;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.entity.EntitySize;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import java.util.HashMap;
 import java.util.Map;
@@ -26,34 +25,33 @@ public class DragonEggRenderer extends EntityRenderer<DragonEggEntity>
 
     private static final Map<EntityType<?>, ResourceLocation> TEXTURE_MAP = new HashMap<>();
 
-    public DragonEggRenderer(EntityRendererManager manager) { super(manager); }
+    public DragonEggRenderer(EntityRendererProvider.Context manager) { super(manager); }
 
     @Override
-    public void render(DragonEggEntity entity, float entityYaw, float partialTicks, MatrixStack ms, IRenderTypeBuffer buffer, int packedLightIn)
-    {
-        ms.push();
+    public void render(DragonEggEntity entity, float entityYaw, float partialTicks, PoseStack ms, MultiBufferSource buffer, int packedLightIn) {
+        ms.pushPose();
         scale(entity, ms);
         ms.translate(0, -1.5, 0);
         MODEL.animate(entity, partialTicks);
-        IVertexBuilder builder = buffer.getBuffer(MODEL.getRenderType(getEntityTexture(entity)));
-        MODEL.render(ms, builder, packedLightIn, OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
-        ms.pop();
+        VertexConsumer builder = buffer.getBuffer(MODEL.renderType(getTextureLocation(entity)));
+        MODEL.renderToBuffer(ms, builder, packedLightIn, OverlayTexture.NO_OVERLAY);
+        ms.popPose();
 
         super.render(entity, entityYaw, partialTicks, ms, buffer, packedLightIn);
     }
 
     @Override
-    protected boolean canRenderName(DragonEggEntity entity) { return false; }
+    protected boolean shouldShowName(DragonEggEntity entity) { return false; }
 
     @Override
-    public ResourceLocation getEntityTexture(DragonEggEntity entity) { return getDragonEggTexture(entity.containedDragon); }
+    public ResourceLocation getTextureLocation(DragonEggEntity entity) { return getDragonEggTexture(entity.getContainedDragon().orElse(WREntities.ALPINE.value())); }
 
     public static ResourceLocation getDragonEggTexture(EntityType<?> type)
     {
         return TEXTURE_MAP.computeIfAbsent(type, t ->
         {
-            ResourceLocation textureLoc = Wyrmroost.rl(String.format("textures/entity/dragon/%s/egg.png", type.getRegistryName().getPath()));
-            if (Minecraft.getInstance().getResourceManager().hasResource(textureLoc)) return textureLoc;
+            ResourceLocation textureLoc = Wyrmroost.rl(String.format("textures/entity/dragon/%s/egg.png", EntityType.getKey(type).getPath()));
+            if (Minecraft.getInstance().getResourceManager().getResource(textureLoc).isPresent()) return textureLoc;
             return DEFAULT_TEXTURE;
         });
     }
@@ -62,61 +60,59 @@ public class DragonEggRenderer extends EntityRenderer<DragonEggEntity>
      * Render Custom egg sizes / shapes. <P>
      * If none is defined, then calculate the model size according to egg size
      */
-    private void scale(DragonEggEntity entity, MatrixStack ms)
+    private void scale(DragonEggEntity entity, PoseStack ms)
     {
-        EntitySize size = entity.getSize();
-        if (size != null) ms.scale(size.width * 2.95f, -(size.height * 2), -(size.width * 2.95f));
+        EntityDimensions size = entity.getDimensions(entity.getPose());
+        if (size != null) ms.scale(size.width() * 2.95f, -(size.height() * 2), -(size.width() * 2.95f));
     }
 
     /**
      * WREggTemplate - Ukan
      * Created using Tabula 7.0.1
      */
-    public static class Model extends EntityModel<DragonEggEntity>
+    public static class Model extends WREntityModel<DragonEggEntity>
     {
-        public WRModelRenderer base;
-        public ModelRenderer two;
-        public ModelRenderer three;
-        public ModelRenderer four;
+        public WRModelPart base;
+        public WRModelPart two;
+        public WRModelPart three;
+        public WRModelPart four;
 
         public Model()
         {
-            super(RenderType::getEntitySolid);
-            textureWidth = 64;
-            textureHeight = 32;
-            four = new ModelRenderer(this, 0, 19);
+            super(64, 32);
+            four = new WRModelPart(this, 0, 19);
             four.setRotationPoint(0.0F, -1.3F, 0.0F);
             four.addBox(-1.5F, -1.5F, -1.5F, 3, 3, 3, 0.0F);
-            two = new ModelRenderer(this, 17, 0);
+            two = new WRModelPart(this, 17, 0);
             two.setRotationPoint(0.0F, -1.5F, 0.0F);
             two.addBox(-2.5F, -3.0F, -2.5F, 5, 6, 5, 0.0F);
-            three = new ModelRenderer(this, 0, 9);
+            three = new WRModelPart(this, 0, 9);
             three.setRotationPoint(0.0F, -2.0F, 0.0F);
             three.addBox(-2.0F, -2.0F, -2.0F, 4, 4, 4, 0.0F);
-            base = new WRModelRenderer(this, 0, 0);
+            base = new WRModelPart(this, 0, 0);
             base.setRotationPoint(0.0F, 22.0F, 0.0F);
             base.addBox(-2.0F, -2.0F, -2.0F, 4, 4, 4, 0.0F);
             three.addChild(four);
             base.addChild(two);
             two.addChild(three);
 
-            base.setDefaultPose();
+            setDefaultPose();
         }
 
         @Override
-        public void setRotationAngles(DragonEggEntity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {}
+        public void setupAnim(DragonEggEntity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {}
 
         public void animate(DragonEggEntity entity, float partialTicks)
         {
             float time = entity.wiggleTime.get(partialTicks);
-            base.rotateAngleX = time * entity.wiggleDirection.getXOffset();
-            base.rotateAngleZ = time * entity.wiggleDirection.getZOffset();
+            base.xRot = time * entity.wiggleDirection.getStepX();
+            base.zRot = time * entity.wiggleDirection.getStepZ();
         }
 
         @Override
-        public void render(MatrixStack ms, IVertexBuilder buffer, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha)
+        public void renderToBuffer(PoseStack ms, VertexConsumer buffer, int packedLightIn, int packedOverlayIn, int color)
         {
-            base.render(ms, buffer, packedLightIn, packedOverlayIn, red, green, blue, alpha);
+            base.render(ms, buffer, packedLightIn, packedOverlayIn, color);
             base.resetToDefaultPose();
         }
     }

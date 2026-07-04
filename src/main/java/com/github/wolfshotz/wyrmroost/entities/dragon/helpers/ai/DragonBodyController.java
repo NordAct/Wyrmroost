@@ -1,15 +1,15 @@
 package com.github.wolfshotz.wyrmroost.entities.dragon.helpers.ai;
 
 import com.github.wolfshotz.wyrmroost.entities.dragon.AbstractDragonEntity;
-import net.minecraft.entity.ai.controller.BodyController;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.ai.control.BodyRotationControl;
 
 /**
  * Created by com.github.WolfShotz - 8/26/19 - 16:12
  * <p>
  * Disallows rotations while sitting, sleeping, and helps control yaw while controlling
  */
-public class DragonBodyController extends BodyController
+public class DragonBodyController extends BodyRotationControl
 {
     public AbstractDragonEntity dragon;
 
@@ -20,31 +20,31 @@ public class DragonBodyController extends BodyController
     }
 
     @Override
-    public void updateRenderAngles()
+    public void clientTick()
     {
         // No body rotations while sitting or sleeping
         if (dragon.isSleeping()) return;
 
         // Clamp the head rotation to 70 degrees while sitting
-        if (dragon.func_233684_eK_())
+        if (dragon.isInSittingPose())
         {
             clampHeadRotation(70f);
             return;
         }
 
         // clamp head to 120 degrees, rotate body according to head
-        if (dragon.canPassengerSteer() || dragon.isFlying())
+        if (dragon.isControlledByLocalInstance() || dragon.isFlying())
         {
             clampHeadRotation(120f);
-            dragon.renderYawOffset = dragon.rotationYaw = Mth.wrapDegrees(Mth.func_219800_b(dragon.rotationYawHead, dragon.renderYawOffset, dragon.getYawRotationSpeed()));
+            dragon.setYRot(dragon.yBodyRot = Mth.wrapDegrees(Mth.rotateIfNecessary(dragon.getYHeadRot(), dragon.yBodyRot, dragon.getYawRotationSpeed())));
             return;
         }
 
-        super.updateRenderAngles();
+        super.clientTick();
     }
 
     public void clampHeadRotation(float clampDeg)
     {
-        dragon.rotationYawHead = Mth.func_219800_b(dragon.rotationYawHead, dragon.renderYawOffset, clampDeg);
+        dragon.yHeadRot = Mth.rotateIfNecessary(dragon.getYHeadRot(), dragon.yBodyRot, clampDeg);
     }
 }

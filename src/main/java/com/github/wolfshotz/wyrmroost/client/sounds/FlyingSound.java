@@ -3,21 +3,21 @@ package com.github.wolfshotz.wyrmroost.client.sounds;
 import com.github.wolfshotz.wyrmroost.client.ClientEvents;
 import com.github.wolfshotz.wyrmroost.entities.dragon.AbstractDragonEntity;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.audio.TickableSound;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvents;
+import net.minecraft.client.resources.sounds.AbstractTickableSoundInstance;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 
-public class FlyingSound extends TickableSound
+public class FlyingSound extends AbstractTickableSoundInstance
 {
     private final AbstractDragonEntity entity;
     private int time;
 
     public FlyingSound(AbstractDragonEntity entity)
     {
-        super(SoundEvents.ITEM_ELYTRA_FLYING, SoundCategory.PLAYERS);
+        super(SoundEvents.ELYTRA_FLYING, SoundSource.PLAYERS, entity.getRandom());
         this.entity = entity;
-        this.repeat = true;
-        this.repeatDelay = 0;
+        this.looping = true;
+        this.delay = 0;
         this.volume = 0.1f;
     }
 
@@ -31,19 +31,19 @@ public class FlyingSound extends TickableSound
         }
         if (entity.isAlive() && entity.isFlying() && entity.getControllingPlayer() == ClientEvents.getPlayer())
         {
-            x = (float) entity.getPosX();
-            y = (float) entity.getPosY();
-            z = (float) entity.getPosZ();
-            double length = entity.getMotion().lengthSquared();
+            x = (float) entity.getX();
+            y = (float) entity.getY();
+            z = (float) entity.getZ();
+            double length = entity.getDeltaMovement().lengthSqr();
             volume = Math.min((float) length * 2f, 0.75f);
             if (volume > 0.4f) pitch = 1f + (volume - 0.6f);
             else pitch = 1f;
         }
-        else finishPlaying();
+        else stop();
     }
 
     public static void play(AbstractDragonEntity dragon)
     {
-        Minecraft.getInstance().getSoundHandler().play(new FlyingSound(dragon));
+        Minecraft.getInstance().getSoundManager().play(new FlyingSound(dragon));
     }
 }

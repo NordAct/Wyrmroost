@@ -1,219 +1,177 @@
 package com.github.wolfshotz.wyrmroost.data;
 
-import ShapedRecipeBuilder;
-import ShapelessRecipeBuilder;
 import com.github.wolfshotz.wyrmroost.Wyrmroost;
-import com.github.wolfshotz.wyrmroost.items.LazySpawnEggItem;
 import com.github.wolfshotz.wyrmroost.registry.WRBlocks;
 import com.github.wolfshotz.wyrmroost.registry.WRItems;
-import com.github.wolfshotz.wyrmroost.util.ModUtils;
-import net.minecraft.data.*;
-import net.minecraft.item.crafting.CookingRecipeSerializer;
-import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.tags.ITag;
-import net.minecraft.util.IItemProvider;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.data.PackOutput;
+import net.minecraft.data.recipes.*;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.level.ItemLike;
+
 import javax.annotation.Nonnull;
-import java.io.IOException;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
+import java.util.concurrent.CompletableFuture;
 
-class RecipeData extends RecipeProvider
-{
-    private static final Set<IItemProvider> REGISTERED = new HashSet<>();
-
-    private Consumer<IFinishedRecipe> consumer;
-
-    RecipeData(DataGenerator generatorIn) { super(generatorIn); }
-
-    @Override
-    public void act(DirectoryCache cache) throws IOException
-    {
-        super.act(cache);
-
-        Set<Item> registered = REGISTERED.stream().map(IItemProvider::asItem).collect(Collectors.toSet());
-        for (Item item : ModUtils.getRegistryEntries(WRItems.REGISTRY))
-        {
-            if (!registered.contains(item))
-                Wyrmroost.LOG.warn("Item '{}' does not have a recipe associated with it!", item.getRegistryName());
-        }
+class RecipeData extends RecipeProvider {
+    RecipeData(PackOutput output, CompletableFuture<HolderLookup.Provider> provider) {
+        super(output, provider);
     }
 
-    private ShapedRecipeBuilder shaped(IItemProvider result, int count)
+    private ShapedRecipeBuilder shaped(RecipeCategory category, ItemLike result, int count)
     {
-        REGISTERED.add(result);
-        return ShapedRecipeBuilder.shapedRecipe(result, count);
+        return ShapedRecipeBuilder.shaped(category, result, count);
     }
 
-    private ShapedRecipeBuilder shaped(IItemProvider result) { return shaped(result, 1); }
-
-    private ShapelessRecipeBuilder shapeless(IItemProvider result, int count)
-    {
-        REGISTERED.add(result);
-        return ShapelessRecipeBuilder.shapelessRecipe(result, count);
+    private ShapedRecipeBuilder shaped(RecipeCategory category, ItemLike result) {
+        return shaped(category, result, 1);
     }
 
-    private ShapelessRecipeBuilder shapeless(IItemProvider result) { return shapeless(result, 1); }
+    private ShapelessRecipeBuilder shapeless(RecipeCategory category, ItemLike result, int count) {
+        return ShapelessRecipeBuilder.shapeless(category, result, count);
+    }
+
+    private ShapelessRecipeBuilder shapeless(RecipeCategory category, ItemLike result) {
+        return shapeless(category, result, 1);
+    }
 
     /**
      * @param ingredients first element is used for criterion, design accordingly.
      */
-    private void shapeless(IItemProvider result, @Nonnull ShapelessPair... ingredients)
+    private void shapeless(RecipeCategory category, RecipeOutput output, ItemLike result, @Nonnull ShapelessPair... ingredients)
     {
-        final ShapelessRecipeBuilder builder = shapeless(result);
-        for (ShapelessPair ingredient : ingredients) builder.addIngredient(ingredient.item, ingredient.count);
-        IItemProvider firstIngredient = ingredients[0].item;
-        builder.addCriterion("has_" + firstIngredient.asItem().getRegistryName().getPath(), hasItem(firstIngredient)).build(consumer);
+        final ShapelessRecipeBuilder builder = shapeless(category, result);
+        for (ShapelessPair ingredient : ingredients) builder.requires(ingredient.item, ingredient.count);
+        ItemLike firstIngredient = ingredients[0].item;
+        builder.unlockedBy("has_" + firstIngredient.asItem().builtInRegistryHolder().getKey().location().getPath(), has(firstIngredient)).save(output);
     }
 
-    private void armorSet(IItemProvider material, IItemProvider helmet, IItemProvider chest, IItemProvider legs, IItemProvider boots)
-    {
-        shaped(helmet).key('X', material).patternLine("XXX").patternLine("X X").addCriterion("has_material", hasItem(material)).build(consumer);
-        shaped(chest).key('X', material).patternLine("X X").patternLine("XXX").addCriterion("has_material", hasItem(material)).patternLine("XXX").build(consumer);
-        shaped(legs).key('X', material).patternLine("XXX").patternLine("X X").addCriterion("has_material", hasItem(material)).patternLine("X X").build(consumer);
-        shaped(boots).key('X', material).patternLine("X X").patternLine("X X").addCriterion("has_material", hasItem(material)).build(consumer);
+    private void armorSet(RecipeOutput output, ItemLike material, ItemLike helmet, ItemLike chest, ItemLike legs, ItemLike boots) {
+        shaped(RecipeCategory.COMBAT, helmet).define('X', material).pattern("XXX").pattern("X X").unlockedBy("has_material", has(material)).save(output);
+        shaped(RecipeCategory.COMBAT, chest).define('X', material).pattern("X X").pattern("XXX").unlockedBy("has_material", has(material)).pattern("XXX").save(output);
+        shaped(RecipeCategory.COMBAT, legs).define('X', material).pattern("XXX").pattern("X X").unlockedBy("has_material", has(material)).pattern("X X").save(output);
+        shaped(RecipeCategory.COMBAT, boots).define('X', material).pattern("X X").pattern("X X").unlockedBy("has_material", has(material)).save(output);
     }
 
-    private void armorSet(ITag<Item> materials, IItemProvider helmet, IItemProvider chest, IItemProvider legs, IItemProvider boots)
+    private void armorSet(RecipeOutput output, TagKey<Item> materials, ItemLike helmet, ItemLike chest, ItemLike legs, ItemLike boots)
     {
-        shaped(helmet).key('X', materials).patternLine("XXX").patternLine("X X").addCriterion("has_material", hasItem(materials)).build(consumer);
-        shaped(chest).key('X', materials).patternLine("X X").patternLine("XXX").addCriterion("has_material", hasItem(materials)).patternLine("XXX").build(consumer);
-        shaped(legs).key('X', materials).patternLine("XXX").patternLine("X X").addCriterion("has_material", hasItem(materials)).patternLine("X X").build(consumer);
-        shaped(boots).key('X', materials).patternLine("X X").patternLine("X X").addCriterion("has_material", hasItem(materials)).build(consumer);
+        shaped(RecipeCategory.COMBAT, helmet).define('X', materials).pattern("XXX").pattern("X X").unlockedBy("has_material", has(materials)).save(output);
+        shaped(RecipeCategory.COMBAT, chest).define('X', materials).pattern("X X").pattern("XXX").unlockedBy("has_material", has(materials)).pattern("XXX").save(output);
+        shaped(RecipeCategory.COMBAT, legs).define('X', materials).pattern("XXX").pattern("X X").unlockedBy("has_material", has(materials)).pattern("X X").save(output);
+        shaped(RecipeCategory.COMBAT, boots).define('X', materials).pattern("X X").pattern("X X").unlockedBy("has_material", has(materials)).save(output);
     }
 
-    private void toolSet(IItemProvider material, IItemProvider sword, IItemProvider pick, IItemProvider axe, IItemProvider shovel, IItemProvider hoe)
+    private void toolSet(RecipeOutput output, ItemLike material, ItemLike sword, ItemLike pick, ItemLike axe, ItemLike shovel, ItemLike hoe)
     {
-        shaped(sword).key('X', material).key('|', Items.STICK).patternLine("X").patternLine("X").patternLine("|").addCriterion("has_material", hasItem(material)).build(consumer);
-        shaped(pick).key('X', material).key('|', Items.STICK).patternLine("XXX").patternLine(" | ").patternLine(" | ").addCriterion("has_material", hasItem(material)).build(consumer);
-        shaped(axe).key('X', material).key('|', Items.STICK).patternLine("XX").patternLine("X|").patternLine(" |").addCriterion("has_material", hasItem(material)).build(consumer);
-        shaped(shovel).key('X', material).key('|', Items.STICK).patternLine("X").patternLine("|").patternLine("|").addCriterion("has_material", hasItem(material)).build(consumer);
-        shaped(hoe).key('X', material).key('|', Items.STICK).patternLine("XX").patternLine(" |").patternLine(" |").addCriterion("has_material", hasItem(material)).build(consumer);
+        shaped(RecipeCategory.COMBAT, sword).define('X', material).define('|', Items.STICK).pattern("X").pattern("X").pattern("|").unlockedBy("has_material", has(material)).save(output);
+        shaped(RecipeCategory.TOOLS, pick).define('X', material).define('|', Items.STICK).pattern("XXX").pattern(" | ").pattern(" | ").unlockedBy("has_material", has(material)).save(output);
+        shaped(RecipeCategory.TOOLS, axe).define('X', material).define('|', Items.STICK).pattern("XX").pattern("X|").pattern(" |").unlockedBy("has_material", has(material)).save(output);
+        shaped(RecipeCategory.TOOLS, shovel).define('X', material).define('|', Items.STICK).pattern("X").pattern("|").pattern("|").unlockedBy("has_material", has(material)).save(output);
+        shaped(RecipeCategory.TOOLS, hoe).define('X', material).define('|', Items.STICK).pattern("XX").pattern(" |").pattern(" |").unlockedBy("has_material", has(material)).save(output);
     }
 
-    private void toolSet(ITag<Item> materials, IItemProvider sword, IItemProvider pick, IItemProvider axe, IItemProvider shovel, IItemProvider hoe)
+    private void toolSet(RecipeOutput output, TagKey<Item> materials, ItemLike sword, ItemLike pick, ItemLike axe, ItemLike shovel, ItemLike hoe)
     {
-        shaped(sword).key('X', materials).key('|', Items.STICK).patternLine("X").patternLine("X").patternLine("|").addCriterion("has_material", hasItem(materials)).build(consumer);
-        shaped(pick).key('X', materials).key('|', Items.STICK).patternLine("XXX").patternLine(" | ").patternLine(" | ").addCriterion("has_material", hasItem(materials)).build(consumer);
-        shaped(axe).key('X', materials).key('|', Items.STICK).patternLine("XX").patternLine("X|").patternLine(" |").addCriterion("has_material", hasItem(materials)).build(consumer);
-        shaped(shovel).key('X', materials).key('|', Items.STICK).patternLine("X").patternLine("|").patternLine("|").addCriterion("has_material", hasItem(materials)).build(consumer);
-        shaped(hoe).key('X', materials).key('|', Items.STICK).patternLine("XX").patternLine(" |").patternLine(" |").addCriterion("has_material", hasItem(materials)).build(consumer);
+        shaped(RecipeCategory.COMBAT,sword).define('X', materials).define('|', Items.STICK).pattern("X").pattern("X").pattern("|").unlockedBy("has_material", has(materials)).save(output);
+        shaped(RecipeCategory.TOOLS, pick).define('X', materials).define('|', Items.STICK).pattern("XXX").pattern(" | ").pattern(" | ").unlockedBy("has_material", has(materials)).save(output);
+        shaped(RecipeCategory.TOOLS, axe).define('X', materials).define('|', Items.STICK).pattern("XX").pattern("X|").pattern(" |").unlockedBy("has_material", has(materials)).save(output);
+        shaped(RecipeCategory.TOOLS, shovel).define('X', materials).define('|', Items.STICK).pattern("X").pattern("|").pattern("|").unlockedBy("has_material", has(materials)).save(output);
+        shaped(RecipeCategory.TOOLS, hoe).define('X', materials).define('|', Items.STICK).pattern("XX").pattern(" |").pattern(" |").unlockedBy("has_material", has(materials)).save(output);
     }
 
-    private void storageBlock(IItemProvider material, IItemProvider block)
+    private void storageBlock(RecipeOutput output, ItemLike material, ItemLike block)
     {
-        shaped(block).key('X', material).patternLine("XXX").patternLine("XXX").patternLine("XXX").addCriterion("has_" + material.asItem().getRegistryName().getPath(), hasItem(material)).build(consumer);
-        shapeless(material, 9).addIngredient(block).addCriterion("has_" + block.asItem().getRegistryName().getPath(), hasItem(block)).build(consumer);
+        shaped(RecipeCategory.MISC, block).define('X', material).pattern("XXX").pattern("XXX").pattern("XXX").unlockedBy("has_" + material.asItem().builtInRegistryHolder().getKey().location().getPath(), has(material)).save(output);
+        shapeless(RecipeCategory.MISC, material, 9).requires(block).unlockedBy("has_" + block.asItem().builtInRegistryHolder().getKey().location().getPath(), has(block)).save(output);
     }
 
-    private void smelt(IItemProvider ingredient, IItemProvider result, float experience, int time, boolean food)
+    private void smelt(RecipeOutput output, ItemLike ingredient, ItemLike result, float experience, int time, boolean food)
     {
-        String id = result.asItem().getRegistryName().getPath();
-        String criterion = "has_" + ingredient.asItem().getRegistryName().getPath();
+        String id = result.asItem().builtInRegistryHolder().getKey().location().getPath();
+        String criterion = "has_" + ingredient.asItem().builtInRegistryHolder().getKey().location().getPath();
 
-        CookingRecipeBuilder.smeltingRecipe(Ingredient.fromItems(ingredient), result, experience, time).addCriterion(criterion, hasItem(ingredient)).build(consumer, Wyrmroost.rl((id + "_from_smelting")));
+        SimpleCookingRecipeBuilder.smelting(Ingredient.of(ingredient), food ? RecipeCategory.FOOD : RecipeCategory.MISC, result, experience, time).unlockedBy(criterion, has(ingredient)).save(output, Wyrmroost.rl((id + "_from_smelting")));
         if (food)
         {
-            CookingRecipeBuilder.cookingRecipe(Ingredient.fromItems(ingredient), result, experience, time + 500, CookingRecipeSerializer.CAMPFIRE_COOKING).addCriterion(criterion, hasItem(ingredient)).build(consumer, Wyrmroost.rl(id + "_from_campfire"));
-            CookingRecipeBuilder.cookingRecipe(Ingredient.fromItems(ingredient), result, experience, time - 100, CookingRecipeSerializer.SMOKING).addCriterion(criterion, hasItem(ingredient)).build(consumer, Wyrmroost.rl(id + "_from_smoking"));
+            SimpleCookingRecipeBuilder.campfireCooking(Ingredient.of(ingredient), RecipeCategory.FOOD, result, experience, time + 500).unlockedBy(criterion, has(ingredient)).save(output, Wyrmroost.rl(id + "_from_campfire"));
+            SimpleCookingRecipeBuilder.smoking(Ingredient.of(ingredient), RecipeCategory.FOOD, result, experience, time - 100).unlockedBy(criterion, has(ingredient)).save(output, Wyrmroost.rl(id + "_from_smoking"));
         }
         else
-            CookingRecipeBuilder.blastingRecipe(Ingredient.fromItems(ingredient), result, experience, time - 100).addCriterion(criterion, hasItem(ingredient)).build(consumer, Wyrmroost.rl(id + "_from_blasting"));
-
-        REGISTERED.add(result);
+            SimpleCookingRecipeBuilder.blasting(Ingredient.of(ingredient), RecipeCategory.MISC, result, experience, time - 100).unlockedBy(criterion, has(ingredient)).save(output, Wyrmroost.rl(id + "_from_blasting"));
     }
 
-    private void smelt(IItemProvider ingredient, IItemProvider result, float experience, int time) { smelt(ingredient, result, experience, time, false); }
+    private void smelt(RecipeOutput output, ItemLike ingredient, ItemLike result, float experience, int time) { smelt(output, ingredient, result, experience, time, false); }
 
     @Override
-    protected void registerRecipes(Consumer<IFinishedRecipe> consumer)
-    {
-        this.consumer = consumer;
-
-        exempt(LazySpawnEggItem.class);
-        exempt(WRItems.DRAGON_EGG.get(), WRItems.DRAKE_BACKPLATE.get(), WRItems.LDWYRM.get(),
-                WRItems.RAW_LOWTIER_MEAT.get(), WRItems.RAW_COMMON_MEAT.get(), WRItems.RAW_APEX_MEAT.get(), WRItems.RAW_BEHEMOTH_MEAT.get(),
-                WRBlocks.BLUE_GEODE_ORE.get(), WRBlocks.RED_GEODE_ORE.get(), WRBlocks.PURPLE_GEODE_ORE.get(), WRBlocks.PLATINUM_ORE.get());
-
+    protected void buildRecipes(RecipeOutput output) {
         // Misc stuff
-        shaped(WRItems.SOUL_CRYSTAL.get()).key('X', WRItems.BLUE_GEODE.get()).key('#', Items.ENDER_EYE).patternLine(" X ").patternLine("X#X").patternLine(" X ").addCriterion("has_eye", hasItem(Items.ENDER_EYE)).build(consumer);
-        shaped(WRItems.DRAGON_STAFF.get()).key('X', WRItems.RED_GEODE.get()).key('|', Items.BLAZE_ROD).patternLine("X").patternLine("|").addCriterion("has_geode", hasItem(WRItems.RED_GEODE.get())).build(consumer);
+        shaped(RecipeCategory.MISC, WRItems.SOUL_CRYSTAL.value()).define('X', WRItems.BLUE_GEODE.value()).define('#', Items.ENDER_EYE).pattern(" X ").pattern("X#X").pattern(" X ").unlockedBy("has_eye", has(Items.ENDER_EYE)).save(output);
+        shaped(RecipeCategory.MISC, WRItems.DRAGON_STAFF.value()).define('X', WRItems.RED_GEODE.value()).define('|', Items.BLAZE_ROD).pattern("X").pattern("|").unlockedBy("has_geode", has(WRItems.RED_GEODE.value())).save(output);
 
-        shaped(WRItems.BLUE_GEODE_ARROW.get(), 8).key('G', WRItems.BLUE_GEODE.get()).key('|', Items.STICK).key('F', Items.FEATHER).patternLine("G").patternLine("|").patternLine("F").addCriterion("has_geode", hasItem(WRItems.BLUE_GEODE.get())).build(consumer);
-        shaped(WRItems.RED_GEODE_ARROW.get(), 8).key('G', WRItems.RED_GEODE.get()).key('|', Items.STICK).key('F', Items.FEATHER).patternLine("G").patternLine("|").patternLine("F").addCriterion("has_geode", hasItem(WRItems.RED_GEODE.get())).build(consumer);
-        shaped(WRItems.PURPLE_GEODE_ARROW.get(), 8).key('G', WRItems.PURPLE_GEODE.get()).key('|', Items.STICK).key('F', Items.FEATHER).patternLine("G").patternLine("|").patternLine("F").addCriterion("has_geode", hasItem(WRItems.PURPLE_GEODE.get())).build(consumer);
+        shaped(RecipeCategory.COMBAT, WRItems.BLUE_GEODE_ARROW.value(), 8).define('G', WRItems.BLUE_GEODE.value()).define('|', Items.STICK).define('F', Items.FEATHER).pattern("G").pattern("|").pattern("F").unlockedBy("has_geode", has(WRItems.BLUE_GEODE.value())).save(output);
+        shaped(RecipeCategory.COMBAT, WRItems.RED_GEODE_ARROW.value(), 8).define('G', WRItems.RED_GEODE.value()).define('|', Items.STICK).define('F', Items.FEATHER).pattern("G").pattern("|").pattern("F").unlockedBy("has_geode", has(WRItems.RED_GEODE.value())).save(output);
+        shaped(RecipeCategory.COMBAT, WRItems.PURPLE_GEODE_ARROW.value(), 8).define('G', WRItems.PURPLE_GEODE.value()).define('|', Items.STICK).define('F', Items.FEATHER).pattern("G").pattern("|").pattern("F").unlockedBy("has_geode", has(WRItems.PURPLE_GEODE.value())).save(output);
 
         // Materials
-        storageBlock(WRItems.BLUE_GEODE.get(), WRBlocks.BLUE_GEODE_BLOCK.get());
-        smelt(WRBlocks.BLUE_GEODE_ORE.get(), WRItems.BLUE_GEODE.get(), 1f, 200);
-        storageBlock(WRItems.RED_GEODE.get(), WRBlocks.RED_GEODE_BLOCK.get());
-        smelt(WRBlocks.RED_GEODE_ORE.get(), WRItems.RED_GEODE.get(), 1.5f, 200);
-        storageBlock(WRItems.PURPLE_GEODE.get(), WRBlocks.PURPLE_GEODE_BLOCK.get());
-        smelt(WRBlocks.PURPLE_GEODE_ORE.get(), WRItems.PURPLE_GEODE.get(), 2f, 200);
+        storageBlock(output, WRItems.BLUE_GEODE.value(), WRBlocks.BLUE_GEODE_BLOCK.value());
+        smelt(output, WRBlocks.BLUE_GEODE_ORE.value(), WRItems.BLUE_GEODE.value(), 1f, 200);
+        storageBlock(output, WRItems.RED_GEODE.value(), WRBlocks.RED_GEODE_BLOCK.value());
+        smelt(output, WRBlocks.RED_GEODE_ORE.value(), WRItems.RED_GEODE.value(), 1.5f, 200);
+        storageBlock(output, WRItems.PURPLE_GEODE.value(), WRBlocks.PURPLE_GEODE_BLOCK.value());
+        smelt(output, WRBlocks.PURPLE_GEODE_ORE.value(), WRItems.PURPLE_GEODE.value(), 2f, 200);
 
-        shaped(WRBlocks.PLATINUM_BLOCK.get()).key('X', WRItems.Tags.INGOTS_PLATINUM).patternLine("XXX").patternLine("XXX").patternLine("XXX").addCriterion("has_platinum", hasItem(WRItems.PLATINUM_INGOT.get())).build(consumer);
-        shapeless(WRItems.PLATINUM_INGOT.get(), 9).addIngredient(WRBlocks.PLATINUM_BLOCK.get()).addCriterion("has_platinum", hasItem(WRBlocks.PLATINUM_BLOCK.get())).build(consumer);
-        smelt(WRBlocks.PLATINUM_ORE.get(), WRItems.PLATINUM_INGOT.get(), 0.7f, 200);
+        shaped(RecipeCategory.MISC, WRBlocks.PLATINUM_BLOCK.value()).define('X', WRItems.Tags.PLATINUM_INGOTS).pattern("XXX").pattern("XXX").pattern("XXX").unlockedBy("has_platinum", has(WRItems.PLATINUM_INGOT.value())).save(output);
+        shapeless(RecipeCategory.MISC, WRItems.PLATINUM_INGOT.value(), 9).requires(WRBlocks.PLATINUM_BLOCK.value()).unlockedBy("has_platinum", has(WRBlocks.PLATINUM_BLOCK.value())).save(output);
+        smelt(output, WRBlocks.PLATINUM_ORE.value(), WRItems.PLATINUM_INGOT.value(), 0.7f, 200);
 
         // Tools
-        toolSet(WRItems.BLUE_GEODE.get(), WRItems.BLUE_GEODE_SWORD.get(), WRItems.BLUE_GEODE_PICKAXE.get(), WRItems.BLUE_GEODE_AXE.get(), WRItems.BLUE_GEODE_SHOVEL.get(), WRItems.BLUE_GEODE_HOE.get());
-        toolSet(WRItems.RED_GEODE.get(), WRItems.RED_GEODE_SWORD.get(), WRItems.RED_GEODE_PICKAXE.get(), WRItems.RED_GEODE_AXE.get(), WRItems.RED_GEODE_SHOVEL.get(), WRItems.RED_GEODE_HOE.get());
-        toolSet(WRItems.PURPLE_GEODE.get(), WRItems.PURPLE_GEODE_SWORD.get(), WRItems.PURPLE_GEODE_PICKAXE.get(), WRItems.PURPLE_GEODE_AXE.get(), WRItems.PURPLE_GEODE_SHOVEL.get(), WRItems.PURPLE_GEODE_HOE.get());
-        toolSet(WRItems.Tags.INGOTS_PLATINUM, WRItems.PLATINUM_SWORD.get(), WRItems.PLATINUM_PICKAXE.get(), WRItems.PLATINUM_AXE.get(), WRItems.PLATINUM_SHOVEL.get(), WRItems.PLATINUM_HOE.get());
+        toolSet(output, WRItems.BLUE_GEODE.value(), WRItems.BLUE_GEODE_SWORD.value(), WRItems.BLUE_GEODE_PICKAXE.value(), WRItems.BLUE_GEODE_AXE.value(), WRItems.BLUE_GEODE_SHOVEL.value(), WRItems.BLUE_GEODE_HOE.value());
+        toolSet(output, WRItems.RED_GEODE.value(), WRItems.RED_GEODE_SWORD.value(), WRItems.RED_GEODE_PICKAXE.value(), WRItems.RED_GEODE_AXE.value(), WRItems.RED_GEODE_SHOVEL.value(), WRItems.RED_GEODE_HOE.value());
+        toolSet(output, WRItems.PURPLE_GEODE.value(), WRItems.PURPLE_GEODE_SWORD.value(), WRItems.PURPLE_GEODE_PICKAXE.value(), WRItems.PURPLE_GEODE_AXE.value(), WRItems.PURPLE_GEODE_SHOVEL.value(), WRItems.PURPLE_GEODE_HOE.value());
+        toolSet(output, WRItems.Tags.PLATINUM_INGOTS, WRItems.PLATINUM_SWORD.value(), WRItems.PLATINUM_PICKAXE.value(), WRItems.PLATINUM_AXE.value(), WRItems.PLATINUM_SHOVEL.value(), WRItems.PLATINUM_HOE.value());
 
-        armorSet(WRItems.BLUE_GEODE.get(), WRItems.BLUE_GEODE_HELMET.get(), WRItems.BLUE_GEODE_CHESTPLATE.get(), WRItems.BLUE_GEODE_LEGGINGS.get(), WRItems.BLUE_GEODE_BOOTS.get());
-        armorSet(WRItems.RED_GEODE.get(), WRItems.RED_GEODE_HELMET.get(), WRItems.RED_GEODE_CHESTPLATE.get(), WRItems.RED_GEODE_LEGGINGS.get(), WRItems.RED_GEODE_BOOTS.get());
-        armorSet(WRItems.PURPLE_GEODE.get(), WRItems.PURPLE_GEODE_HELMET.get(), WRItems.PURPLE_GEODE_CHESTPLATE.get(), WRItems.PURPLE_GEODE_LEGGINGS.get(), WRItems.PURPLE_GEODE_BOOTS.get());
-        armorSet(WRItems.Tags.INGOTS_PLATINUM, WRItems.PLATINUM_HELMET.get(), WRItems.PLATINUM_CHESTPLATE.get(), WRItems.PLATINUM_LEGGINGS.get(), WRItems.PLATINUM_BOOTS.get());
+        armorSet(output, WRItems.BLUE_GEODE.value(), WRItems.BLUE_GEODE_HELMET.value(), WRItems.BLUE_GEODE_CHESTPLATE.value(), WRItems.BLUE_GEODE_LEGGINGS.value(), WRItems.BLUE_GEODE_BOOTS.value());
+        armorSet(output, WRItems.RED_GEODE.value(), WRItems.RED_GEODE_HELMET.value(), WRItems.RED_GEODE_CHESTPLATE.value(), WRItems.RED_GEODE_LEGGINGS.value(), WRItems.RED_GEODE_BOOTS.value());
+        armorSet(output, WRItems.PURPLE_GEODE.value(), WRItems.PURPLE_GEODE_HELMET.value(), WRItems.PURPLE_GEODE_CHESTPLATE.value(), WRItems.PURPLE_GEODE_LEGGINGS.value(), WRItems.PURPLE_GEODE_BOOTS.value());
+        armorSet(output, WRItems.Tags.PLATINUM_INGOTS, WRItems.PLATINUM_HELMET.value(), WRItems.PLATINUM_CHESTPLATE.value(), WRItems.PLATINUM_LEGGINGS.value(), WRItems.PLATINUM_BOOTS.value());
 
-        shapeless(WRItems.DRAKE_HELMET.get(), new ShapelessPair(WRItems.DRAKE_BACKPLATE.get(), 3), new ShapelessPair(WRItems.PLATINUM_HELMET.get()));
-        shapeless(WRItems.DRAKE_CHESTPLATE.get(), new ShapelessPair(WRItems.DRAKE_BACKPLATE.get(), 6), new ShapelessPair(WRItems.PLATINUM_CHESTPLATE.get()));
-        shapeless(WRItems.DRAKE_LEGGINGS.get(), new ShapelessPair(WRItems.DRAKE_BACKPLATE.get(), 5), new ShapelessPair(WRItems.PLATINUM_LEGGINGS.get()));
-        shapeless(WRItems.DRAKE_BOOTS.get(), new ShapelessPair(WRItems.DRAKE_BACKPLATE.get(), 2), new ShapelessPair(WRItems.PLATINUM_BOOTS.get()));
+        shapeless(RecipeCategory.COMBAT, output, WRItems.DRAKE_HELMET.value(), new ShapelessPair(WRItems.DRAKE_BACKPLATE.value(), 3), new ShapelessPair(WRItems.PLATINUM_HELMET.value()));
+        shapeless(RecipeCategory.COMBAT, output, WRItems.DRAKE_CHESTPLATE.value(), new ShapelessPair(WRItems.DRAKE_BACKPLATE.value(), 6), new ShapelessPair(WRItems.PLATINUM_CHESTPLATE.value()));
+        shapeless(RecipeCategory.COMBAT, output, WRItems.DRAKE_LEGGINGS.value(), new ShapelessPair(WRItems.DRAKE_BACKPLATE.value(), 5), new ShapelessPair(WRItems.PLATINUM_LEGGINGS.value()));
+        shapeless(RecipeCategory.COMBAT, output, WRItems.DRAKE_BOOTS.value(), new ShapelessPair(WRItems.DRAKE_BACKPLATE.value(), 2), new ShapelessPair(WRItems.PLATINUM_BOOTS.value()));
 
         // Food
-        smelt(WRItems.LDWYRM.get(), WRItems.COOKED_MINUTUS.get(), 0.35f, 200, true);
-        smelt(WRItems.RAW_LOWTIER_MEAT.get(), WRItems.COOKED_LOWTIER_MEAT.get(), 0.35f, 150, true);
-        smelt(WRItems.RAW_COMMON_MEAT.get(), WRItems.COOKED_COMMON_MEAT.get(), 0.35f, 200, true);
-        smelt(WRItems.RAW_APEX_MEAT.get(), WRItems.COOKED_APEX_MEAT.get(), 0.35f, 200, true);
-        smelt(WRItems.RAW_BEHEMOTH_MEAT.get(), WRItems.COOKED_BEHEMOTH_MEAT.get(), 0.5f, 250, true);
-        shaped(WRItems.JEWELLED_APPLE.get()).key('A', Items.APPLE).key('G', WRItems.Tags.GEMS_GEODE).patternLine(" G ").patternLine("GAG").patternLine(" G ").addCriterion("has_geode", hasItem(WRItems.BLUE_GEODE.get())).build(consumer);
+        smelt(output, WRItems.LDWYRM.value(), WRItems.COOKED_MINUTUS.value(), 0.35f, 200, true);
+        smelt(output, WRItems.RAW_LOWTIER_MEAT.value(), WRItems.COOKED_LOWTIER_MEAT.value(), 0.35f, 150, true);
+        smelt(output, WRItems.RAW_COMMON_MEAT.value(), WRItems.COOKED_COMMON_MEAT.value(), 0.35f, 200, true);
+        smelt(output, WRItems.RAW_APEX_MEAT.value(), WRItems.COOKED_APEX_MEAT.value(), 0.35f, 200, true);
+        smelt(output, WRItems.RAW_BEHEMOTH_MEAT.value(), WRItems.COOKED_BEHEMOTH_MEAT.value(), 0.5f, 250, true);
+        shaped(RecipeCategory.FOOD, WRItems.JEWELLED_APPLE.value()).define('A', Items.APPLE).define('G', WRItems.Tags.GEODES).pattern(" G ").pattern("GAG").pattern(" G ").unlockedBy("has_geode", has(WRItems.BLUE_GEODE.value())).save(output);
 
         // Dragon armor
-        shaped(WRItems.DRAGON_ARMOR_IRON.get()).key('X', Items.IRON_INGOT).key('#', Items.IRON_BLOCK).patternLine("X# ").patternLine("X #").patternLine(" X ").addCriterion("has_iron", hasItem(Items.IRON_INGOT)).build(consumer);
-        shaped(WRItems.DRAGON_ARMOR_GOLD.get()).key('X', Items.GOLD_INGOT).key('#', Items.GOLD_BLOCK).patternLine("X# ").patternLine("X #").patternLine(" X ").addCriterion("has_gold", hasItem(Items.GOLD_INGOT)).build(consumer);
-        shaped(WRItems.DRAGON_ARMOR_DIAMOND.get()).key('X', Items.DIAMOND).key('#', Items.DIAMOND_BLOCK).patternLine("X# ").patternLine("X #").patternLine(" X ").addCriterion("has_diamond", hasItem(Items.DIAMOND)).build(consumer);
-        shaped(WRItems.DRAGON_ARMOR_PLATINUM.get()).key('X', WRItems.PLATINUM_INGOT.get()).key('#', WRBlocks.PLATINUM_BLOCK.get()).patternLine("X# ").patternLine("X #").patternLine(" X ").addCriterion("has_platinum", hasItem(WRItems.PLATINUM_INGOT.get())).build(consumer);
-        shaped(WRItems.DRAGON_ARMOR_BLUE_GEODE.get()).key('X', WRItems.BLUE_GEODE.get()).key('#', WRBlocks.BLUE_GEODE_BLOCK.get()).patternLine("X# ").patternLine("X #").patternLine(" X ").addCriterion("has_blue_geode", hasItem(WRItems.BLUE_GEODE.get())).build(consumer);
-        shaped(WRItems.DRAGON_ARMOR_RED_GEODE.get()).key('X', WRItems.RED_GEODE.get()).key('#', WRBlocks.RED_GEODE_BLOCK.get()).patternLine("X# ").patternLine("X #").patternLine(" X ").addCriterion("has_red_geode", hasItem(WRItems.RED_GEODE.get())).build(consumer);
-        shaped(WRItems.DRAGON_ARMOR_PURPLE_GEODE.get()).key('X', WRItems.PURPLE_GEODE.get()).key('#', WRBlocks.PURPLE_GEODE_BLOCK.get()).patternLine("X# ").patternLine("X #").patternLine(" X ").addCriterion("has_purple_geode", hasItem(WRItems.PURPLE_GEODE.get())).build(consumer);
-    }
-
-    private static void exempt(IItemProvider... exempts) { Collections.addAll(REGISTERED, exempts); }
-
-    private static void exempt(Class<? extends IItemProvider> exemptClass)
-    {
-        Set<IItemProvider> set = new HashSet<>();
-        for (Item item : ModUtils.getRegistryEntries(WRItems.REGISTRY)) if (exemptClass.isInstance(item)) set.add(item);
-        REGISTERED.addAll(set);
+        shaped(RecipeCategory.COMBAT, WRItems.DRAGON_ARMOR_IRON.value()).define('X', Items.IRON_INGOT).define('#', Items.IRON_BLOCK).pattern("X# ").pattern("X #").pattern(" X ").unlockedBy("has_iron", has(Items.IRON_INGOT)).save(output);
+        shaped(RecipeCategory.COMBAT, WRItems.DRAGON_ARMOR_GOLD.value()).define('X', Items.GOLD_INGOT).define('#', Items.GOLD_BLOCK).pattern("X# ").pattern("X #").pattern(" X ").unlockedBy("has_gold", has(Items.GOLD_INGOT)).save(output);
+        shaped(RecipeCategory.COMBAT, WRItems.DRAGON_ARMOR_DIAMOND.value()).define('X', Items.DIAMOND).define('#', Items.DIAMOND_BLOCK).pattern("X# ").pattern("X #").pattern(" X ").unlockedBy("has_diamond", has(Items.DIAMOND)).save(output);
+        shaped(RecipeCategory.COMBAT, WRItems.DRAGON_ARMOR_PLATINUM.value()).define('X', WRItems.PLATINUM_INGOT.value()).define('#', WRBlocks.PLATINUM_BLOCK.value()).pattern("X# ").pattern("X #").pattern(" X ").unlockedBy("has_platinum", has(WRItems.PLATINUM_INGOT.value())).save(output);
+        shaped(RecipeCategory.COMBAT, WRItems.DRAGON_ARMOR_BLUE_GEODE.value()).define('X', WRItems.BLUE_GEODE.value()).define('#', WRBlocks.BLUE_GEODE_BLOCK.value()).pattern("X# ").pattern("X #").pattern(" X ").unlockedBy("has_blue_geode", has(WRItems.BLUE_GEODE.value())).save(output);
+        shaped(RecipeCategory.COMBAT, WRItems.DRAGON_ARMOR_RED_GEODE.value()).define('X', WRItems.RED_GEODE.value()).define('#', WRBlocks.RED_GEODE_BLOCK.value()).pattern("X# ").pattern("X #").pattern(" X ").unlockedBy("has_red_geode", has(WRItems.RED_GEODE.value())).save(output);
+        shaped(RecipeCategory.COMBAT, WRItems.DRAGON_ARMOR_PURPLE_GEODE.value()).define('X', WRItems.PURPLE_GEODE.value()).define('#', WRBlocks.PURPLE_GEODE_BLOCK.value()).pattern("X# ").pattern("X #").pattern(" X ").unlockedBy("has_purple_geode", has(WRItems.PURPLE_GEODE.value())).save(output);
     }
 
     private static class ShapelessPair
     {
-        IItemProvider item;
+        ItemLike item;
         int count;
 
-        public ShapelessPair(IItemProvider item, int count)
+        public ShapelessPair(ItemLike item, int count)
         {
             this.item = item;
             this.count = count;
         }
 
-        public ShapelessPair(IItemProvider item)
+        public ShapelessPair(ItemLike item)
         {
             this.item = item;
             this.count = 1;

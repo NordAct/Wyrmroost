@@ -1,6 +1,6 @@
 package com.github.wolfshotz.wyrmroost.entities.dragonegg;
 
-import net.minecraft.entity.EntitySize;
+import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import java.util.HashMap;
 import java.util.Map;
@@ -10,7 +10,7 @@ public class DragonEggProperties
 {
     public static final Map<EntityType<?>, DragonEggProperties> MAP = new HashMap<>();
 
-    private final EntitySize size;
+    private final EntityDimensions size;
     private final int hatchTime;
     private Predicate<DragonEggEntity> conditions = e -> true;
 
@@ -21,14 +21,14 @@ public class DragonEggProperties
      */
     public DragonEggProperties(float width, float height, int hatchTime)
     {
-        this.size = EntitySize.fixed(width, height);
+        this.size = EntityDimensions.fixed(width, height);
         this.hatchTime = hatchTime;
     }
 
     /**
      * Get the size of the egg
      */
-    public EntitySize getSize()
+    public EntityDimensions getSize()
     {
         return size;
     }
@@ -72,7 +72,7 @@ public class DragonEggProperties
     {
         DragonEggProperties props = MAP.get(type);
         if (props == null)
-            throw new NullPointerException(String.format("Missing Egg Properties for key: %s, Wolf did a hickup go scream at him", type.getDescription().getUnformattedComponentText()));
+            throw new NullPointerException(String.format("Missing Egg Properties for key: %s, Wolf did a hickup go scream at him", type.getDescription()));
         return props;
     }
 }

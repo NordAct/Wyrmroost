@@ -2,13 +2,13 @@ package com.github.wolfshotz.wyrmroost.entities.dragon.helpers.ai.goals;
 
 import com.github.wolfshotz.wyrmroost.WRConfig;
 import com.github.wolfshotz.wyrmroost.entities.dragon.AbstractDragonEntity;
-import net.minecraft.entity.EntityPredicate;
-import net.minecraft.entity.MobEntity;
-import net.minecraft.entity.ai.goal.TargetGoal;
-import net.minecraft.entity.monster.CreeperEntity;
-import net.minecraft.entity.monster.IMob;
-import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.ai.goal.target.TargetGoal;
+import net.minecraft.world.entity.ai.targeting.TargetingConditions;
+import net.minecraft.world.entity.monster.Creeper;
+import net.minecraft.world.phys.AABB;
+
 import java.util.EnumSet;
 import java.util.function.Predicate;
 
@@ -17,17 +17,16 @@ import java.util.function.Predicate;
  */
 public class DefendHomeGoal extends TargetGoal
 {
-    private static final Predicate<LivingEntity> FILTER = e -> e instanceof IMob && !(e instanceof CreeperEntity) && !e.getName().getUnformattedComponentText().equalsIgnoreCase("Ignore Me");
+    private static final Predicate<LivingEntity> FILTER = e -> e instanceof Mob && !(e instanceof Creeper) && !e.getName().getString().equalsIgnoreCase("Ignore Me");
 
     private final AbstractDragonEntity defender;
-    private final EntityPredicate predicate;
+    private final TargetingConditions predicate;
 
-    public DefendHomeGoal(AbstractDragonEntity defender, Predicate<LivingEntity> additionalFilters)
-    {
+    public DefendHomeGoal(AbstractDragonEntity defender, Predicate<LivingEntity> additionalFilters) {
         super(defender, false, false);
         this.defender = defender;
-        this.predicate = new EntityPredicate().setCustomPredicate(FILTER.and(additionalFilters));
-        setMutexFlags(EnumSet.of(Flag.TARGET));
+        this.predicate = TargetingConditions.forCombat().selector(FILTER.and(additionalFilters));
+        setFlags(EnumSet.of(Flag.TARGET));
     }
 
     public DefendHomeGoal(AbstractDragonEntity defender)
@@ -36,43 +35,39 @@ public class DefendHomeGoal extends TargetGoal
     }
 
     @Override
-    public boolean shouldExecute()
-    {
+    public boolean canUse() {
         if (defender.getHealth() <= defender.getMaxHealth() * 0.25) return false;
         if (!defender.getHomePos().isPresent()) return false;
-        return defender.getRNG().nextDouble() < 0.2 && (target = findPotentialTarget()) != null;
+        return defender.getRandom().nextDouble() < 0.2 && (targetMob = findPotentialTarget()) != null;
     }
 
     @Override
-    public void startExecuting()
-    {
-        super.startExecuting();
+    public void start() {
+        super.start();
 
         // alert others!
-        for (MobEntity mob : defender.level.getEntitiesWithinAABB(MobEntity.class, defender.getBoundingBox().grow(WRConfig.homeRadius), defender::isOnSameTeam))
-            mob.setAttackTarget(target);
+        for (Mob mob : defender.level().getEntitiesOfClass(Mob.class, defender.getBoundingBox().inflate(WRConfig.homeRadius), defender::isAlliedTo))
+            mob.setTarget(targetMob);
     }
 
     @Override
-    public boolean shouldContinueExecuting()
-    {
-        return defender.isWithinHomeDistanceFromPosition(target.getPosition()) && super.shouldContinueExecuting();
+    public boolean canContinueToUse() {
+        return defender.isWithinRestriction(targetMob.blockPosition()) && super.canContinueToUse();
     }
 
     @Override
-    protected double getTargetDistance()
+    protected double getFollowDistance()
     {
-        return defender.getMaximumHomeDistance();
+        return defender.getRestrictRadius();
     }
 
-    public LivingEntity findPotentialTarget()
-    {
-        return defender.level.func_225318_b(LivingEntity.class,
+    public LivingEntity findPotentialTarget() {
+        return defender.level().getNearestEntity(LivingEntity.class,
                 predicate,
                 defender,
-                defender.getPosX(),
-                defender.getPosY() + defender.getEyeHeight(),
-                defender.getPosZ(),
-                new AxisAlignedBB(defender.getHomePosition()).grow(WRConfig.homeRadius));
+                defender.getX(),
+                defender.getY() + defender.getEyeHeight(),
+                defender.getZ(),
+                new AABB(defender.getRestrictCenter()).inflate(WRConfig.homeRadius));
     }
 }

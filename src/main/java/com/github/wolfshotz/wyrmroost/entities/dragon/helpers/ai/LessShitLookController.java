@@ -1,15 +1,15 @@
 package com.github.wolfshotz.wyrmroost.entities.dragon.helpers.ai;
 
-import net.minecraft.entity.MobEntity;
-import net.minecraft.entity.ai.controller.LookController;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.ai.control.LookControl;
 
-public class LessShitLookController extends LookController
+public class LessShitLookController extends LookControl
 {
     private boolean frozen;
     private boolean restore;
 
-    public LessShitLookController(MobEntity entity)
+    public LessShitLookController(Mob entity)
     {
         super(entity);
     }
@@ -19,8 +19,8 @@ public class LessShitLookController extends LookController
         if (restore)
         {
             this.restore = false;
-            mob.rotationYawHead = clampedRotate(mob.rotationYawHead, mob.renderYawOffset, mob.getHorizontalFaceSpeed());
-            mob.rotationPitch = clampedRotate(mob.rotationPitch, 0, mob.getVerticalFaceSpeed());
+            mob.yHeadRot = rotateTowards(mob.yHeadRot, mob.yBodyRot, mob.getMaxHeadYRot());
+            mob.setXRot(rotateTowards(mob.getXRot(), 0, mob.getMaxHeadXRot()));
             return;
         }
 
@@ -30,31 +30,30 @@ public class LessShitLookController extends LookController
             return;
         }
 
-        mob.rotationPitch = 0;
-        if (isLooking)
-        {
-            this.isLooking = false;
-            mob.rotationYawHead = clampedRotate(mob.rotationYawHead, getTargetYaw(), deltaLookYaw);
-            mob.rotationPitch = clampedRotate(mob.rotationPitch, getTargetPitch(), deltaLookPitch);
+        mob.setXRot(0);
+        if (isLookingAtTarget()) {
+            lookAtCooldown = 0;
+            mob.yHeadRot = rotateTowards(mob.yHeadRot, getYRotD().orElse(0f), yMaxRotSpeed);
+            mob.setXRot(rotateTowards(mob.getXRot(), getXRotD().orElse(0f), yMaxRotSpeed));
         }
-        else mob.rotationYawHead = clampedRotate(mob.rotationYawHead, mob.renderYawOffset, deltaLookYaw);
+        else mob.yHeadRot = rotateTowards(mob.yHeadRot, mob.yBodyRot, yMaxRotSpeed);
 
-        if (!mob.getNavigator().noPath())
-            mob.rotationYawHead = Mth.func_219800_b(mob.rotationYawHead, mob.renderYawOffset, deltaLookYaw);
+        if (!mob.getNavigation().isDone())
+            mob.yHeadRot = Mth.rotateIfNecessary(mob.yHeadRot, mob.yBodyRot, yMaxRotSpeed);
     }
 
-    protected boolean func_220680_b() { return !frozen; }
+    protected boolean resetXRotOnTick() { return !frozen; }
 
     public void freeze()
     {
         this.frozen = true;
-        this.isLooking = false;
+        lookAtCooldown = 0;
     }
 
     public void restore()
     {
         this.restore = true;
         this.frozen = true;
-        this.isLooking = false;
+        lookAtCooldown = 0;
     }
 }

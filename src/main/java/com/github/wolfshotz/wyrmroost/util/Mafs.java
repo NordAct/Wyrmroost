@@ -1,12 +1,13 @@
 package com.github.wolfshotz.wyrmroost.util;
 
 import net.minecraft.util.Mth;
-import net.minecraft.util.math.EntityRayTraceResult;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.projectile.ProjectileUtil;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.Vec3;
+
 import javax.annotation.Nullable;
-import java.util.Optional;
-import java.util.Random;
 import java.util.function.Predicate;
 
 /**
@@ -28,14 +29,14 @@ public final class Mafs
     /**
      * Returns a new pseudo random double value constrained to the values of {@code (-1.0d)} and {@code (1.0d)}
      */
-    public static double nextDouble(Random rand) { return 2 * rand.nextDouble() - 1; }
+    public static double nextDouble(RandomSource rand) { return 2 * rand.nextDouble() - 1; }
 
     /**
      * A good way to get a position offset by the direction of a yaw angle.
      */
-    public static Vector3d getYawVec(float yaw, double xOffset, double zOffset)
+    public static Vec3 getYawVec(float yaw, double xOffset, double zOffset)
     {
-        return new Vector3d(xOffset, 0, zOffset).rotateYaw(-yaw * (PI / 180f));
+        return new Vec3(xOffset, 0, zOffset).yRot(-yaw * (PI / 180f));
     }
 
     /**
@@ -50,7 +51,7 @@ public final class Mafs
 
     public static double getAngle(Entity source, Entity target)
     {
-        return Mth.atan2(target.getPosZ() - source.getPosZ(), target.getPosX() - source.getPosX()) * (180 / Math.PI) + 180;
+        return Mth.atan2(target.getZ() - source.getZ(), target.getX() - source.getX()) * (180 / Math.PI) + 180;
     }
 
     /**
@@ -64,27 +65,28 @@ public final class Mafs
     }
 
     @Nullable
-    public static EntityRayTraceResult rayTraceEntities(Entity shooter, double range, @Nullable Predicate<Entity> filter)
+    public static EntityHitResult rayTraceEntities(Entity shooter, double range, @Nullable Predicate<Entity> filter)
     {
-        Vector3d eyes = shooter.getEyePosition(1f);
-        Vector3d end = eyes.add(shooter.getLookVec().mul(range, range, range));
+        Vec3 eyes = shooter.getEyePosition(1f);
+        Vec3 end = eyes.add(shooter.getLookAngle().scale((float) range));
 
-        Entity result = null;
+        EntityHitResult result = null;
         double distance = range * range;
-        for (Entity entity : shooter.level.getEntitiesInAABBexcluding(shooter, shooter.getBoundingBox().grow(range), filter))
+        for (Entity entity : shooter.level().getEntities(shooter, shooter.getBoundingBox().inflate(range), filter))
         {
-            Optional<Vector3d> opt = entity.getBoundingBox().grow(0.3).rayTrace(eyes, end);
-            if (opt.isPresent())
-            {
-                double dist = eyes.squareDistanceTo(opt.get());
+            EntityHitResult entityhitresult = ProjectileUtil.getEntityHitResult(
+                    entity, eyes, end, entity.getBoundingBox().inflate(0.3), target -> !target.isSpectator() && target.isPickable(), distance
+            );
+            if (entityhitresult != null) {
+                double dist = eyes.distanceToSqr(entityhitresult.getLocation());
                 if (dist < distance)
                 {
-                    result = entity;
+                    result = entityhitresult;
                     distance = dist;
                 }
             }
         }
 
-        return result == null? null : new EntityRayTraceResult(result);
+        return result;
     }
 }

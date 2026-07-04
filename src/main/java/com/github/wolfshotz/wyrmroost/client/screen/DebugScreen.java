@@ -2,11 +2,11 @@ package com.github.wolfshotz.wyrmroost.client.screen;
 
 import com.github.wolfshotz.wyrmroost.entities.dragon.AbstractDragonEntity;
 import com.github.wolfshotz.wyrmroost.util.animation.Animation;
-import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.gui.widget.button.Button;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.network.chat.Component;
 
 public class DebugScreen extends Screen
 {
@@ -14,7 +14,7 @@ public class DebugScreen extends Screen
     
     public DebugScreen(AbstractDragonEntity dragon)
     {
-        super(new StringTextComponent("debug_screen"));
+        super(Component.literal("debug_screen"));
         
         this.dragon = dragon;
     }
@@ -27,32 +27,33 @@ public class DebugScreen extends Screen
             for (int i = 0; i < animations.length; i++)
             {
                 Animation animation = animations[i];
-                addButton(new Button((i * 50) + (width / 2) - (animations.length * 25), 200, 50, 12, new StringTextComponent("Anim: " + i), b ->
-                {
-                    dragon.setAnimation(animation);
-                    closeScreen();
-                }));
+                addWidget(Button.builder(
+                        Component.literal("Anim: " + i),
+                        b -> {
+                            dragon.setAnimation(animation);
+                            onClose();
+                        })
+                        .bounds((i * 50) + (width / 2) - (animations.length * 25), 200, 50, 12)
+                        .build());
             }
     }
 
     @Override
-    public void render(MatrixStack ms, int mouseX, int mouseY, float partialTicks)
-    {
-        renderBackground(ms);
-        super.render(ms, mouseX, mouseY, partialTicks);
+    public void render(GuiGraphics ms, int mouseX, int mouseY, float partialTicks)
+    {super.render(ms, mouseX, mouseY, partialTicks);
         String gender = dragon.isMale()? "male" : "female";
 
-        drawCenteredString(ms, font, dragon.getDisplayName().getUnformattedComponentText(), (width / 2), 15, 0xffffff);
-        drawCenteredString(ms, font, "isSleeping: " + dragon.isSleeping(), (width / 2) + 50, 50, 0xffffff);
-        drawCenteredString(ms, font, "isTamed: " + dragon.isTame(), (width / 2) - 50, 50, 0xffffff);
-        drawCenteredString(ms, font, "isSitting: " + dragon.func_233684_eK_(), (width / 2) - 50, 75, 0xffffff);
-        drawCenteredString(ms, font, "isFlying: " + dragon.isFlying(), (width / 2) + 50, 75, 0xffffff);
-        drawCenteredString(ms, font, "variant: " + dragon.getVariant(), (width / 2) - 50, 100, 0xffffff);
-        drawCenteredString(ms, font, "gender: " + gender, (width / 2) + 50, 100, 0xffffff);
-        drawCenteredString(ms, font, "health: " + dragon.getHealth() + " / " + dragon.getMaxHealth(), (width / 2) - 50, 125, 0xffffff);
-        drawCenteredString(ms, font, "noAI: " + dragon.isAIDisabled(), (width / 2) + 50, 125, 0xffffff);
-        drawCenteredString(ms, font, "position: " + dragon.getPositionVec(), (width / 2), 150, 0xffffff);
-        drawCenteredString(ms, font, "motion: " + dragon.getMotion(), (width / 2), 175, 0xffffff);
+        ms.drawCenteredString(font, dragon.getDisplayName().getString(), (width / 2), 15, 0xffffff);
+        ms.drawCenteredString(font, "isSleeping: " + dragon.isSleeping(), (width / 2) + 50, 50, 0xffffff);
+        ms.drawCenteredString(font, "isTamed: " + dragon.isTame(), (width / 2) - 50, 50, 0xffffff);
+        ms.drawCenteredString(font, "isSitting: " + dragon.isInSittingPose(), (width / 2) - 50, 75, 0xffffff);
+        ms.drawCenteredString(font, "isFlying: " + dragon.isFlying(), (width / 2) + 50, 75, 0xffffff);
+        ms.drawCenteredString(font, "variant: " + dragon.getVariant(), (width / 2) - 50, 100, 0xffffff);
+        ms.drawCenteredString(font, "gender: " + gender, (width / 2) + 50, 100, 0xffffff);
+        ms.drawCenteredString(font, "health: " + dragon.getHealth() + " / " + dragon.getMaxHealth(), (width / 2) - 50, 125, 0xffffff);
+        ms.drawCenteredString(font, "noAI: " + dragon.isNoAi(), (width / 2) + 50, 125, 0xffffff);
+        ms.drawCenteredString(font, "position: " + dragon.position(), (width / 2), 150, 0xffffff);
+        ms.drawCenteredString(font, "motion: " + dragon.getDeltaMovement(), (width / 2), 175, 0xffffff);
     }
 
     @Override
@@ -63,6 +64,6 @@ public class DebugScreen extends Screen
 
     public static void open(AbstractDragonEntity dragon)
     {
-        Minecraft.getInstance().displayGuiScreen(new DebugScreen(dragon));
+        Minecraft.getInstance().setScreen(new DebugScreen(dragon));
     }
 }

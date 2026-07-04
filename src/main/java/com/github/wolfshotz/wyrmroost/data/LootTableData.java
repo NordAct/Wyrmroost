@@ -1,117 +1,139 @@
 package com.github.wolfshotz.wyrmroost.data;
 
 import com.github.wolfshotz.wyrmroost.Wyrmroost;
+import com.github.wolfshotz.wyrmroost.registry.WRBlocks;
 import com.github.wolfshotz.wyrmroost.registry.WREntities;
 import com.github.wolfshotz.wyrmroost.registry.WRItems;
-import com.github.wolfshotz.wyrmroost.util.ModUtils;
 import com.google.common.collect.ImmutableList;
-import com.mojang.datafixers.util.Pair;
-import net.minecraft.advancements.criterion.EntityFlagsPredicate;
-import net.minecraft.advancements.criterion.EntityPredicate;
-import net.minecraft.data.DataGenerator;
-import net.minecraft.data.LootTableProvider;
-import net.minecraft.data.loot.BlockLootTables;
-import net.minecraft.data.loot.EntityLootTables;
-import net.minecraft.entity.EntityClassification;
-import net.minecraft.loot.*;
-import net.minecraft.loot.conditions.EntityHasProperty;
-import net.minecraft.loot.conditions.KilledByPlayer;
-import net.minecraft.loot.conditions.RandomChance;
-import net.minecraft.loot.functions.LootingEnchantBonus;
-import net.minecraft.loot.functions.SetCount;
-import net.minecraft.loot.functions.Smelt;
-import net.minecraft.util.IItemProvider;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.advancements.critereon.EntityFlagsPredicate;
+import net.minecraft.advancements.critereon.EntityPredicate;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.data.PackOutput;
+import net.minecraft.data.loot.BlockLootSubProvider;
+import net.minecraft.data.loot.EntityLootSubProvider;
+import net.minecraft.data.loot.LootTableProvider;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
+import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.level.storage.loot.entries.LootItem;
+import net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer;
+import net.minecraft.world.level.storage.loot.entries.LootPoolSingletonContainer;
+import net.minecraft.world.level.storage.loot.functions.*;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
+import net.minecraft.world.level.storage.loot.predicates.LootItemEntityPropertyCondition;
+import net.minecraft.world.level.storage.loot.predicates.LootItemKilledByPlayerCondition;
+import net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceCondition;
+import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
+import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
+import net.neoforged.neoforge.registries.DeferredHolder;
+
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.github.wolfshotz.wyrmroost.registry.WRBlocks.*;
 
 class LootTableData extends LootTableProvider
 {
-    LootTableData(DataGenerator gen) { super(gen); }
-
-    @Override
-    protected List<Pair<Supplier<Consumer<BiConsumer<ResourceLocation, LootTable.Builder>>>, LootParameterSet>> getTables()
-    {
-        return ImmutableList.of(Pair.of(Blocks::new, LootParameterSets.BLOCK), Pair.of(Entities::new, LootParameterSets.ENTITY));
+    LootTableData(PackOutput output, CompletableFuture<HolderLookup.Provider> provider) {
+        super(
+                output,
+                Set.of(),
+                ImmutableList.of(
+                        new LootTableProvider.SubProviderEntry(Blocks::new, LootContextParamSets.BLOCK),
+                        new LootTableProvider.SubProviderEntry(Entities::new, LootContextParamSets.ENTITY)
+                ),
+                provider);
     }
 
-    @Override
-    protected void validate(Map<ResourceLocation, LootTable> map, ValidationTracker validationtracker) {}
-
-    private static class Blocks extends BlockLootTables
+    private static class Blocks extends BlockLootSubProvider
     {
         public final Map<Block, LootTable.Builder> lootTables = new HashMap<>();
 
+        protected Blocks(HolderLookup.Provider registries) {
+            super(Set.of(), FeatureFlags.REGISTRY.allFlags(), registries);
+        }
+
         @Override
         @SuppressWarnings("ConstantConditions")
-        protected void addTables()
+        protected void generate()
         {
-            registerOre(BLUE_GEODE_ORE.get(), WRItems.BLUE_GEODE.get());
-            registerOre(RED_GEODE_ORE.get(), WRItems.RED_GEODE.get());
-            registerOre(PURPLE_GEODE_ORE.get(), WRItems.PURPLE_GEODE.get());
+            registerOre(BLUE_GEODE_ORE.value(), WRItems.BLUE_GEODE.value());
+            registerOre(RED_GEODE_ORE.value(), WRItems.RED_GEODE.value());
+            registerOre(PURPLE_GEODE_ORE.value(), WRItems.PURPLE_GEODE.value());
 
             for (Block block : getKnownBlocks()) // All blocks that have not been given special treatment above, drop themselves!
             {
                 if (!lootTables.containsKey(block) && block.getLootTable() != BuiltInLootTables.EMPTY) // Loottable is already set to not have one, ignore.
-                    registerDropSelfLootTable(block);
+                    dropSelf(block);
             }
         }
 
         @Override
-        protected Iterable<Block> getKnownBlocks() { return ModUtils.getRegistryEntries(REGISTRY); }
+        protected Iterable<Block> getKnownBlocks() {
+            return WRBlocks.REGISTRY.getEntries().stream().map(DeferredHolder::value).collect(Collectors.toList());
+        }
 
-        private void registerOre(Block ore, Item output) { registerLootTable(ore, block -> droppingItemWithFortune(block, output)); }
+        private void registerOre(Block ore, Item output) { add(ore, block -> createOreDrop(block, output)); }
 
         @Override
-        protected void registerLootTable(Block blockIn, LootTable.Builder table)
+        protected void add(Block blockIn, LootTable.Builder table)
         {
-            super.registerLootTable(blockIn, table);
+            super.add(blockIn, table);
             lootTables.put(blockIn, table);
         }
     }
 
-    private static class Entities extends EntityLootTables
+    private static class Entities extends EntityLootSubProvider
     {
-        private static final LootFunction.Builder<?> ON_FIRE_SMELT = Smelt.func_215953_b().acceptCondition(EntityHasProperty.builder(LootContext.EntityTarget.THIS, EntityPredicate.Builder.create().flags(EntityFlagsPredicate.Builder.create().onFire(true).build())));
+        private static final LootItemConditionalFunction.Builder<?> ON_FIRE_SMELT = SmeltItemFunction.smelted()
+                .when(
+                        LootItemEntityPropertyCondition.hasProperties(
+                                LootContext.EntityTarget.THIS,
+                                EntityPredicate.Builder.entity().flags(EntityFlagsPredicate.Builder.flags().setOnFire(true)).build()
+                        )
+                );
 
         private final Map<EntityType<?>, LootTable.Builder> lootTables = new HashMap<>();
+
+        protected Entities(HolderLookup.Provider registries) {
+            super(FeatureFlags.REGISTRY.allFlags(), FeatureFlags.REGISTRY.subset(), registries);
+        }
 
         /**
          * Our way is much neater and cooler anyway. fuck mojang
          */
         @Override
-        public void accept(BiConsumer<ResourceLocation, LootTable.Builder> consumer)
+        public void generate(BiConsumer<ResourceKey<LootTable>, LootTable.Builder>  consumer)
         {
-            addTables();
-
-            for (EntityType<?> entity : getKnownEntities())
-            {
+            generate();
+            getKnownEntityTypes().forEach(entity -> {
                 if (!lootTables.containsKey(entity))
                 {
-                    if (entity.getClassification() == EntityClassification.MISC) continue;
-                    throw new IllegalArgumentException(String.format("Missing Loottable for entry: '%s'", entity.getRegistryName()));
+                    if (entity.getCategory() == MobCategory.MISC) return;
+                    throw new IllegalArgumentException(String.format("Missing Loottable for entry: '%s'", EntityType.getKey(entity)));
                 }
-                consumer.accept(entity.getLootTable(), lootTables.remove(entity));
-            }
+                consumer.accept(entity.getDefaultLootTable(), lootTables.remove(entity));
+            });
         }
 
         @Override
-        protected Iterable<EntityType<?>> getKnownEntities()
+        protected Stream<EntityType<?>> getKnownEntityTypes()
         {
-            return ModUtils.getRegistryEntries(WREntities.REGISTRY);
+            return WREntities.REGISTRY.getEntries().stream().map(DeferredHolder::value);
         }
 
         /**
@@ -123,80 +145,85 @@ class LootTableData extends LootTableProvider
         {
             for (EntityType<?> type : types)
             {
-                Wyrmroost.LOG.warn("Registering EMPTY Loottable for: '{}'", type.getRegistryName());
-                registerLootTable(type, LootTable.lootTable());
+                Wyrmroost.LOG.warn("Registering EMPTY Loottable for: '{}'", EntityType.getKey(type));
+                add(type, LootTable.lootTable());
             }
         }
 
         @Override
-        protected void registerLootTable(EntityType<?> type, LootTable.Builder table)
+        protected void add(EntityType<?> type, LootTable.Builder table)
         {
             lootTables.put(type, table);
         }
 
         @Override
-        protected void addTables()
+        public void generate()
         {
-            registerLootTable(WREntities.LESSER_DESERTWYRM.get(), LootTable.lootTable().addLootPool(singleRollPool().addEntry(item(WRItems.LDWYRM.get(), 1).acceptFunction(ON_FIRE_SMELT))));
+            add(WREntities.LESSER_DESERTWYRM.value(), LootTable.lootTable().withPool(singleRollPool().add(item(WRItems.LDWYRM.value(), 1).apply(ON_FIRE_SMELT))));
 
-            registerLootTable(WREntities.OVERWORLD_DRAKE.get(), LootTable.lootTable()
-                    .addLootPool(singleRollPool().addEntry(item(Items.LEATHER, 5, 10).acceptFunction(looting(1, 4))))
-                    .addLootPool(singleRollPool().addEntry(meat(WRItems.RAW_COMMON_MEAT.get(), 1, 7, 2, 3)))
-                    .addLootPool(singleRollPool().addEntry(item(WRItems.DRAKE_BACKPLATE.get(), 1)).acceptCondition(KilledByPlayer.builder()).acceptCondition(RandomChance.builder(0.15f)).acceptFunction(looting(0, 1))));
+            add(WREntities.OVERWORLD_DRAKE.value(), LootTable.lootTable()
+                    .withPool(singleRollPool().add(item(Items.LEATHER, 5, 10)).apply(looting(registries, 1, 4)))
+                    .withPool(singleRollPool().add(meat(registries, WRItems.RAW_COMMON_MEAT.value(), 1, 7, 2, 3)))
+                    .withPool(singleRollPool().add(item(WRItems.DRAKE_BACKPLATE.value(), 1)).when(LootItemKilledByPlayerCondition.killedByPlayer()).when(LootItemRandomChanceCondition.randomChance(0.15f)).apply(looting(registries, 0, 1))));
 
-            registerLootTable(WREntities.ROOSTSTALKER.get(), LootTable.lootTable()
-                    .addLootPool(singleRollPool().addEntry(meat(WRItems.RAW_LOWTIER_MEAT.get(), 0, 2, 1, 2)))
-                    .addLootPool(singleRollPool().addEntry(item(Items.GOLD_NUGGET, 0, 2))));
+            add(WREntities.ROOSTSTALKER.value(), LootTable.lootTable()
+                    .withPool(singleRollPool().add(meat(registries, WRItems.RAW_LOWTIER_MEAT.value(), 0, 2, 1, 2)))
+                    .withPool(singleRollPool().add(item(Items.GOLD_NUGGET, 0, 2))));
 
-            registerLootTable(WREntities.DRAGON_FRUIT_DRAKE.get(), LootTable.lootTable().addLootPool(singleRollPool().addEntry(item(Items.APPLE, 0, 6))));
+            add(WREntities.DRAGON_FRUIT_DRAKE.value(), LootTable.lootTable().withPool(singleRollPool().add(item(Items.APPLE, 0, 6))));
 
-            registerLootTable(WREntities.CANARI_WYVERN.get(), LootTable.lootTable()
-                    .addLootPool(singleRollPool().addEntry(meat(WRItems.RAW_COMMON_MEAT.get(), 0, 2, 1, 2)))
-                    .addLootPool(singleRollPool().addEntry(item(Items.FEATHER, 1, 4).acceptFunction(looting(2, 6)))));
+            add(WREntities.CANARI_WYVERN.value(), LootTable.lootTable()
+                    .withPool(singleRollPool().add(meat(registries, WRItems.RAW_COMMON_MEAT.value(), 0, 2, 1, 2)))
+                    .withPool(singleRollPool().add(item(Items.FEATHER, 1, 4).apply(looting(registries, 2, 6)))));
 
-            registerLootTable(WREntities.SILVER_GLIDER.get(), LootTable.lootTable()
-                    .addLootPool(singleRollPool().addEntry(meat(WRItems.RAW_LOWTIER_MEAT.get(), 0, 3, 1, 3))));
+            add(WREntities.SILVER_GLIDER.value(), LootTable.lootTable()
+                    .withPool(singleRollPool().add(meat(registries, WRItems.RAW_LOWTIER_MEAT.value(), 0, 3, 1, 3))));
 
-            registerLootTable(WREntities.BUTTERFLY_LEVIATHAN.get(), LootTable.lootTable()
-                    .addLootPool(singleRollPool().addEntry(meat(WRItems.RAW_APEX_MEAT.get(), 6, 10, 2, 4)))
-                    .addLootPool(LootPool.lootPool().setRolls(RandomValueRange.of(1, 4)).addEntry(item(Items.SEA_PICKLE, 0, 2).acceptFunction(looting(1, 2))).addEntry(item(Items.SEAGRASS, 4, 14)).addEntry(item(Items.KELP, 16, 24)))
-                    .addLootPool(singleRollPool().addEntry(item(Items.HEART_OF_THE_SEA, 1).acceptCondition(RandomChance.builder(0.1f))).addEntry(item(Items.NAUTILUS_SHELL, 1).acceptCondition(RandomChance.builder(0.15f)))));
+            add(WREntities.BUTTERFLY_LEVIATHAN.value(), LootTable.lootTable()
+                    .withPool(singleRollPool().add(meat(registries, WRItems.RAW_APEX_MEAT.value(), 6, 10, 2, 4)))
+                    .withPool(LootPool.lootPool().setRolls(UniformGenerator.between(1, 4)).add(item(Items.SEA_PICKLE, 0, 2).apply(looting(registries, 1, 2))).add(item(Items.SEAGRASS, 4, 14)).add(item(Items.KELP, 16, 24)))
+                    .withPool(singleRollPool().add(item(Items.HEART_OF_THE_SEA, 1).when(LootItemRandomChanceCondition.randomChance(0.1f))).add(item(Items.NAUTILUS_SHELL, 1).when(LootItemRandomChanceCondition.randomChance(0.15f)))));
 
-            registerLootTable(WREntities.ROYAL_RED.get(), LootTable.lootTable()
-                    .addLootPool(singleRollPool().addEntry(meat(WRItems.RAW_APEX_MEAT.get(), 4, 8, 3, 5))));
+            add(WREntities.ROYAL_RED.value(), LootTable.lootTable()
+                    .withPool(singleRollPool().add(meat(registries, WRItems.RAW_APEX_MEAT.value(), 4, 8, 3, 5))));
 
-            registerLootTable(WREntities.COIN_DRAGON.get(), LootTable.lootTable().addLootPool(singleRollPool()
-                    .addEntry(meat(WRItems.RAW_LOWTIER_MEAT.get(), 1, 1, 0, 1))
-                    .addEntry(item(Items.GOLD_NUGGET, 4))));
+            add(WREntities.COIN_DRAGON.value(), LootTable.lootTable().withPool(singleRollPool()
+                    .add(meat(registries, WRItems.RAW_LOWTIER_MEAT.value(), 1, 1, 0, 1))
+                    .add(item(Items.GOLD_NUGGET, 4))));
 
-            registerLootTable(WREntities.ALPINE.get(), LootTable.lootTable()
-                    .addLootPool(singleRollPool().addEntry(meat(WRItems.RAW_COMMON_MEAT.get(), 3, 7, 2, 6)))
-                    .addLootPool(singleRollPool().addEntry(item(Items.FEATHER, 3, 10).acceptFunction(looting(3, 11)))));
+            add(WREntities.ALPINE.value(), LootTable.lootTable()
+                    .withPool(singleRollPool().add(meat(registries, WRItems.RAW_COMMON_MEAT.value(), 3, 7, 2, 6)))
+                    .withPool(
+                            singleRollPool()
+                                    .add(item(Items.FEATHER, 3, 10)).apply(looting(registries, 3, 11))
+                    )
+            )
+            ;
         }
 
-        private static LootingEnchantBonus.Builder looting(float min, float max)
+        private static LootItemFunction.Builder looting(HolderLookup.Provider registries, float min, float max)
         {
-            return LootingEnchantBonus.builder(RandomValueRange.of(min, max));
+            return EnchantedCountIncreaseFunction.lootingMultiplier(registries, UniformGenerator.between(min, max));
         }
 
-        private static ItemLootEntry.Builder<?> item(IItemProvider itemIn, float minIn, float maxIn)
+        private static LootPoolSingletonContainer.Builder<?> item(ItemLike itemIn, float minIn, float maxIn)
         {
-            return ItemLootEntry.builder(itemIn).acceptFunction(SetCount.builder(RandomValueRange.of(minIn, maxIn)));
+            return LootItem.lootTableItem(itemIn).apply(SetItemCountFunction.setCount(UniformGenerator.between(minIn, maxIn)));
         }
 
-        private static ItemLootEntry.Builder<?> item(IItemProvider itemIn, int amount)
+        private static LootPoolSingletonContainer.Builder<?> item(ItemLike itemIn, int amount)
         {
-            return ItemLootEntry.builder(itemIn).acceptFunction(SetCount.builder(ConstantRange.of(amount)));
+            return LootItem.lootTableItem(itemIn).apply(SetItemCountFunction.setCount(ConstantValue.exactly(amount)));
         }
 
         private static LootPool.Builder singleRollPool()
         {
-            return LootPool.lootPool().setRolls(ConstantRange.of(1));
+            return LootPool.lootPool().setRolls(ConstantValue.exactly(1));
         }
 
-        private static ItemLootEntry.Builder<?> meat(IItemProvider itemIn, int minAmount, int maxAmount, int lootingMin, int lootingMax)
+        private static LootPoolEntryContainer.Builder<?> meat(HolderLookup.Provider registries, ItemLike itemIn, int minAmount, int maxAmount, int lootingMin, int lootingMax)
         {
-            return item(itemIn, minAmount, maxAmount).acceptFunction(ON_FIRE_SMELT).acceptFunction(looting(lootingMin, lootingMax));
+            return item(itemIn, minAmount, maxAmount).apply(ON_FIRE_SMELT).apply(looting(registries, lootingMin, lootingMax));
         }
     }
 }

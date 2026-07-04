@@ -1,46 +1,45 @@
 package com.github.wolfshotz.wyrmroost.entities.util;
 
 import com.github.wolfshotz.wyrmroost.registry.WRItems;
-import net.minecraft.item.MerchantOffer;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.npc.VillagerTrades;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraftforge.event.village.WandererTradesEvent;
+import net.minecraft.world.item.trading.ItemCost;
+import net.minecraft.world.item.trading.MerchantOffer;
+import net.neoforged.neoforge.event.village.WandererTradesEvent;
 
 import javax.annotation.Nullable;
 import java.util.List;
-import java.util.Random;
-
-import static net.minecraft.entity.merchant.villager.VillagerTrades.ITrade;
-
-import ITrade;
+import java.util.Optional;
 
 public class VillagerHelper
 {
     public static void addWandererTrades(WandererTradesEvent evt)
     {
-        List<ITrade> list = evt.getGenericTrades();
+        List<VillagerTrades.ItemListing> list = evt.getGenericTrades();
 
-        list.add(cdForItems(WRItems.BLUE_GEODE.get(), 12, 1, 3));
-        list.add(cdForItems(WRItems.RED_GEODE.get(), 6, 1, 4));
-        list.add(cdForItems(WRItems.PURPLE_GEODE.get(), 3, 1, 5));
-        list.add(cdForItems(WRItems.TRUMPET.get(), 1, 4, 2));
-        list.add(cdForItems(WRItems.JEWELLED_APPLE.get(), 2, 3, 1));
-        list.add(new ItemsForItemsTrade(new ItemStack(Items.EMERALD, 6), new ItemStack(WRItems.BLUE_GEODE.get(), 4), 4, 1, 10));
+        list.add(cdForItems(WRItems.BLUE_GEODE.value(), 12, 1, 3));
+        list.add(cdForItems(WRItems.RED_GEODE.value(), 6, 1, 4));
+        list.add(cdForItems(WRItems.PURPLE_GEODE.value(), 3, 1, 5));
+        list.add(cdForItems(WRItems.TRUMPET.value(), 1, 4, 2));
+        list.add(cdForItems(WRItems.JEWELLED_APPLE.value(), 2, 3, 1));
+        list.add(new ItemsForItemsTrade(new ItemStack(Items.EMERALD, 6), new ItemStack(WRItems.BLUE_GEODE.value(), 4), 4, 1, 10));
     }
 
-    private static ITrade cdForItems(ItemStack selling, int maxUses, int xp)
+    private static VillagerTrades.ItemListing cdForItems(ItemStack selling, int maxUses, int xp)
     {
-        return new ItemsForItemsTrade(new ItemStack(WRItems.COIN_DRAGON.get()), selling, maxUses, xp, 0);
+        return new ItemsForItemsTrade(new ItemStack(WRItems.COIN_DRAGON.value()), selling, maxUses, xp, 0);
     }
 
-    private static ITrade cdForItems(Item item, int count, int maxUses, int xp)
+    private static VillagerTrades.ItemListing cdForItems(Item item, int count, int maxUses, int xp)
     {
         return cdForItems(new ItemStack(item, count), maxUses, xp);
     }
 
-    private static class ItemsForItemsTrade implements ITrade
+    private static class ItemsForItemsTrade implements VillagerTrades.ItemListing
     {
         private final ItemStack buying1, buying2, selling;
         private final int maxUses, xp;
@@ -63,9 +62,16 @@ public class VillagerHelper
 
         @Nullable
         @Override
-        public MerchantOffer getOffer(Entity trader, Random rand)
+        public MerchantOffer getOffer(Entity trader, RandomSource rand)
         {
-            return new MerchantOffer(buying1, buying2, selling, maxUses, xp, priceMultiplier);
+            return new MerchantOffer(
+                    new ItemCost(buying1.getItem(), buying1.getCount()),
+                    buying2.isEmpty() ? Optional.empty() : Optional.of(new ItemCost(buying2.getItem(), buying2.getCount())),
+                    selling,
+                    maxUses,
+                    xp,
+                    priceMultiplier
+            );
         }
     }
 }

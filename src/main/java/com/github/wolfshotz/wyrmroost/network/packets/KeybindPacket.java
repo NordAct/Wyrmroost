@@ -2,12 +2,12 @@ package com.github.wolfshotz.wyrmroost.network.packets;
 
 import com.github.wolfshotz.wyrmroost.Wyrmroost;
 import com.github.wolfshotz.wyrmroost.entities.dragon.AbstractDragonEntity;
-import net.minecraft.network.PacketBuffer;
+import io.netty.buffer.ByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.fml.network.NetworkEvent;
-
-import java.util.function.Supplier;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 /**
  * Created by com.github.WolfShotz - 8/9/2019 - 02:03
@@ -15,37 +15,27 @@ import java.util.function.Supplier;
  * Class Handling the packet sending of keybind inputs.
  * keybinds are assigned an int, and as such follow the following format:
  */
-public class KeybindPacket
-{
+public record KeybindPacket(byte key, int mods, boolean pressed) implements CustomPacketPayload {
+    public static final Type<KeybindPacket> TYPE = new Type<>(Wyrmroost.rl("keybind"));
+    public static final StreamCodec<ByteBuf, KeybindPacket> STREAM_CODEC = StreamCodec.of(
+            (buf, payload) -> payload.encode(buf),
+            KeybindPacket::new
+    );
     public static final byte MOUNT_KEY1 = 1;
     public static final byte MOUNT_KEY2 = 2;
 
-    private final byte key;
-    private final int mods;
-    private final boolean pressed;
-
-    public KeybindPacket(byte key, int mods, boolean pressed)
-    {
-        this.key = key;
-        this.mods = mods;
-        this.pressed = pressed;
+    public KeybindPacket(ByteBuf buf) {
+        this(buf.readByte(), buf.readInt(), buf.readBoolean());
     }
 
-    public KeybindPacket(PacketBuffer buf)
-    {
-        this.key = buf.readByte();
-        this.mods = buf.readInt();
-        this.pressed = buf.readBoolean();
-    }
-
-    public void encode(PacketBuffer buf)
+    public void encode(ByteBuf buf)
     {
         buf.writeByte(key);
         buf.writeInt(mods);
         buf.writeBoolean(pressed);
     }
 
-    public boolean handle(Supplier<NetworkEvent.Context> context) { return process(context.get().getSender()); }
+    public boolean handle(IPayloadContext context) { return process(context.player()); }
 
     public boolean process(Player player)
     {
@@ -53,7 +43,7 @@ public class KeybindPacket
         {
             case MOUNT_KEY1:
             case MOUNT_KEY2:
-                Entity vehicle = player.getRidingEntity();
+                Entity vehicle = player.getVehicle();
                 if (vehicle instanceof AbstractDragonEntity)
                 {
                     AbstractDragonEntity dragon = ((AbstractDragonEntity) vehicle);
@@ -66,5 +56,10 @@ public class KeybindPacket
                 return false;
         }
         return true;
+    }
+
+    @Override
+    public Type<? extends CustomPacketPayload> type() {
+        return TYPE;
     }
 }

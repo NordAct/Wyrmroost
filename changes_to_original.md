@@ -1,0 +1,61 @@
+- Port from latest released version (1.2.11 for 1.16 released 19th January 2021) to Neoforge 1.21.1
+- Added 3 new damage types to accompany vanilla changes
+- Fixed possible client crashes related to some dragons having invalid variant. Specifically:
+  - Alpine Dragon
+  - Canari Wyvern
+  - Coin Dragon
+  - Dragon Fruit Drake
+  - Overworld Drake
+  - Royal Red Dragon
+  - Silver Glider
+
+- Dragon armor is now equipped to body slot added in newer versions of the game
+  - Some dragon armor attribute values differ from original since they're now tied to armor material, and some of them are tied to vanilla materials
+
+- Spawns are no longer hardcoded, instead they use Neoforge's Biome Modifiers, which are data driven (tl;dr you can edit spawns via datapack now)
+  - Alpine Dragon now uses `#c:is_mountain/peak` tag for valid spawn biomes by default
+  - Butterfly Leviathan now uses `#c:is_ocean` tag for valid spawn biomes by default
+  - Canari Wyvern now uses `#c:is_swamp` tag for valid spawn biomes by default
+  - Dragon Fruit Drake now uses `#c:is_jungle` tag for valid spawn biomes by default
+  - Lesser Desert Wyrm now uses `#c:is_desert` tag for valid spawn biomes by default
+  - Overworld Drake now uses `#c:is_plains` and `#c:is_savanna` tags for valid spawn biomes by default
+  - Roost Stalker now uses `#c:is_plains`, `#c:is_forest` and `#c:is_mountain/slope` tags for valid spawn biomes by default
+  - Royal Red Dragon now uses `#c:is_mountain/peak` tag for valid spawn biomes by default
+  - Silver Glider now uses `#c:is_ocean` and `#c:is_beach` tag for valid spawn biomes by default
+
+- Ore features spawns are no longer hardcoded as well and configurable via datapacks
+  - They still spawn in similar manner to original mod, despite 1.18 worldgen changes
+  - No Overworld ore currently got deepslate variant
+  - Platinum Ore still drops as block instead of dropping its raw counterpart
+
+- Un-hardcoded bunch of text and added localization keys for it (TODO)
+  - As bilingual myself, I really want to hit with a pan anyone who does that. *Really, really hard*
+  - I also updated Russian translation because it was bad (TODO)
+
+- Replaced hardcoded food items entries (which for most dragons are also items usable for taming) with item tag entries:
+  - Alpine Dragon uses `#wyrmroost:alpine_food`, with default entries being Honeycomb and Honey Bottle
+  - Butterfly Leviathan uses `#wyrmroost:butterfly_leviathan_food`, with default entries being meat tags
+  - Canari Wyvern uses `#wyrmroost:canari_wyvern_food`, with default entries being Sweet Berries
+  - Dragon Fruit Drake uses `#wyrmroost:dragon_fruit_drake_food`, with default entries being Apple
+  - Overworld Drake uses `#wyrmroost:overworld_drake_food`, with default entries being wheat tag
+  - Roost Stalker uses `#wyrmroost:roost_stalker_food`, with default entries being meat tags
+  - Royal Red Dragon uses `#wyrmroost:royal_red_food`, with default entries being meat tags
+  - Silver Glider uses `#wyrmroost:silver_glider_food`, with default entries being fish tags
+
+- Replaced hardcoded (or better say added) items for breeding with tags:
+  - Alpine Dragon uses `#wyrmroost:alpine_breeding_items`, with default entries being dragon's food tag
+  - Butterfly Leviathan uses `#wyrmroost:butterfly_leviathan_breeding_items`, with default entries being Kelp to match wiki description
+  - Canari Wyvern uses `#wyrmroost:canari_wyvern_breeding_items`, with default entries being dragon's food tag
+  - Dragon Fruit Drake uses `#wyrmroost:dragon_fruit_drake_breeding_items`, with default entries being dragon's food tag
+  - Overworld Drake uses `#wyrmroost:overworld_drake_breeding_items`, with default entries being dragon's food tag
+  - Roost Stalker uses `#wyrmroost:roost_stalker_breeding_items`, with default entries being golden nuggets tag
+  - Royal Red Dragon uses `#wyrmroost:royal_red_breeding_items`, with default entries being dragon's food tag
+  - Silver Glider uses `#wyrmroost:silver_glider_breeding_items`, with default entries being dragon's food tag
+
+- Added `#wyrmroost:activates_dragon_fruit_drake_crops_growth` tag that accepts items that can activate Dragon Fruit Drake's increased crops growth speed ability. By default contains only Glistering Melon Slice
+- Added `#wyrmroost:roost_stalker_taming_items` tag, which contains items that Roost Stalker may eat in case if it happens to get in its mouth. By default contains eggs tag
+- Dragon Fruit Drake now can be sheared by any shears instead just vanilla ones (via checking against `#c:tools/shear` tag)
+- Silver Glider now can spawn on any sand from `#c:sands` rather than just checking for vanilla sand block
+
+
+- Other possible changes in mod behavior that came up as result of porting process. Mostly unintentional, because I had to remap entire mob from MCP mappings to Mojmaps by hand (shoutout to shedaniel for making mappings translator tool, it wouldn't be possible to make this port otherwise) or because of differences between game versions

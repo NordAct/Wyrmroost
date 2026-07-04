@@ -1,28 +1,26 @@
 package com.github.wolfshotz.wyrmroost.items;
 
 import com.github.wolfshotz.wyrmroost.Wyrmroost;
-import com.github.wolfshotz.wyrmroost.client.ClientEvents;
 import com.github.wolfshotz.wyrmroost.entities.dragon.CoinDragonEntity;
+import com.github.wolfshotz.wyrmroost.registry.WRDataComponentTypes;
 import com.github.wolfshotz.wyrmroost.registry.WREntities;
 import com.github.wolfshotz.wyrmroost.registry.WRItems;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
-import net.minecraft.item.ItemModelsProperties;
-import net.minecraft.item.ItemUseContext;
-import net.minecraft.loot.ItemLootEntry;
-import net.minecraft.loot.LootEntry;
-import net.minecraft.loot.functions.SetNBT;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.DistExecutor;
+import net.minecraft.world.level.storage.loot.entries.LootItem;
+import net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer;
+import net.minecraft.world.level.storage.loot.functions.SetComponentsFunction;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.Random;
 
@@ -33,48 +31,49 @@ public class CoinDragonItem extends Item
 
     public CoinDragonItem()
     {
-        super(WRItems.builder().maxStackSize(1));
-        DistExecutor.unsafeCallWhenOn(Dist.CLIENT, () -> () -> ClientEvents.CALLBACKS.add(() -> ItemModelsProperties.func_239418_a_(this, VARIANT_OVERRIDE, (s, w, p) -> s.getOrCreateTag().getCompound(DATA_ENTITY).getInt(CoinDragonEntity.DATA_VARIANT))));
+        super(WRItems.builder().stacksTo(1));
+        //todo model predicate - Nord
+        //DistExecutor.unsafeCallWhenOn(Dist.CLIENT, () -> () -> ClientEvents.CALLBACKS.add(() -> ItemModelsProperties.func_239418_a_(this, VARIANT_OVERRIDE, (s, w, p) -> s.getOrCreateTag().getCompound(DATA_ENTITY).getInt(CoinDragonEntity.DATA_VARIANT))));
     }
 
     @Override
     @SuppressWarnings("ConstantConditions")
-    public ActionResultType onItemUse(ItemUseContext context)
+    public InteractionResult useOn(UseOnContext context)
     {
-        Level world = context.getWorld();
-        CoinDragonEntity entity = WREntities.COIN_DRAGON.get().create(context.getWorld());
-        BlockPos pos = context.getPos().offset(context.getFace());
-        ItemStack stack = context.getItem();
+        Level world = context.getLevel();
+        CoinDragonEntity entity = (CoinDragonEntity) WREntities.COIN_DRAGON.value().create(context.getLevel());
+        BlockPos pos = context.getClickedPos().offset(context.getHorizontalDirection().getNormal());
+        ItemStack stack = context.getItemInHand();
         Player player = context.getPlayer();
 
-        if (!world.isRemote && stack.hasTag()) // read data first!: setting position before reading will reset that position!
+        if (!world.isClientSide() && stack.has(WRDataComponentTypes.DRAGON_TAG_COMPONENT)) // read data first!: setting position before reading will reset that position!
         {
-            CompoundNBT tag = stack.getTag();
-            if (tag.contains(DATA_ENTITY)) entity.deserializeNBT(tag.getCompound(DATA_ENTITY));
-            if (stack.hasDisplayName()) entity.setCustomName(stack.getDisplayName()); // set entity name from stack name
+            CompoundTag tag = stack.get(WRDataComponentTypes.DRAGON_TAG_COMPONENT);
+            entity.readAdditionalSaveData(tag);
+            if (stack.has(DataComponents.CUSTOM_NAME)) entity.setCustomName(stack.getDisplayName()); // set entity name from stack name
         }
 
-        entity.setPosition(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5);
-        if (!world.hasNoCollisions(entity))
+        entity.setPos(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5);
+        if (!world.noCollision(entity))
         {
-            player.sendStatusMessage(new TranslationTextComponent("item.wyrmroost.soul_crystal.fail").mergeStyle(TextFormatting.RED), true);
-            return ActionResultType.FAIL;
+            player.sendSystemMessage(Component.translatable("item.wyrmroost.soul_crystal.fail").withStyle(ChatFormatting.RED));
+            return InteractionResult.FAIL;
         }
 
-        if (!player.isCreative() || stack.getOrCreateTag().contains(DATA_ENTITY))
-            player.setHeldItem(context.getHand(), ItemStack.EMPTY);
-        entity.setMotion(Vector3d.ZERO);
-        entity.rotationYaw = entity.rotationYawHead = player.rotationYawHead + 180;
-        world.addEntity(entity);
-        return ActionResultType.SUCCESS;
+        if (!player.isCreative() || stack.has(WRDataComponentTypes.DRAGON_TAG_COMPONENT))
+            player.setItemInHand(context.getHand(), ItemStack.EMPTY);
+        entity.setDeltaMovement(Vec3.ZERO);
+        entity.setYRot(entity.yHeadRot = player.yHeadRot + 180);
+        world.addFreshEntity(entity);
+        return InteractionResult.SUCCESS;
     }
 
-    public static LootEntry.Builder<?> getLootEntry()
+    public static LootPoolEntryContainer.Builder<?> getLootEntry()
     {
-        CompoundNBT parent = new CompoundNBT();
-        CompoundNBT child = new CompoundNBT(); // because the parent nbt gets merged with the stack, we need to nest a child within the one getting merged
+        CompoundTag parent = new CompoundTag();
+        CompoundTag child = new CompoundTag(); // because the parent nbt gets merged with the stack, we need to nest a child within the one getting merged
         child.putInt(CoinDragonEntity.DATA_VARIANT, new Random().nextInt(5));
         parent.put(DATA_ENTITY, child);
-        return ItemLootEntry.builder(WRItems.COIN_DRAGON.get()).acceptFunction(SetNBT.builder(parent));
+        return LootItem.lootTableItem(WRItems.COIN_DRAGON.value()).apply(SetComponentsFunction.setComponent(WRDataComponentTypes.DRAGON_TAG_COMPONENT.get(), child));
     }
 }

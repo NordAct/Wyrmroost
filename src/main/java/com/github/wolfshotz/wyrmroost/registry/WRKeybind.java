@@ -1,34 +1,38 @@
 package com.github.wolfshotz.wyrmroost.registry;
 
-import com.github.wolfshotz.wyrmroost.Wyrmroost;
 import com.github.wolfshotz.wyrmroost.client.ClientEvents;
 import com.github.wolfshotz.wyrmroost.network.packets.KeybindPacket;
+import com.mojang.blaze3d.platform.InputConstants;
+import net.minecraft.client.KeyMapping;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.settings.KeyBinding;
-import net.minecraft.client.util.InputMappings;
-import net.minecraftforge.client.settings.KeyConflictContext;
-import net.minecraftforge.client.settings.KeyModifier;
-import net.minecraftforge.fml.client.registry.ClientRegistry;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
+import net.neoforged.neoforge.client.settings.KeyConflictContext;
+import net.neoforged.neoforge.client.settings.KeyModifier;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.lwjgl.glfw.GLFW;
 
 /**
  * @see GLFW
  */
-public class WRKeybind extends KeyBinding
+@OnlyIn(Dist.CLIENT)
+public class WRKeybind extends KeyMapping
 {
     private final byte id;
     private boolean prevIsPressed;
 
     public WRKeybind(String name, int keyCode, byte packetKeyID)
     {
-        super(name, KeyConflictContext.IN_GAME, KeyModifier.NONE, InputMappings.Type.KEYSYM.getOrMakeInput(keyCode), "keyCategory.wyrmroost");
+        super(name, KeyConflictContext.IN_GAME, KeyModifier.NONE, InputConstants.Type.KEYSYM.getOrCreate(keyCode), "keyCategory.wyrmroost");
         this.id = packetKeyID;
     }
 
     @Override
-    public void setPressed(boolean pressed)
+    public void setDown(boolean pressed)
     {
-        super.setPressed(pressed);
+        super.setDown(pressed);
 
         if (ClientEvents.getPlayer() != null && prevIsPressed != pressed)
         {
@@ -38,14 +42,15 @@ public class WRKeybind extends KeyBinding
             if (Screen.hasShiftDown()) mods |= GLFW.GLFW_MOD_SHIFT;
             KeybindPacket packet = new KeybindPacket(id, mods, pressed);
             packet.process(ClientEvents.getPlayer());
-            Wyrmroost.NETWORK.sendToServer(packet);
+            PacketDistributor.sendToServer(packet);
         }
         prevIsPressed = pressed;
     }
 
-    public static void registerKeys()
+    @SubscribeEvent
+    public static void registerKeys(RegisterKeyMappingsEvent event)
     {
-        ClientRegistry.registerKeyBinding(new WRKeybind("key.mountKey1", GLFW.GLFW_KEY_V, KeybindPacket.MOUNT_KEY1));
-        ClientRegistry.registerKeyBinding(new WRKeybind("key.mountKey2", GLFW.GLFW_KEY_G, KeybindPacket.MOUNT_KEY2));
+        event.register(new WRKeybind("key.mountKey1", GLFW.GLFW_KEY_V, KeybindPacket.MOUNT_KEY1));
+        event.register(new WRKeybind("key.mountKey2", GLFW.GLFW_KEY_G, KeybindPacket.MOUNT_KEY2));
     }
 }

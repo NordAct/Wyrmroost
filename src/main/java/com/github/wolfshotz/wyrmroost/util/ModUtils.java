@@ -2,19 +2,18 @@ package com.github.wolfshotz.wyrmroost.util;
 
 import com.google.common.collect.ImmutableSet;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.fml.RegistryObject;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.IForgeRegistryEntry;
+import net.minecraft.world.phys.AABB;
+import net.neoforged.neoforge.registries.DeferredRegister;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -41,10 +40,10 @@ public final class ModUtils
      * @param <T>      the type of registry
      * @return An Immutable Set that contains all entries of the provided DeferredRegister
      */
-    public static <T extends IForgeRegistryEntry<T>> Set<T> getRegistryEntries(DeferredRegister<T> registry)
+    public static <T extends Holder<T>> Set<T> getRegistryEntries(DeferredRegister<T> registry)
     {
         ImmutableSet.Builder<T> entries = ImmutableSet.builder();
-        for (RegistryObject<T> entry : registry.getEntries()) entries.add(entry.get());
+        for (Holder<T> entry : registry.getEntries()) entries.add(entry.value());
         return entries.build();
     }
 
@@ -59,8 +58,8 @@ public final class ModUtils
     @Nullable
     public static ItemStack getHeldStack(Player player, Item item)
     {
-        ItemStack main = player.getHeldItemMainhand();
-        ItemStack off = player.getHeldItemOffhand();
+        ItemStack main = player.getMainHandItem();
+        ItemStack off = player.getOffhandItem();
         return item == main.getItem()? main : item == off.getItem()? off : null;
     }
 
@@ -71,7 +70,7 @@ public final class ModUtils
     @SuppressWarnings("unchecked")
     public static <T extends Entity> EntityType<T> getEntityTypeByKey(@Nonnull String key)
     {
-        return (EntityType<T>) EntityType.byKey(key).orElse(null);
+        return (EntityType<T>) EntityType.byString(key).orElse(null);
     }
 
     /**
@@ -85,19 +84,19 @@ public final class ModUtils
      */
     public static void playLocalSound(Level world, BlockPos pos, SoundEvent sound, float volume, float pitch)
     {
-        world.playLocalSound(pos.getX(), pos.getY(), pos.getZ(), sound, SoundCategory.NEUTRAL, volume, pitch, false);
+        world.playLocalSound(pos.getX(), pos.getY(), pos.getZ(), sound, SoundSource.NEUTRAL, volume, pitch, false);
     }
 
     /**
-     * Get all (approximate) {@link BlockPos}'s in an {@link AxisAlignedBB}
+     * Get all (approximate) {@link BlockPos}'s in an {@link net.minecraft.world.phys.AABB}
      * <p>
      * Iterable Version - for statements ftw
      *
      * @param aabb please tell me your not asking what this is for
      */
-    public static Iterable<BlockPos> getBlockPosesInAABB(AxisAlignedBB aabb)
+    public static Iterable<BlockPos> getBlockPosesInAABB(AABB aabb)
     {
-        return BlockPos.getAllInBoxMutable(
+        return BlockPos.betweenClosed(
                 Mth.floor(aabb.minX),
                 Mth.floor(aabb.minY),
                 Mth.floor(aabb.minZ),

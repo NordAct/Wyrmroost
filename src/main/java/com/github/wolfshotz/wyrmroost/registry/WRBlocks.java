@@ -1,19 +1,22 @@
 package com.github.wolfshotz.wyrmroost.registry;
 
 import com.github.wolfshotz.wyrmroost.Wyrmroost;
-import com.github.wolfshotz.wyrmroost.blocks.base.EXPBlock;
-import net.minecraft.block.SoundType;
-import net.minecraft.block.material.Material;
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
-import net.minecraft.tags.ITag.INamedTag;
 import net.minecraft.tags.ItemTags;
+import net.minecraft.tags.TagKey;
+import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
-import net.minecraftforge.common.ToolType;
-import net.minecraftforge.fml.RegistryObject;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.world.level.block.DropExperienceBlock;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
+import net.minecraft.world.level.material.MapColor;
+import net.neoforged.neoforge.registries.DeferredRegister;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -21,62 +24,58 @@ import java.util.function.Supplier;
 
 public class WRBlocks
 {
-    public static final DeferredRegister<Block> REGISTRY = DeferredRegister.create(ForgeRegistries.BLOCKS, Wyrmroost.MOD_ID);
+    public static final DeferredRegister<Block> REGISTRY = DeferredRegister.create(Registries.BLOCK, Wyrmroost.MOD_ID);
 
-    public static final RegistryObject<Block> PLATINUM_ORE = register("platinum_ore", new Block(builder(Material.ROCK).harvestLevel(1).hardnessAndResistance(3).sound(SoundType.STONE)));
-    public static final RegistryObject<Block> PLATINUM_BLOCK = register("platinum_block", new Block(builder(Material.IRON).harvestTool(ToolType.PICKAXE).harvestLevel(1).hardnessAndResistance(5).sound(SoundType.METAL)));
+    public static final Holder<Block> PLATINUM_ORE = register("platinum_ore", new Block(builder().requiresCorrectToolForDrops().strength(3).sound(SoundType.STONE).mapColor(MapColor.STONE).instrument(NoteBlockInstrument.BASEDRUM)));
+    public static final Holder<Block> PLATINUM_BLOCK = register("platinum_block", new Block(builder().requiresCorrectToolForDrops().strength(5).sound(SoundType.METAL).instrument(NoteBlockInstrument.IRON_XYLOPHONE)));
 
-    public static final RegistryObject<Block> BLUE_GEODE_ORE = register("blue_geode_ore", new EXPBlock(3, 7, builder(Material.ROCK).harvestLevel(2).hardnessAndResistance(3).sound(SoundType.STONE)));
-    public static final RegistryObject<Block> BLUE_GEODE_BLOCK = register("blue_geode_block", new Block(builder(Material.IRON).harvestTool(ToolType.PICKAXE).harvestLevel(2).hardnessAndResistance(5).sound(SoundType.METAL)));
-    public static final RegistryObject<Block> RED_GEODE_ORE = register("red_geode_ore", new EXPBlock(4, 8, builder(Material.IRON).harvestTool(ToolType.PICKAXE).harvestLevel(3).hardnessAndResistance(5).sound(SoundType.STONE)));
-    public static final RegistryObject<Block> RED_GEODE_BLOCK = register("red_geode_block", new Block(builder(Material.ROCK).harvestLevel(3).hardnessAndResistance(5).sound(SoundType.METAL)));
-    public static final RegistryObject<Block> PURPLE_GEODE_ORE = register("purple_geode_ore", new EXPBlock(8, 11, builder(Material.IRON).harvestTool(ToolType.PICKAXE).harvestLevel(4).hardnessAndResistance(5).sound(SoundType.STONE)));
-    public static final RegistryObject<Block> PURPLE_GEODE_BLOCK = register("purple_geode_block", new Block(builder(Material.ROCK).harvestLevel(4).hardnessAndResistance(5).sound(SoundType.METAL)));
+    public static final Holder<Block> BLUE_GEODE_ORE = register("blue_geode_ore", new DropExperienceBlock(UniformInt.of(3, 7), builder().requiresCorrectToolForDrops().sound(SoundType.STONE).mapColor(MapColor.STONE).instrument(NoteBlockInstrument.BASEDRUM)));
+    public static final Holder<Block> BLUE_GEODE_BLOCK = register("blue_geode_block", new Block(builder().requiresCorrectToolForDrops().sound(SoundType.METAL).instrument(NoteBlockInstrument.IRON_XYLOPHONE)));
+    public static final Holder<Block> RED_GEODE_ORE = register("red_geode_ore", new DropExperienceBlock(UniformInt.of(4, 8), builder().requiresCorrectToolForDrops().sound(SoundType.STONE).mapColor(MapColor.STONE).instrument(NoteBlockInstrument.BASEDRUM)));
+    public static final Holder<Block> RED_GEODE_BLOCK = register("red_geode_block", new Block(builder().requiresCorrectToolForDrops().sound(SoundType.METAL).instrument(NoteBlockInstrument.IRON_XYLOPHONE)));
+    public static final Holder<Block> PURPLE_GEODE_ORE = register("purple_geode_ore", new DropExperienceBlock(UniformInt.of(8, 11), builder().requiresCorrectToolForDrops().sound(SoundType.STONE).mapColor(MapColor.STONE).instrument(NoteBlockInstrument.BASEDRUM)));
+    public static final Holder<Block> PURPLE_GEODE_BLOCK = register("purple_geode_block", new Block(builder().requiresCorrectToolForDrops().sound(SoundType.METAL).instrument(NoteBlockInstrument.IRON_XYLOPHONE)));
 
-    public static RegistryObject<Block> register(String name, Block block)
+    public static Holder<Block> register(String name, Block block)
     {
         return register(name, block, () -> new BlockItem(block, WRItems.builder()));
     }
 
-    public static RegistryObject<Block> register(String name, Block block, Supplier<Item> itemBlock)
+    public static Holder<Block> register(String name, Block block, Supplier<Item> itemBlock)
     {
         WRItems.register(name, itemBlock);
         return REGISTRY.register(name, () -> block);
     }
 
-    public static Block.Properties builder(Material material)
-    {
-        Block.Properties properties = Block.Properties.create(material);
-        if (material == Material.WOOD)
-            properties.harvestTool(ToolType.AXE).hardnessAndResistance(2).sound(SoundType.WOOD);
-        else if (material == Material.ROCK) properties.harvestTool(ToolType.PICKAXE);
-        else if (material == Material.SAND) properties.harvestTool(ToolType.SHOVEL).sound(SoundType.SAND);
-        return properties;
+    public static Block.Properties builder() {
+        return BlockBehaviour.Properties.of();
     }
 
-    public static class Tags
-    {
-        public static final Map<INamedTag<Block>, INamedTag<Item>> ITEM_BLOCK_TAGS = new HashMap<>();
+    public static class Tags {
+        public static final Map<TagKey<Block>, TagKey<Item>> ITEM_BLOCK_TAGS = new HashMap<>();
 
-        public static final INamedTag<Block> ORES_GEODE = forge("ores/geode");
+        public static final TagKey<Block> ORES_GEODE = tag("ores/geode");
+        public static final TagKey<Block> ORES_PLATINUM = tag("ores/platinum");
+        public static final TagKey<Block> STORAGE_BLOCKS_GEODE = tag("storage_blocks/geode");
+        public static final TagKey<Block> STORAGE_BLOCKS_PLATINUM = tag("storage_blocks/platinum");
 
-        public static final INamedTag<Block> STORAGE_BLOCKS_GEODE = forge("storage_blocks/geode");
-        public static final INamedTag<Block> STORAGE_BLOCKS_PLATINUM = forge("storage_blocks/platinum");
+        public static final TagKey<Block> ALPINE_CAN_SPAWN_ON = tag("alpine_can_spawn_on");
+        public static final TagKey<Block> BUTTERFLY_LEVIATHAN_CAN_SPAWN_ON = tag("butterfly_leviathan_can_spawn_on");
+        public static final TagKey<Block> CANARI_WYVERN_CAN_SPAWN_ON = tag("canari_wyvern_can_spawn_on");
+        public static final TagKey<Block> DRAGON_FRUIT_DRAKE_CAN_SPAWN_ON = tag("dragon_fruit_drake_can_spawn_on");
+        public static final TagKey<Block> LESSER_DESERT_WYRM_CAN_SPAWN_ON = tag("lesser_desert_wyrm_can_spawn_on");
+        public static final TagKey<Block> OVERWORLD_DRAKE_CAN_SPAWN_ON = tag("overworld_drake_can_spawn_on");
+        public static final TagKey<Block> ROOST_STALKER_CAN_SPAWN_ON = tag("roost_stalker_can_spawn_on");
+        public static final TagKey<Block> ROYAL_RED_CAN_SPAWN_ON = tag("roost_stalker_can_spawn_on");
+        public static final TagKey<Block> SILVER_GLIDER_CAN_SPAWN_ON = tag("roost_stalker_can_spawn_on");
 
-        static INamedTag<Block> forge(String path)
-        {
-            return getFor("forge:" + path);
-        }
-
-        public static INamedTag<Block> tag(String path)
-        {
+        public static TagKey<Block> tag(String path) {
             return getFor(Wyrmroost.MOD_ID + ":" + path);
         }
 
-        public static INamedTag<Block> getFor(String path)
-        {
-            INamedTag<Block> tag = BlockTags.makeWrapperTag(path);
-            ITEM_BLOCK_TAGS.put(tag, ItemTags.makeWrapperTag(path));
+        public static TagKey<Block> getFor(String path) {
+            TagKey<Block> tag = BlockTags.create(ResourceLocation.parse(path));
+            ITEM_BLOCK_TAGS.put(tag, ItemTags.create(ResourceLocation.parse(path)));
             return tag;
         }
     }

@@ -3,16 +3,15 @@ package com.github.wolfshotz.wyrmroost.entities.dragon.helpers.ai;
 import com.github.wolfshotz.wyrmroost.entities.dragon.AbstractDragonEntity;
 import com.github.wolfshotz.wyrmroost.util.Mafs;
 import net.minecraft.core.BlockPos;
-import net.minecraft.entity.ai.attributes.Attributes;
-import net.minecraft.entity.ai.controller.MovementController;
+import net.minecraft.core.Direction;
 import net.minecraft.tags.BlockTags;
-import net.minecraft.util.Direction;
 import net.minecraft.util.Mth;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.world.level.block.Block;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.control.MoveControl;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
-public class FlyerMoveController extends MovementController
+public class FlyerMoveController extends MoveControl
 {
     private final AbstractDragonEntity dragon;
 
@@ -24,21 +23,21 @@ public class FlyerMoveController extends MovementController
 
     public void tick()
     {
-        if (dragon.canPassengerSteer())
+        if (dragon.isControlledByLocalInstance())
         {
-            action = Action.WAIT;
+            operation = Operation.WAIT;
             return;
         }
 
-        if (action == Action.MOVE_TO)
+        if (operation == Operation.MOVE_TO)
         {
-            double x = posX - dragon.getPosX();
-            double y = posY - dragon.getPosY();
-            double z = posZ - dragon.getPosZ();
+            double x = wantedX - dragon.getX();
+            double y = wantedY - dragon.getY();
+            double z = wantedZ - dragon.getZ();
             double distSq = x * x + y * y + z * z;
             if (distSq < 2.5000003E-7)
             {
-                dragon.setMoveForward(0f);
+                dragon.setZza(0f);
                 return;
             }
             if (y > dragon.getFlightThreshold() + 1) dragon.setFlying(true);
@@ -47,34 +46,33 @@ public class FlyerMoveController extends MovementController
 
             if (dragon.isFlying())
             {
-                if (!dragon.getLookController().getIsLooking())
-                    dragon.getLookController().setLookPosition(posX, posY, posZ, dragon.getHorizontalFaceSpeed(), 75);
+                if (!dragon.getLookControl().isLookingAtTarget())
+                    dragon.getLookControl().setLookAt(wantedX, wantedY, wantedZ, dragon.getMaxHeadYRot(), 75);
 
-                speed = (float) (dragon.getAttributeValue(Attributes.FLYING_SPEED) * this.speed) / 0.225f;
-                if (y != 0) dragon.setMoveVertical(y > 0? speed : -speed);
+                speed = (float) (dragon.getAttributeValue(Attributes.FLYING_SPEED) * this.speedModifier) / 0.225f;
+                if (y != 0) dragon.setYya(y > 0? speed : -speed);
             }
             else
             {
-                speed = (float) (this.speed * dragon.getAttributeValue(Attributes.MOVEMENT_SPEED));
-                BlockPos blockpos = mob.getPosition();
-                BlockState blockstate = mob.world.getBlockState(blockpos);
-                Block block = blockstate.getBlock();
-                VoxelShape voxelshape = blockstate.getCollisionShape(mob.world, blockpos);
-                if (y > (double)mob.stepHeight && x * x + z * z < (double)Math.max(1.0F, mob.getWidth()) || !voxelshape.isEmpty() && mob.getPosY() < voxelshape.getEnd(Direction.Axis.Y) + (double)blockpos.getY() && !block.isIn(BlockTags.DOORS) && !block.isIn(BlockTags.FENCES)) {
-                    mob.getJumpController().setJumping();
-                    action = MovementController.Action.JUMPING;
+                speed = (float) (this.speedModifier * dragon.getAttributeValue(Attributes.MOVEMENT_SPEED));
+                BlockPos blockpos = mob.blockPosition();
+                BlockState blockstate = mob.level().getBlockState(blockpos);
+                VoxelShape voxelshape = blockstate.getCollisionShape(mob.level(), blockpos);
+                if (y > (double)mob.maxUpStep() && x * x + z * z < (double)Math.max(1.0F, mob.getBbWidth()) || !voxelshape.isEmpty() && mob.getY() < voxelshape.max(Direction.Axis.Y) + (double)blockpos.getY() && !blockstate.is(BlockTags.DOORS) && !blockstate.is(BlockTags.FENCES)) {
+                    mob.getJumpControl().jump();
+                    operation = MoveControl.Operation.JUMPING;
                 }
             }
-            dragon.rotationYaw = limitAngle(dragon.rotationYaw, (float) (Mth.atan2(z, x) * (180f / Mafs.PI)) - 90f, dragon.getYawRotationSpeed());
-            dragon.setAIMoveSpeed(speed);
-            action = Action.WAIT;
+            dragon.setYRot(rotlerp(dragon.getYRot(), (float) (Mth.atan2(z, x) * (180f / Mafs.PI)) - 90f, dragon.getYawRotationSpeed()));
+            dragon.setSpeed(speed);
+            operation = Operation.WAIT;
         }
         else
         {
-            dragon.setAIMoveSpeed(0);
-            dragon.setMoveStrafing(0);
-            dragon.setMoveVertical(0);
-            dragon.setMoveForward(0);
+            dragon.setSpeed(0);
+            dragon.setXxa(0);
+            dragon.setYya(0);
+            dragon.setZza(0);
         }
     }
 }

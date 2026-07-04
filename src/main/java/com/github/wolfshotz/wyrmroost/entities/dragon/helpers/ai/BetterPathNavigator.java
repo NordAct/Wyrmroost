@@ -1,48 +1,48 @@
 package com.github.wolfshotz.wyrmroost.entities.dragon.helpers.ai;
 
-import net.minecraft.entity.MobEntity;
-import net.minecraft.pathfinding.GroundPathNavigator;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.ai.navigation.GroundPathNavigation;
+import net.minecraft.world.phys.Vec3;
 
 /**
  * Im not actually sure if this is a good solution or not... but it seems to be working a little bit....
  */
-public class BetterPathNavigator extends GroundPathNavigator
+public class BetterPathNavigator extends GroundPathNavigation
 {
-    public BetterPathNavigator(MobEntity entity)
+    public BetterPathNavigator(Mob entity)
     {
-        super(entity, entity.world);
+        super(entity, entity.level());
     }
 
     @Override
-    protected void pathFollow()
+    protected void followThePath()
     {
-        Vector3d pos = getEntityPosition();
-        Vector3d pathPos = Vector3d.copyCenteredHorizontally(currentPath.func_242948_g());
+        Vec3 pos = getTempMobPos();
+        Vec3 pathPos = path.getNextNodePos().getBottomCenter();
 
-        double xDiff = Math.abs(pathPos.getX() - entity.getPosX());
-        double yDiff = Math.abs(pathPos.getY() - entity.getPosY());
-        double zDiff = Math.abs(pathPos.getZ() - entity.getPosZ());
+        double xDiff = Math.abs(pathPos.x - mob.getX());
+        double yDiff = Math.abs(pathPos.y - mob.getY());
+        double zDiff = Math.abs(pathPos.z - mob.getZ());
 
-        maxDistanceToWaypoint = ((int) (entity.getWidth() + 1f)) * 0.5f;
+        maxDistanceToWaypoint = ((int) (mob.getBbWidth() + 1f)) * 0.5f;
         boolean isWithinPathPoint = xDiff < maxDistanceToWaypoint && zDiff < maxDistanceToWaypoint && yDiff < 1;
 
-        if (isWithinPathPoint || (entity.func_233660_b_(currentPath.func_237225_h_().nodeType) && isPathLongEnough(pos)))
-            currentPath.incrementPathIndex();
+        if (isWithinPathPoint || (canCutCorner(path.getNextNode().type) && isPathLongEnough(pos)))
+            path.advance();
 
-        checkForStuck(pos);
+        doStuckDetection(pos);
     }
 
-    private boolean isPathLongEnough(Vector3d entityPosition)
+    private boolean isPathLongEnough(Vec3 entityPosition)
     {
-        if (currentPath.getCurrentPathIndex() + 1 >= currentPath.getCurrentPathLength()) return false;
+        if (path.getNextNodeIndex() + 1 >= path.getNodeCount()) return false;
 
-        Vector3d pathPos = Vector3d.copyCenteredHorizontally(this.currentPath.func_242948_g());
-        if (!entityPosition.isWithinDistanceOf(pathPos, maxDistanceToWaypoint)) return false;
+        Vec3 pathPos = Vec3.atBottomCenterOf(this.path.getNextNodePos());
+        if (!entityPosition.closerThan(pathPos, maxDistanceToWaypoint)) return false;
 
-        Vector3d nextPathPos = Vector3d.copyCenteredHorizontally(this.currentPath.func_242947_d(this.currentPath.getCurrentPathIndex() + 1));
-        Vector3d midOfNextAndCurrent = nextPathPos.subtract(pathPos);
-        Vector3d midOfEntityAndCurrent = entityPosition.subtract(pathPos);
-        return midOfNextAndCurrent.dotProduct(midOfEntityAndCurrent) > 0;
+        Vec3 nextPathPos = Vec3.atBottomCenterOf(this.path.getNodePos(this.path.getNextNodeIndex() + 1));
+        Vec3 midOfNextAndCurrent = nextPathPos.subtract(pathPos);
+        Vec3 midOfEntityAndCurrent = entityPosition.subtract(pathPos);
+        return midOfNextAndCurrent.dot(midOfEntityAndCurrent) > 0;
     }
 }

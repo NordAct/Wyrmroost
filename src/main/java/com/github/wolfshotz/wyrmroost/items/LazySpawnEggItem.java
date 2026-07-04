@@ -2,18 +2,15 @@ package com.github.wolfshotz.wyrmroost.items;
 
 import com.github.wolfshotz.wyrmroost.Wyrmroost;
 import com.github.wolfshotz.wyrmroost.registry.WRItems;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.SpawnEggItem;
-import net.minecraftforge.common.util.Lazy;
-import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
+import net.neoforged.fml.util.ObfuscationReflectionHelper;
+import net.neoforged.jarjar.nio.util.Lazy;
 
-import javax.annotation.Nullable;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -35,31 +32,19 @@ public class LazySpawnEggItem extends SpawnEggItem
     }
 
     @Override
-    public ITextComponent getDisplayName(ItemStack stack)
+    public Component getName(ItemStack stack)
     {
-        ResourceLocation regName = type.get().getRegistryName();
-        return new TranslationTextComponent("entity." + regName.getNamespace() + "." + regName.getPath())
-                .appendString(" ")
-                .append(new TranslationTextComponent("item.wyrmroost.spawn_egg"));
+        ResourceLocation regName = EntityType.getKey(type.get());
+        return Component.translatable("entity." + regName.getNamespace() + "." + regName.getPath())
+                .append(" ")
+                .append(Component.translatable("item.wyrmroost.spawn_egg"));
     }
 
-    public EntityType<?> getType(@Nullable CompoundNBT tag)
-    {
-        if (tag != null && tag.contains("EntityTag", 10))
-        {
-            CompoundNBT childTag = tag.getCompound("EntityTag");
-            if (childTag.contains("id", 8))
-                return EntityType.byKey(childTag.getString("id")).orElse(type.get());
-        }
 
-        return type.get();
-    }
-
-    public static void addEggsToMap()
-    {
+    public static void addEggsToMap() {
         try
         {
-            Map<EntityType<?>, SpawnEggItem> eggMap = ObfuscationReflectionHelper.getPrivateValue(SpawnEggItem.class, null, "field_195987_b");
+            Map<EntityType<?>, SpawnEggItem> eggMap = ObfuscationReflectionHelper.getPrivateValue(SpawnEggItem.class, null, "BY_ID");
             for (LazySpawnEggItem item : SPAWN_EGGS) eggMap.put(item.type.get(), item);
         }
         catch (Exception e)

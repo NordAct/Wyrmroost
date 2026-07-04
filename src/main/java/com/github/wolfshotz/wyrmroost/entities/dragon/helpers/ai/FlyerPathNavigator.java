@@ -2,40 +2,40 @@ package com.github.wolfshotz.wyrmroost.entities.dragon.helpers.ai;
 
 import com.github.wolfshotz.wyrmroost.entities.dragon.AbstractDragonEntity;
 import net.minecraft.core.BlockPos;
-import net.minecraft.pathfinding.FlyingPathNavigator;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.world.entity.ai.navigation.FlyingPathNavigation;
+import net.minecraft.world.phys.Vec3;
 
 /**
  * todo: I guess make our own node processor. Derivative of WalkAndSwim, just ditch all the water related shit.
  */
-public class FlyerPathNavigator extends FlyingPathNavigator
+public class FlyerPathNavigator extends FlyingPathNavigation
 {
-    public FlyerPathNavigator(AbstractDragonEntity entity)
+    public FlyerPathNavigator(AbstractDragonEntity mob)
     {
-        super(entity, entity.level);
+        super(mob, mob.level());
     }
 
     @Override
     @SuppressWarnings("ConstantConditions") // IT CAN BE NULL DAMNIT
     public void tick()
     {
-        if (!noPath() && canNavigate())
+        if (!isDone() && canUpdatePath())
         {
-            AbstractDragonEntity dragon = ((AbstractDragonEntity) entity);
+            AbstractDragonEntity dragon = ((AbstractDragonEntity) mob);
             BlockPos target = getTargetPos();
             if (target != null)
             {
-                entity.getMoveHelper().setMoveTo(target.getX(), target.getY(), target.getZ(), speed);
-                maxDistanceToWaypoint = entity.getWidth() * entity.getWidth() * dragon.getYawRotationSpeed() * dragon.getYawRotationSpeed();
-                Vector3d entityPos = getEntityPosition();
-                if (target.distanceSq(entityPos.x, entityPos.y, entityPos.z, true) <= maxDistanceToWaypoint)
-                    currentPath = null;
+                mob.getMoveControl().setWantedPosition(target.getX(), target.getY(), target.getZ(), speedModifier);
+                maxDistanceToWaypoint = mob.getBbWidth() * mob.getBbWidth() * dragon.getYawRotationSpeed() * dragon.getYawRotationSpeed();
+                Vec3 mobPos = getTempMobPos();
+                if (target.distToCenterSqr(mobPos.x, mobPos.y, mobPos.z) <= maxDistanceToWaypoint)
+                    path = null;
             }
         }
     }
 
     @Override
-    public boolean canEntityStandOnPos(BlockPos pos)
+    public boolean isStableDestination(BlockPos pos)
     {
         return true;
     }

@@ -7,23 +7,23 @@ import com.github.wolfshotz.wyrmroost.entities.util.VillagerHelper;
 import com.github.wolfshotz.wyrmroost.items.CoinDragonItem;
 import com.github.wolfshotz.wyrmroost.items.LazySpawnEggItem;
 import com.github.wolfshotz.wyrmroost.items.base.ArmorBase;
-import com.github.wolfshotz.wyrmroost.registry.WRWorld;
-import com.github.wolfshotz.wyrmroost.util.animation.IAnimatable;
-import net.minecraft.util.ActionResultType;
+import com.github.wolfshotz.wyrmroost.registry.WREntities;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.storage.loot.BuiltInLootTables;
 import net.minecraft.world.level.storage.loot.LootPool;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.LootTableLoadEvent;
-import net.minecraftforge.event.entity.living.LivingEquipmentChangeEvent;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.neoforge.event.LootTableLoadEvent;
+import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
+import net.neoforged.neoforge.event.entity.RegisterSpawnPlacementsEvent;
+import net.neoforged.neoforge.event.entity.living.LivingEquipmentChangeEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,20 +38,19 @@ public class CommonEvents
 {
     public static final List<Runnable> CALLBACKS = new ArrayList<>();
 
-    public static void load()
+    public static void load(IEventBus bus)
     {
-        IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
-        IEventBus forgeBus = MinecraftForge.EVENT_BUS;
 
         bus.addListener(CommonEvents::commonSetup);
         bus.addListener(WRConfig::configLoad);
         bus.addListener(DataGatherer::gather);
 
-        forgeBus.addListener(CommonEvents::debugStick);
-        forgeBus.addListener(CommonEvents::onChangeEquipment);
-        forgeBus.addListener(CommonEvents::loadLoot);
-        forgeBus.addListener(VillagerHelper::addWandererTrades);
-        forgeBus.addListener(EventPriority.HIGH, WRWorld::onBiomeLoad);
+        bus.addListener(CommonEvents::debugStick);
+        bus.addListener(CommonEvents::onChangeEquipment);
+        bus.addListener(CommonEvents::loadLoot);
+        bus.addListener(VillagerHelper::addWandererTrades);
+        bus.addListener(CommonEvents::entityAttributes);
+        bus.addListener(CommonEvents::spawnPlacements);
     }
 
     // ====================
@@ -66,8 +65,7 @@ public class CommonEvents
             CALLBACKS.clear();
             LazySpawnEggItem.addEggsToMap();
         });
-        IAnimatable.registerCapability();
-        WRWorld.Features.init();
+        //WRWorld.Features.init();
     }
 
     // =====================
@@ -77,16 +75,16 @@ public class CommonEvents
     public static void debugStick(PlayerInteractEvent.EntityInteract evt)
     {
         if (!WRConfig.debugMode) return;
-        Player player = evt.getPlayer();
-        ItemStack stack = player.getHeldItem(evt.getHand());
-        if (stack.getItem() != Items.STICK || !stack.getDisplayName().getUnformattedComponentText().equals("Debug Stick"))
+        Player player = evt.getEntity();
+        ItemStack stack = player.getItemInHand(evt.getHand());
+        if (stack.getItem() != Items.STICK || !stack.getDisplayName().getString().equals("Debug Stick"))
             return;
 
         evt.setCanceled(true);
-        evt.setCancellationResult(ActionResultType.SUCCESS);
+        evt.setCancellationResult(InteractionResult.SUCCESS);
 
         Entity entity = evt.getTarget();
-        entity.recalculateSize();
+        entity.refreshDimensions();
 
         if (!(entity instanceof AbstractDragonEntity)) return;
         AbstractDragonEntity dragon = (AbstractDragonEntity) entity;
@@ -94,8 +92,8 @@ public class CommonEvents
         if (player.isShiftKeyDown()) dragon.tame(true, player);
         else
         {
-            if (dragon.world.isRemote) DebugScreen.open(dragon);
-            else Wyrmroost.LOG.info(dragon.getNavigator().getPath() == null? "null" : dragon.getNavigator().getPath().getTarget().toString());
+            if (dragon.level().isClientSide()) DebugScreen.open(dragon);
+            else Wyrmroost.LOG.info(dragon.getNavigation().getPath() == null? "null" : dragon.getNavigation().getPath().getTarget().toString());
         }
     }
 
@@ -106,16 +104,24 @@ public class CommonEvents
         else if (evt.getFrom().getItem() instanceof ArmorBase) initial = (ArmorBase) evt.getFrom().getItem();
         else return;
 
-        LivingEntity entity = evt.getEntityLiving();
+        LivingEntity entity = evt.getEntity();
         initial.applyFullSetBonus(entity, ArmorBase.hasFullSet(entity));
     }
 
     public static void loadLoot(LootTableLoadEvent evt)
     {
-        if (evt.getName().equals(LootTables.CHESTS_ABANDONED_MINESHAFT))
+        if (evt.getName().equals(BuiltInLootTables.ABANDONED_MINESHAFT))
             evt.getTable().addPool(LootPool.lootPool()
                     .name("coin_dragon_inject")
-                    .addEntry(CoinDragonItem.getLootEntry())
+                    .add(CoinDragonItem.getLootEntry())
                     .build());
+    }
+
+    public static void entityAttributes(EntityAttributeCreationEvent event) {
+        WREntities.ATTRIBUTES.forEach(pair -> event.put((EntityType<? extends LivingEntity>) pair.getFirst(), pair.getSecond()));
+    }
+
+    public static void spawnPlacements (RegisterSpawnPlacementsEvent event) {
+        WREntities.SPAWN_PREDICATES.forEach(pair -> event.register(pair.getFirst(), pair.getSecond().build()));
     }
 }

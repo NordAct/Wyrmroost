@@ -1,19 +1,10 @@
 package com.github.wolfshotz.wyrmroost.items.base;
 
-import com.github.wolfshotz.wyrmroost.Wyrmroost;
-import com.github.wolfshotz.wyrmroost.registry.WRItems;
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.entity.Entity;
+import net.minecraft.core.Holder;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.item.ArmorItem;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
-import javax.annotation.Nullable;
+import net.minecraft.world.item.*;
+
 import java.util.List;
 
 /**
@@ -21,29 +12,20 @@ import java.util.List;
  */
 public class ArmorBase extends ArmorItem
 {
-    public ArmorBase(ArmorMaterials material, EquipmentSlotType equipType)
-    {
-        super(material, equipType, WRItems.builder().rarity(material.getRarity()));
-    }
 
-    @Nullable
-    @Override
-    public String getArmorTexture(ItemStack stack, Entity entity, EquipmentSlotType slot, String type)
-    {
-        int layer = slot == EquipmentSlotType.LEGS? 2 : 1;
-        return Wyrmroost.MOD_ID + ":textures/models/armor/" + material.getName() + "_layer_" + layer + ".png";
+    public ArmorBase(Holder<ArmorMaterial> armorMaterialHolder, Type type, Properties properties) {
+        super(armorMaterialHolder, type, properties.stacksTo(1));
     }
 
     @Override
-    public void addInformation(ItemStack stack, @Nullable Level world, List<ITextComponent> lines, ITooltipFlag flags)
-    {
-        super.addInformation(stack, world, lines, flags);
-        lines.add(new TranslationTextComponent("item.wyrmroost.armors.set", new TranslationTextComponent("item.wyrmroost.armors." + material.getName()).mergeStyle(((ArmorMaterials) material).getRarity().color)));
+    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> lines, TooltipFlag flags) {
+        super.appendHoverText(stack, context, lines, flags);
+        lines.add(Component.translatable("item.wyrmroost.armors.set", Component.translatable("item.wyrmroost.armors." + material.getRegisteredName()).withStyle(stack.getRarity().getStyleModifier())));
 
         if (hasDescription())
         {
-            lines.add(new StringTextComponent(""));
-            lines.add(new TranslationTextComponent(String.format("item.wyrmroost.armors.%s.desc", material.getName().toLowerCase())));
+            lines.add(Component.empty());
+            lines.add(Component.translatable(String.format("item.wyrmroost.armors.%s.desc", material.getRegisteredName().toLowerCase())));
         }
     }
 
@@ -59,8 +41,8 @@ public class ArmorBase extends ArmorItem
     public static boolean hasFullSet(LivingEntity entity)
     {
         Item prev = null;
-        for (ItemStack itemStack : entity.getArmorInventoryList())
-        {
+        for (ItemStack itemStack : entity.getArmorSlots()) {
+
             Item item = itemStack.getItem();
             if (prev == null || item.getClass() == prev.getClass()) prev = item;
             else return false;

@@ -1,65 +1,62 @@
 package com.github.wolfshotz.wyrmroost.items;
 
-import ActionResultType;
 import com.github.wolfshotz.wyrmroost.entities.dragon.AbstractDragonEntity;
+import com.github.wolfshotz.wyrmroost.registry.WRDataComponentTypes;
 import com.github.wolfshotz.wyrmroost.registry.WRItems;
 import com.github.wolfshotz.wyrmroost.util.Mafs;
-import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
-import net.minecraft.entity.EntitySize;
-import net.minecraft.item.ItemUseContext;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.particles.ParticleTypes;
-import net.minecraft.util.*;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.shapes.Shapes;
+
 import javax.annotation.Nullable;
 import java.util.List;
 
 @SuppressWarnings("ConstantConditions")
-public class SoulCrystalItem extends Item
-{
-    public static final String DATA_DRAGON = "DragonData";
-
+public class SoulCrystalItem extends Item {
     public SoulCrystalItem()
     {
-        super(WRItems.builder().maxStackSize(1));
+        super(WRItems.builder().stacksTo(1));
     }
 
     @Override
-    public ActionResultType itemInteractionForEntity(ItemStack stack, Player player, LivingEntity target, InteractionHand hand)
-    {
-        Level world = player.level;
-        if (containsDragon(stack)) return ActionResultType.PASS;
-        if (!isSuitableEntity(target)) return ActionResultType.PASS;
+    public InteractionResult interactLivingEntity(ItemStack stack, Player player, LivingEntity target, InteractionHand hand) {
+        Level world = player.level();
+        if (containsDragon(stack)) return InteractionResult.PASS;
+        if (!isSuitableEntity(target)) return InteractionResult.PASS;
         TamableAnimal dragon = (TamableAnimal) target;
-        if (dragon.getOwner() != player)
-        {
-            player.sendStatusMessage(new TranslationTextComponent("item.wyrmroost.soul_crystal.not_owner").mergeStyle(TextFormatting.RED), true);
-            return ActionResultType.FAIL;
+        if (dragon.getOwner() != player) {
+            player.sendSystemMessage(Component.translatable("item.wyrmroost.soul_crystal.not_owner").withStyle(ChatFormatting.RED));
+            return InteractionResult.FAIL;
         }
 
-        if (!dragon.getPassengers().isEmpty()) dragon.removePassengers();
-        if (!world.isRemote)
-        {
-            CompoundNBT tag = stack.getOrCreateTag();
-            CompoundNBT dragonTag = dragon.serializeNBT();
-            dragonTag.putString("OwnerName", player.getName().getUnformattedComponentText());
-            tag.put(DATA_DRAGON, dragonTag); // Serializing the dragons data, including its id.
-            stack.setTag(tag);
-            dragon.remove();
-            player.setHeldItem(hand, stack);
-            world.playSound(null, player.getPosition(), SoundEvents.BLOCK_END_PORTAL_FRAME_FILL, SoundCategory.AMBIENT, 1, 1);
+        if (!dragon.getPassengers().isEmpty()) dragon.ejectPassengers();
+        if (!world.isClientSide()) {
+            CompoundTag dragonTag = new CompoundTag();
+            dragon.save(dragonTag);
+            dragonTag.putString("OwnerName", player.getName().getString());
+            stack.set(WRDataComponentTypes.DRAGON_TAG_COMPONENT, dragonTag); // Serializing the dragons data, including its id.
+            dragon.discard();
+            player.setItemInHand(hand, stack);
+            world.playSound(null, player.blockPosition(), SoundEvents.END_PORTAL_FRAME_FILL, SoundSource.AMBIENT, 1, 1);
         }
         else // Client side Aesthetics
         {
@@ -68,9 +65,9 @@ public class SoulCrystalItem extends Item
             {
                 double calcX = Mth.cos(i + 360 / Mafs.PI * 360f) * (width * 1.5);
                 double calcZ = Mth.sin(i + 360 / Mafs.PI * 360f) * (width * 1.5);
-                double x = dragon.getPosX() + calcX;
-                double y = dragon.getPosY() + (dragon.getBbHeight() * 1.8);
-                double z = dragon.getPosZ() + calcZ;
+                double x = dragon.getX() + calcX;
+                double y = dragon.getY() + (dragon.getBbHeight() * 1.8);
+                double z = dragon.getZ() + calcZ;
                 double xMot = -calcX / 5f;
                 double yMot = -(dragon.getBbHeight() / 8);
                 double zMot = -calcZ / 5f;
@@ -78,43 +75,44 @@ public class SoulCrystalItem extends Item
                 world.addParticle(ParticleTypes.END_ROD, x, y, z, xMot, yMot, zMot);
             }
         }
-        return ActionResultType.func_233537_a_(world.isRemote);
+        return InteractionResult.sidedSuccess(world.isClientSide());
     }
 
     @Override
-    public ActionResultType onItemUse(ItemUseContext context)
+    public InteractionResult useOn(UseOnContext context)
     {
-        ItemStack stack = context.getItem();
-        if (!containsDragon(stack)) return ActionResultType.PASS;
-        Level world = context.getWorld();
+        ItemStack stack = context.getItemInHand();
+        if (!containsDragon(stack)) return InteractionResult.PASS;
+        Level world = context.getLevel();
         Player player = context.getPlayer();
-        if (!stack.getChildTag(DATA_DRAGON).getUniqueId("Owner").equals(player.getUniqueID()))
+        if (!stack.get(WRDataComponentTypes.DRAGON_TAG_COMPONENT).getUUID("Owner").equals(player.getUUID()))
         {
-            player.sendStatusMessage(new TranslationTextComponent("item.wyrmroost.soul_crystal.not_owner").mergeStyle(TextFormatting.RED), true);
-            return ActionResultType.FAIL;
+            player.sendSystemMessage(Component.translatable("item.wyrmroost.soul_crystal.not_owner").withStyle(ChatFormatting.RED));
+            return InteractionResult.FAIL;
         }
         TamableAnimal dragon = getContained(stack, world);
-        BlockPos pos = context.getPos().offset(context.getFace());
+        BlockPos pos = context.getClickedPos().offset(context.getClickedFace().getNormal());
 
-        dragon.setPositionAndRotation(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, dragon.rotationYaw, dragon.rotationPitch); // update the position now for collision checking
-        if (!world.hasNoCollisions(dragon, dragon.getBoundingBox()))
-        {
-            player.sendStatusMessage(new TranslationTextComponent("item.wyrmroost.soul_crystal.fail").mergeStyle(TextFormatting.RED), true);
-            return ActionResultType.FAIL;
+        dragon.setPos(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5); // update the position now for collision checking
+        dragon.setYRot(dragon.getYRot());
+        dragon.setXRot(dragon.getXRot());
+        if (!world.isUnobstructed(dragon, Shapes.create(dragon.getBoundingBox()))) {
+            player.sendSystemMessage(Component.translatable("item.wyrmroost.soul_crystal.fail").withStyle(ChatFormatting.RED));
+            return InteractionResult.FAIL;
         }
 
-        if (!world.isRemote) // Spawn the entity on the server side only
+        if (!world.isClientSide()) // Spawn the entity on the server side only
         {
-            stack.removeChildTag(DATA_DRAGON);
-            world.addEntity(dragon);
-            world.playSound(null, dragon.getPosition(), SoundEvents.ENTITY_EVOKER_CAST_SPELL, SoundCategory.AMBIENT, 1, 1);
+            stack.remove(WRDataComponentTypes.DRAGON_TAG_COMPONENT);
+            world.addFreshEntity(dragon);
+            world.playSound(null, dragon.getOnPos(), SoundEvents.EVOKER_CAST_SPELL, SoundSource.AMBIENT, 1, 1);
         }
         else // Client Side Aesthetics
         {
-            EntitySize size = dragon.getSize(dragon.getPose());
+            EntityDimensions size = dragon.getDimensions(dragon.getPose());
 
             double posX = pos.getX() + 0.5d;
-            double posY = pos.getY() + (size.height / 2);
+            double posY = pos.getY() + (size.height() / 2);
             double posZ = pos.getZ() + 0.5d;
             for (int i = 0; i < dragon.getBbWidth() * 25; ++i)
             {
@@ -129,63 +127,58 @@ public class SoulCrystalItem extends Item
             }
         }
 
-        return ActionResultType.SUCCESS;
+        return InteractionResult.SUCCESS;
     }
 
     @Override
-    public void addInformation(ItemStack stack, @Nullable Level world, List<ITextComponent> tooltip, ITooltipFlag flagIn)
-    {
+    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flags) {
         if (containsDragon(stack))
         {
-            CompoundNBT tag = stack.getTag().getCompound(DATA_DRAGON);
-            ITextComponent name;
+            CompoundTag tag = stack.get(WRDataComponentTypes.DRAGON_TAG_COMPONENT);
+            Component name;
 
             if (tag.contains("CustomName"))
-                name = ITextComponent.Serializer.func_240643_a_(tag.getString("CustomName"));
-            else name = EntityType.byKey(tag.getString("id")).orElse(null).getName();
+                name = Component.Serializer.fromJson(tag.getString("CustomName"), context.registries());
+            else name = EntityType.byString(tag.getString("id")).orElse(null).getDescription();
 
-            tooltip.add(name.copyRaw().mergeStyle(TextFormatting.BOLD));
-            tooltip.add(new StringTextComponent("Tamed by ").append(new StringTextComponent(tag.getString("OwnerName")).mergeStyle(TextFormatting.ITALIC)));
+            tooltip.add(name.copy().withStyle(ChatFormatting.BOLD));
+            tooltip.add(Component.literal("Tamed by ").append(Component.literal(tag.getString("OwnerName")).withStyle(ChatFormatting.ITALIC)));
         }
     }
 
     @Override
-    public ITextComponent getDisplayName(ItemStack stack)
+    public Component getName(ItemStack stack)
     {
-        TranslationTextComponent name = (TranslationTextComponent) super.getDisplayName(stack);
-        if (containsDragon(stack)) name.mergeStyle(TextFormatting.AQUA).mergeStyle(TextFormatting.ITALIC);
+        Component name = super.getName(stack);
+        if (containsDragon(stack)) name.copy().withStyle(ChatFormatting.AQUA).withStyle(ChatFormatting.ITALIC);
         return name;
     }
 
     @Override
-    public boolean hasEffect(ItemStack stack)
+    public boolean useOnRelease(ItemStack stack)
     {
         return containsDragon(stack);
     }
 
-    private static boolean containsDragon(ItemStack stack)
-    {
-        return stack.hasTag() && stack.getTag().contains(DATA_DRAGON);
+    private static boolean containsDragon(ItemStack stack) {
+        return stack.has(WRDataComponentTypes.DRAGON_TAG_COMPONENT);
     }
 
     @Nullable
-    private static TamableAnimal getContained(ItemStack stack, Level world)
-    {
+    private static TamableAnimal getContained(ItemStack stack, Level world) {
         if (!containsDragon(stack)) return null;
-        CompoundNBT tag = stack.getTag().getCompound(DATA_DRAGON);
-        EntityType<?> type = EntityType.byKey(tag.getString("id")).orElse(null);
+        CompoundTag tag = stack.get(WRDataComponentTypes.DRAGON_TAG_COMPONENT);
+        EntityType<?> type = EntityType.byString(tag.getString("id")).orElse(null);
         if (type == null) return null;
         TamableAnimal dragon = (TamableAnimal) type.create(world);
-        dragon.deserializeNBT(tag);
+        dragon.load(tag);
         return dragon;
     }
 
-    private static boolean isSuitableEntity(LivingEntity entity)
-    {
-        if (entity instanceof TamableAnimal)
-        {
+    private static boolean isSuitableEntity(LivingEntity entity) {
+        if (entity instanceof TamableAnimal) {
             if (entity instanceof AbstractDragonEntity) return true;
-            ResourceLocation rl = entity.getType().getRegistryName();
+            ResourceLocation rl = EntityType.getKey(entity.getType());
             switch (rl.getNamespace())
             {
                 case "dragonmounts":

@@ -11,52 +11,51 @@ import com.github.wolfshotz.wyrmroost.items.DragonArmorItem;
 import com.github.wolfshotz.wyrmroost.items.staff.StaffAction;
 import com.github.wolfshotz.wyrmroost.network.packets.AnimationPacket;
 import com.github.wolfshotz.wyrmroost.network.packets.KeybindPacket;
-import com.github.wolfshotz.wyrmroost.registry.WREntities;
+import com.github.wolfshotz.wyrmroost.registry.WRItems;
 import com.github.wolfshotz.wyrmroost.registry.WRSounds;
 import com.github.wolfshotz.wyrmroost.util.Mafs;
 import com.github.wolfshotz.wyrmroost.util.ModUtils;
 import com.github.wolfshotz.wyrmroost.util.TickFloat;
 import com.github.wolfshotz.wyrmroost.util.animation.Animation;
 import net.minecraft.core.BlockPos;
-import net.minecraft.entity.*;
-import net.minecraft.entity.ai.attributes.AttributeModifierMap;
-import net.minecraft.entity.ai.goal.*;
-import net.minecraft.network.datasync.DataParameter;
-import net.minecraft.network.datasync.DataSerializers;
-import net.minecraft.network.datasync.EntityDataManager;
-import net.minecraft.network.play.server.SEntityVelocityPacket;
-import net.minecraft.potion.EffectInstance;
-import net.minecraft.potion.Effects;
+import net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerChunkCache;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.BlockTags;
-import net.minecraft.util.*;
-import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.biome.MobSpawnInfo;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
+import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
+import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
+import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
+import net.minecraft.world.entity.ai.goal.target.NonTameRandomTargetGoal;
+import net.minecraft.world.entity.ai.goal.target.OwnerHurtByTargetGoal;
+import net.minecraft.world.entity.ai.goal.target.OwnerHurtTargetGoal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.ChestBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.server.ServerChunkProvider;
-import net.minecraftforge.client.event.EntityViewRenderEvent;
-import net.minecraftforge.common.Tags;
-import net.minecraftforge.event.world.BiomeLoadingEvent;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.client.event.CalculateDetachedCameraDistanceEvent;
+import net.neoforged.neoforge.common.Tags;
 import org.lwjgl.glfw.GLFW;
 
 import javax.annotation.Nullable;
-
-import static net.minecraft.entity.ai.attributes.Attributes.*;
-
-import ActionResultType;
-import EntitySize;
-import SoundEvent;
 
 /**
  * Created by com.github.WolfShotz 7/10/19 - 22:18
@@ -69,7 +68,7 @@ public class OWDrakeEntity extends AbstractDragonEntity
     public static final int CHEST_SLOT = 2;
 
     // Dragon Entity Data
-    private static final DataParameter<Boolean> SADDLED = EntityDataManager.createKey(OWDrakeEntity.class, DataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Boolean> SADDLED = SynchedEntityData.defineId(OWDrakeEntity.class, EntityDataSerializers.BOOLEAN);
 
     // Dragon Entity Animations
     public static final Animation GRAZE_ANIMATION = new Animation(35);
@@ -97,15 +96,15 @@ public class OWDrakeEntity extends AbstractDragonEntity
         goalSelector.addGoal(5, new ControlledAttackGoal(this, 1.425, true, d -> AnimationPacket.send(d, HORN_ATTACK_ANIMATION)));
         goalSelector.addGoal(6, new WRFollowOwnerGoal(this));
         goalSelector.addGoal(7, new DragonBreedGoal(this));
-        goalSelector.addGoal(8, new WaterAvoidingRandomWalkingGoal(this, 1));
-        goalSelector.addGoal(9, new LookAtGoal(this, LivingEntity.class, 10f));
-        goalSelector.addGoal(10, new LookRandomlyGoal(this));
+        goalSelector.addGoal(8, new WaterAvoidingRandomStrollGoal(this, 1));
+        goalSelector.addGoal(9, new LookAtPlayerGoal(this, LivingEntity.class, 10f));
+        goalSelector.addGoal(10, new RandomLookAroundGoal(this));
 
         targetSelector.addGoal(1, new OwnerHurtByTargetGoal(this));
         targetSelector.addGoal(2, new OwnerHurtTargetGoal(this));
         targetSelector.addGoal(3, new DefendHomeGoal(this));
         targetSelector.addGoal(4, new HurtByTargetGoal(this));
-        targetSelector.addGoal(5, new NonTamedTargetGoal<>(this, Player.class, true, EntityPredicates.CAN_AI_TARGET::test));
+        targetSelector.addGoal(5, new NonTameRandomTargetGoal<>(this, Player.class, true, EntitySelector.NO_CREATIVE_OR_SPECTATOR::test));
     }
 
     // ================================
@@ -113,11 +112,10 @@ public class OWDrakeEntity extends AbstractDragonEntity
     // ================================
 
     @Override
-    protected void registerData()
+    protected void defineSynchedData(SynchedEntityData.Builder builder)
     {
-        super.registerData();
-        dataManager.register(SADDLED, false);
-        dataManager.register(ARMOR, ItemStack.EMPTY);
+        super.defineSynchedData(builder);
+        builder.define(SADDLED, false);
     }
 
     public boolean hasChest()
@@ -127,14 +125,14 @@ public class OWDrakeEntity extends AbstractDragonEntity
 
     public boolean isSaddled()
     {
-        return dataManager.get(SADDLED);
+        return entityData.get(SADDLED);
     }
 
     @Override
     public int determineVariant()
     {
-        if (getRNG().nextDouble() < 0.008) return -1;
-        if (level.getBiome(getPosition()).getCategory() == Biome.Category.SAVANNA) return 1;
+        if (random.nextDouble() < 0.008) return -1;
+        if (level().getBiome(blockPosition()).is(Tags.Biomes.IS_SAVANNA)) return 1;
         return 0;
     }
 
@@ -147,38 +145,38 @@ public class OWDrakeEntity extends AbstractDragonEntity
     // ================================
 
     @Override
-    public void livingTick()
+    public void aiStep()
     {
-        super.livingTick();
+        super.aiStep();
 
-        sitTimer.add((func_233684_eK_() || isSleeping())? 0.1f : -0.1f);
+        sitTimer.add((isInSittingPose() || isSleeping())? 0.1f : -0.1f);
         sleepTimer.add(isSleeping()? 0.04f : -0.06f);
 
         if (thrownPassenger != null)
         {
-            thrownPassenger.setMotion(Mafs.nextDouble(getRNG()), 0.1 + getRNG().nextDouble(), Mafs.nextDouble(getRNG()));
-            ((ServerChunkProvider) level.getChunkProvider()).sendToTrackingAndSelf(thrownPassenger, new SEntityVelocityPacket(thrownPassenger)); // notify client
+            thrownPassenger.setDeltaMovement(Mafs.nextDouble(random), 0.1 + random.nextDouble(), Mafs.nextDouble(random));
+            ((ServerChunkCache) level().getChunkSource()).broadcastAndSend(thrownPassenger, new ClientboundSetEntityMotionPacket(thrownPassenger)); // notify client
             thrownPassenger = null;
         }
 
-        if (!world.isRemote && getAttackTarget() == null && !func_233684_eK_() && !isSleeping() && level.getBlockState(getPosition().down()).getBlock() == Blocks.GRASS_BLOCK && getRNG().nextDouble() < (isChild() || getHealth() < getMaxHealth()? 0.005 : 0.001))
+        if (!level().isClientSide() && getTarget() == null && !isInSittingPose() && !isSleeping() && level().getBlockState(blockPosition().below()).getBlock() == Blocks.GRASS_BLOCK && random.nextDouble() < (isBaby() || getHealth() < getMaxHealth()? 0.005 : 0.001))
             AnimationPacket.send(this, GRAZE_ANIMATION);
 
         Animation animation = getAnimation();
         int tick = getAnimationTick();
-        LivingEntity target = getAttackTarget();
+        LivingEntity target = getTarget();
 
         if (animation == ROAR_ANIMATION)
         {
-            if (tick == 0) playSound(WRSounds.ENTITY_OWDRAKE_ROAR.get(), 3f, 1f, true);
+            if (tick == 0) playSound(WRSounds.ENTITY_OWDRAKE_ROAR.value(), 3f, 1f, true);
             else if (tick == 15)
             {
-                for (LivingEntity e : getEntitiesNearby(15, e -> !isOnSameTeam(e))) // Dont get too close now ;)
+                for (LivingEntity e : getEntitiesNearby(15, e -> !isAlliedTo(e))) // Dont get too close now ;)
                 {
-                    e.addPotionEffect(new EffectInstance(Effects.SLOWNESS, 200));
-                    if (getDistanceSq(e) <= 10)
+                    e.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 200));
+                    if (distanceToSqr(e) <= 10)
                     {
-                        double angle = Mafs.getAngle(getPosX(), getPosZ(), e.getPosX(), e.getPosZ()) * Math.PI / 180;
+                        double angle = Mafs.getAngle(getX(), getZ(), e.getX(), e.getZ()) * Math.PI / 180;
                         e.push(1.2 * -Math.cos(angle), 0.4d, 1.2 * -Math.sin(angle));
                     }
                 }
@@ -189,77 +187,78 @@ public class OWDrakeEntity extends AbstractDragonEntity
         {
             if (tick == 8)
             {
-                if (target != null) rotationYaw = renderYawOffset = (float) Mafs.getAngle(this, target) + 90f;
-                playSound(SoundEvents.ENTITY_IRON_GOLEM_ATTACK, 1, 0.5f, true);
-                AxisAlignedBB box = getOffsetBox(getBbWidth()).grow(-0.075);
+                if (target != null) setYRot(yBodyRot = (float) Mafs.getAngle(this, target) + 90f);
+                playSound(SoundEvents.IRON_GOLEM_ATTACK, 1, 0.5f, true);
+                AABB box = getOffsetBox(getBbWidth()).inflate(-0.075);
                 attackInBox(box);
                 for (BlockPos pos : ModUtils.getBlockPosesInAABB(box))
                 {
-                    if (level.getBlockState(pos).isIn(BlockTags.LEAVES))
-                        level.destroyBlock(pos, false, this);
+                    if (level().getBlockState(pos).is(BlockTags.LEAVES))
+                        level().destroyBlock(pos, false, this);
                 }
             }
         }
 
-        if (!world.isRemote && animation == GRAZE_ANIMATION && tick == 13)
+        if (!level().isClientSide() && animation == GRAZE_ANIMATION && tick == 13)
         {
-            BlockPos pos = new BlockPos(Mafs.getYawVec(renderYawOffset, 0, getBbWidth() / 2 + 1).add(getPositionVec()));
-            if (level.getBlockState(pos).isIn(Blocks.GRASS) && WRConfig.canGrief(level))
+            Vec3 vec3pos = Mafs.getYawVec(yBodyRot, 0, getBbWidth() / 2 + 1).add(position());
+            BlockPos pos = new BlockPos((int) vec3pos.x, (int) vec3pos.y, (int) vec3pos.z);
+            if (level().getBlockState(pos).is(Blocks.SHORT_GRASS) && WRConfig.canGrief(level()))
             {
-                level.destroyBlock(pos, false);
-                eatGrassBonus();
+                level().destroyBlock(pos, false);
+                ate();
             }
-            else if (level.getBlockState(pos = pos.below()).getBlock() == Blocks.GRASS_BLOCK)
+            else if (level().getBlockState(pos = pos.below()).getBlock() == Blocks.GRASS_BLOCK)
             {
-                level.playEvent(2001, pos, Block.getStateId(Blocks.GRASS_BLOCK.defaultBlockState()));
-                level.setBlockState(pos, Blocks.DIRT.defaultBlockState(), 2);
-                eatGrassBonus();
+                level().levelEvent(2001, pos, Block.getId(Blocks.GRASS_BLOCK.defaultBlockState()));
+                level().setBlock(pos, Blocks.DIRT.defaultBlockState(), 2);
+                ate();
             }
         }
     }
 
     @Override
-    public ActionResultType playerInteraction(Player player, InteractionHand hand, ItemStack stack)
-    {
-        if (stack.getItem() == Items.SADDLE && !isSaddled() && !isChild())
+    public InteractionResult interactAt(Player player, Vec3 vec3, InteractionHand hand) {
+        ItemStack stack = player.getItemInHand(hand);
+        if (stack.getItem() == Items.SADDLE && !isSaddled() && !isBaby())
         {
-            if (!world.isRemote)
+            if (!level().isClientSide())
             {
                 getInvHandler().insertItem(SADDLE_SLOT, stack.copy(), false);
-                consumeItemFromStack(player, stack);
+                usePlayerItem(player, hand, stack);
             }
-            return ActionResultType.func_233537_a_(world.isRemote);
+            return InteractionResult.sidedSuccess(level().isClientSide());
         }
 
-        if (!isTame() && isChild() && isFoodItem(stack))
+        if (!isTame() && isBaby() && isFoodItem(stack))
         {
-            tame(getRNG().nextInt(10) == 0, player);
-            consumeItemFromStack(player, stack);
-            return ActionResultType.func_233537_a_(world.isRemote);
+            tame(random.nextInt(10) == 0, player);
+            usePlayerItem(player, hand, stack);
+            return InteractionResult.sidedSuccess(level().isClientSide());
         }
 
-        return super.playerInteraction(player, hand, stack);
+        return super.interactAt(player, vec3, hand);
     }
 
     @Override
-    public void updatePassenger(Entity entity)
+    public void positionRider(Entity entity, MoveFunction callback)
     {
-        super.updatePassenger(entity);
+        super.positionRider(entity, callback);
 
         if (entity instanceof LivingEntity)
         {
             LivingEntity passenger = ((LivingEntity) entity);
             if (isTame()) setSprinting(passenger.isSprinting());
-            else if (!world.isRemote && passenger instanceof Player)
+            else if (!level().isClientSide() && passenger instanceof Player)
             {
-                double rng = getRNG().nextDouble();
+                double rng = random.nextDouble();
 
                 if (rng < 0.01) tame(true, (Player) passenger);
                 else if (rng <= 0.1)
                 {
-                    setAttackTarget(passenger);
-                    rideCooldown = 60;
-                    removePassengers();
+                    setTarget(passenger);
+                    boardingCooldown = 60;
+                    ejectPassengers();
                     thrownPassenger = passenger; // needs to be queued for next tick otherwise some voodoo shit breaks the throwing off logic >.>
                 }
             }
@@ -271,8 +270,8 @@ public class OWDrakeEntity extends AbstractDragonEntity
     {
         if (slot == SADDLE_SLOT)
         {
-            dataManager.set(SADDLED, !stack.isEmpty());
-            if (!stack.isEmpty() && !onLoad) playSound(SoundEvents.ENTITY_HORSE_SADDLE, 1, 1);
+            entityData.set(SADDLED, !stack.isEmpty());
+            if (!stack.isEmpty() && !onLoad) playSound(SoundEvents.HORSE_SADDLE, 1, 1);
         }
 
         if (slot == ARMOR_SLOT) setArmor(stack);
@@ -289,10 +288,10 @@ public class OWDrakeEntity extends AbstractDragonEntity
     }
 
     @Override
-    public EntitySize getSize(Pose poseIn)
+    public EntityDimensions getDimensions(Pose poseIn)
     {
-        EntitySize size = getType().getSize().scale(getRenderScale());
-        if (func_233684_eK_() || isSleeping()) size = size.scale(1, 0.75f);
+        EntityDimensions size = getType().getDimensions().scale(getScale());
+        if (isInSittingPose() || isSleeping()) size = size.scale(1, 0.75f);
         return size;
     }
 
@@ -318,13 +317,13 @@ public class OWDrakeEntity extends AbstractDragonEntity
     }
 
     @Override
-    public void setAttackTarget(@Nullable LivingEntity target)
+    public void setTarget(@Nullable LivingEntity target)
     {
-        LivingEntity prev = getAttackTarget();
+        LivingEntity prev = getTarget();
 
-        super.setAttackTarget(target);
+        super.setTarget(target);
 
-        boolean flag = getAttackTarget() != null;
+        boolean flag = getTarget() != null;
         setSprinting(flag);
 
         if (flag && prev != target && target.getType() == EntityType.PLAYER && !isTame() && noActiveAnimation())
@@ -332,43 +331,43 @@ public class OWDrakeEntity extends AbstractDragonEntity
     }
 
     @Override
-    protected boolean isMovementBlocked()
+    protected boolean isImmobile()
     {
-        return getAnimation() == ROAR_ANIMATION || super.isMovementBlocked();
+        return getAnimation() == ROAR_ANIMATION || super.isImmobile();
     }
 
     @Override
-    public void setMountCameraAngles(boolean backView, EntityViewRenderEvent.CameraSetup event)
+    public void setMountCameraAngles(boolean backView, CalculateDetachedCameraDistanceEvent event)
     {
-        if (backView) event.getInfo().movePosition(-0.5d, 0.75d, 0);
-        else event.getInfo().movePosition(-3, 0.3, 0);
+        if (backView) event.getCamera().move(-0.5f, 0.75f, 0);
+        else event.getCamera().move(-3, 0.3f, 0);
     }
 
     @Override
-    public void eatGrassBonus()
+    public void ate()
     {
-        if (isChild()) addGrowth(60);
+        if (isBaby()) ageUp(60);
         if (getHealth() < getMaxHealth()) heal(4f);
     }
 
     @Override
-    protected boolean canBeRidden(Entity entity)
+    protected boolean canRide(Entity entity)
     {
-        return isSaddled() && !isChild() && (isOwnedBy((LivingEntity) entity) || (!isTame() && rideCooldown <= 0));
+        return isSaddled() && !isBaby() && (isOwnedBy((LivingEntity) entity) || (!isTame() && boardingCooldown <= 0));
     }
 
     @Override
     public float getTravelSpeed()
     {
-        float speed = (float) getAttributeValue(MOVEMENT_SPEED);
-        if (canPassengerSteer()) speed += 0.45f;
+        float speed = (float) getAttributeValue(Attributes.MOVEMENT_SPEED);
+        if (isControlledByLocalInstance()) speed += 0.45f;
         return speed;
     }
 
     @Override
     protected void playStepSound(BlockPos pos, BlockState blockIn)
     {
-        playSound(SoundEvents.ENTITY_COW_STEP, 0.3f, 1f);
+        playSound(SoundEvents.COW_STEP, 0.3f, 1f);
         super.playStepSound(pos, blockIn);
     }
 
@@ -382,21 +381,21 @@ public class OWDrakeEntity extends AbstractDragonEntity
     @Override
     protected SoundEvent getAmbientSound()
     {
-        return WRSounds.ENTITY_OWDRAKE_IDLE.get();
+        return WRSounds.ENTITY_OWDRAKE_IDLE.value();
     }
 
     @Nullable
     @Override
     protected SoundEvent getHurtSound(DamageSource damageSourceIn)
     {
-        return WRSounds.ENTITY_OWDRAKE_HURT.get();
+        return WRSounds.ENTITY_OWDRAKE_HURT.value();
     }
 
     @Nullable
     @Override
     protected SoundEvent getDeathSound()
     {
-        return WRSounds.ENTITY_OWDRAKE_DEATH.get();
+        return WRSounds.ENTITY_OWDRAKE_DEATH.value();
     }
 
     @Override
@@ -408,7 +407,12 @@ public class OWDrakeEntity extends AbstractDragonEntity
     @Override
     public boolean isFoodItem(ItemStack stack)
     {
-        return stack.getItem().isIn(Tags.Items.CROPS_WHEAT);
+        return stack.is(WRItems.Tags.OVERWORLD_DRAKE_FOOD);
+    }
+
+    @Override
+    public boolean isBreedingItem(ItemStack stack) {
+        return stack.is(WRItems.Tags.OVERWORLD_DRAKE_BREEDING_ITEMS);
     }
 
     @Override
@@ -417,21 +421,14 @@ public class OWDrakeEntity extends AbstractDragonEntity
         return new Animation[] {NO_ANIMATION, GRAZE_ANIMATION, HORN_ATTACK_ANIMATION, ROAR_ANIMATION};
     }
 
-    public static void setSpawnBiomes(BiomeLoadingEvent event)
+    public static AttributeSupplier.Builder createAttributes()
     {
-        Biome.Category category = event.getCategory();
-        if (category == Biome.Category.SAVANNA || category == Biome.Category.PLAINS)
-            event.getSpawns().func_242575_a(EntityClassification.CREATURE, new MobSpawnInfo.Spawners(WREntities.OVERWORLD_DRAKE.get(), 8, 1, 3));
-    }
-
-    public static AttributeModifierMap.MutableAttribute getAttributes()
-    {
-        return MobEntity.func_233666_p_()
-                .createMutableAttribute(MAX_HEALTH, 70)
-                .createMutableAttribute(MOVEMENT_SPEED, 0.2125)
-                .createMutableAttribute(KNOCKBACK_RESISTANCE, 0.75)
-                .createMutableAttribute(FOLLOW_RANGE, 20)
-                .createMutableAttribute(ATTACK_KNOCKBACK, 2.85)
-                .createMutableAttribute(ATTACK_DAMAGE, 8);
+        return AbstractDragonEntity.createDragonAttributes()
+                .add(Attributes.MAX_HEALTH, 70)
+                .add(Attributes.MOVEMENT_SPEED, 0.2125)
+                .add(Attributes.KNOCKBACK_RESISTANCE, 0.75)
+                .add(Attributes.FOLLOW_RANGE, 20)
+                .add(Attributes.ATTACK_KNOCKBACK, 2.85)
+                .add(Attributes.ATTACK_DAMAGE, 8);
     }
 }

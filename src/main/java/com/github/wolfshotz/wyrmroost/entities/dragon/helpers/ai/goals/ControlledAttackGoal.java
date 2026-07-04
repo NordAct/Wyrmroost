@@ -1,9 +1,10 @@
 package com.github.wolfshotz.wyrmroost.entities.dragon.helpers.ai.goals;
 
 import com.github.wolfshotz.wyrmroost.entities.dragon.AbstractDragonEntity;
-import java.util.function.Consumer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
+
+import java.util.function.Consumer;
 
 public class ControlledAttackGoal extends MeleeAttackGoal
 {
@@ -18,39 +19,30 @@ public class ControlledAttackGoal extends MeleeAttackGoal
     }
 
     @Override
-    public boolean shouldExecute()
+    public boolean canUse()
     {
-        return super.shouldExecute() && !dragon.isBeingRidden();
+        return super.canUse() && !dragon.hasControllingPassenger();
     }
 
     @Override
-    public boolean shouldContinueExecuting()
+    public boolean canContinueToUse()
     {
-        LivingEntity target = dragon.getAttackTarget();
+        LivingEntity target = dragon.getTarget();
         if (target == null) return false;
-        return !dragon.isBeingRidden() && dragon.shouldAttackEntity(target, dragon.getOwner()) && super.shouldContinueExecuting();
+        return !dragon.hasControllingPassenger() && dragon.wantsToAttack(target, dragon.getOwner()) && super.canContinueToUse();
     }
 
     @Override
-    public void startExecuting()
-    {
-        attacker.setAggroed(true);
+    public void start() {
+        mob.setAggressive(true);
     }
 
     @Override
-    protected void checkAndPerformAttack(LivingEntity enemy, double distToEnemySqr)
-    {
-        double reach = getAttackReachSqr(enemy);
-        if (distToEnemySqr <= reach && func_234040_h_() && enemy.getRidingEntity() != dragon && dragon.noActiveAnimation())
+    protected void checkAndPerformAttack(LivingEntity enemy) {
+        if (canPerformAttack(enemy) && enemy.getVehicle() != dragon && dragon.noActiveAnimation())
         {
             attack.accept(dragon);
-            func_234039_g_();
+            resetAttackCooldown();
         }
-    }
-
-    @Override
-    protected double getAttackReachSqr(LivingEntity attackTarget)
-    {
-        return attacker.getWidth() * 2 * attacker.getWidth() * 2 + attackTarget.getBbWidth();
     }
 }

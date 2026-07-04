@@ -6,8 +6,9 @@ import com.github.wolfshotz.wyrmroost.client.render.entity.AbstractDragonRendere
 import com.github.wolfshotz.wyrmroost.entities.dragon.AbstractDragonEntity;
 import com.github.wolfshotz.wyrmroost.entities.dragon.SilverGliderEntity;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.entity.EntityRendererManager;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 
 import javax.annotation.Nullable;
 
@@ -23,22 +24,23 @@ public class SilverGliderRenderer extends AbstractDragonRenderer<SilverGliderEnt
     public static final ResourceLocation CHRISTMAS_MALE_LAYER = resource("christmas_male_layer.png");
     public static final ResourceLocation SLEEP = resource("sleep.png");
 
-    public SilverGliderRenderer(EntityRendererManager manager)
+    public SilverGliderRenderer(EntityRendererProvider.Context manager)
     {
         super(manager, new SilverGliderModel(), 1f);
 
         addLayer(new GlowLayer(this::getGlowTexture));
-        addLayer(new ConditionalLayer(AbstractDragonEntity::isSleeping, d -> RenderType.getEntityCutoutNoCull(SLEEP)));
+        addLayer(new ConditionalLayer(AbstractDragonEntity::isSleeping, d -> RenderType.entityCutoutNoCull(SLEEP)));
     }
 
     @Nullable
     @Override
-    public ResourceLocation getEntityTexture(SilverGliderEntity sg)
+    public ResourceLocation getTextureLocation(SilverGliderEntity sg)
     {
         if (sg.getVariant() == -1) return SPECIAL;
         if (WRConfig.deckTheHalls) return CHRISTMAS;
         if (!sg.isMale()) return FEMALE;
         int index = sg.getVariant();
+        index = Mth.clamp(index, 0, MALE_TEXTURES.length - 1);
         if (MALE_TEXTURES[index] == null) return MALE_TEXTURES[index] = resource("male_" + index + ".png");
         return MALE_TEXTURES[index];
     }

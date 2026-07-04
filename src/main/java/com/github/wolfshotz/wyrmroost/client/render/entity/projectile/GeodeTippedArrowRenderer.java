@@ -4,8 +4,8 @@ import com.github.wolfshotz.wyrmroost.Wyrmroost;
 import com.github.wolfshotz.wyrmroost.entities.projectile.GeodeTippedArrowEntity;
 import com.github.wolfshotz.wyrmroost.registry.WRItems;
 import net.minecraft.client.renderer.entity.ArrowRenderer;
-import net.minecraft.client.renderer.entity.EntityRendererManager;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 
 public class GeodeTippedArrowRenderer extends ArrowRenderer<GeodeTippedArrowEntity>
@@ -14,17 +14,17 @@ public class GeodeTippedArrowRenderer extends ArrowRenderer<GeodeTippedArrowEnti
     private static final ResourceLocation RED = Wyrmroost.rl("textures/entity/projectiles/arrow/red_geode_tipped_arrow.png");
     private static final ResourceLocation PURPLE = Wyrmroost.rl("textures/entity/projectiles/arrow/purple_geode_tipped_arrow.png");
 
-    public GeodeTippedArrowRenderer(EntityRendererManager renderManagerIn)
+    public GeodeTippedArrowRenderer(EntityRendererProvider.Context renderManagerIn)
     {
         super(renderManagerIn);
     }
 
     @Override
-    public ResourceLocation getEntityTexture(GeodeTippedArrowEntity entity)
+    public ResourceLocation getTextureLocation(GeodeTippedArrowEntity entity)
     {
         Item item = entity.getItem();
-        if (item == WRItems.RED_GEODE_ARROW.get()) return RED;
-        else if (item == WRItems.PURPLE_GEODE_ARROW.get()) return PURPLE;
+        if (item == WRItems.RED_GEODE_ARROW.value()) return RED;
+        else if (item == WRItems.PURPLE_GEODE_ARROW.value()) return PURPLE;
         return BLUE;
     }
 }

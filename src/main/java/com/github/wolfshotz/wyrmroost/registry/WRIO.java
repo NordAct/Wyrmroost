@@ -2,39 +2,34 @@ package com.github.wolfshotz.wyrmroost.registry;
 
 import com.github.wolfshotz.wyrmroost.Wyrmroost;
 import com.github.wolfshotz.wyrmroost.client.ClientEvents;
-import com.github.wolfshotz.wyrmroost.client.screen.DragonInvScreen;
 import com.github.wolfshotz.wyrmroost.containers.DragonInvContainer;
 import com.github.wolfshotz.wyrmroost.entities.dragon.AbstractDragonEntity;
-import net.minecraft.client.gui.ScreenManager;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.ContainerType;
-import net.minecraftforge.common.extensions.IForgeContainerType;
-import net.minecraftforge.fml.RegistryObject;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.MenuType;
+import net.neoforged.neoforge.common.extensions.IMenuTypeExtension;
+import net.neoforged.neoforge.registries.DeferredRegister;
+
+import java.util.function.Supplier;
 
 public class WRIO
 {
-    public static final DeferredRegister<ContainerType<?>> REGISTRY = DeferredRegister.create(ForgeRegistries.CONTAINERS, Wyrmroost.MOD_ID);
+    public static final DeferredRegister<MenuType<?>> REGISTRY = DeferredRegister.create(Registries.MENU, Wyrmroost.MOD_ID);
 
-    public static final RegistryObject<ContainerType<DragonInvContainer>> DRAGON_INVENTORY = register("dragon_inventory", getDragonInvContainer());
+    public static final Holder<MenuType<?>> DRAGON_INVENTORY = register("dragon_inventory", () -> getDragonInvContainer());
 
 
-    public static <T extends Container> RegistryObject<ContainerType<T>> register(String name, ContainerType<T> type)
+    public static <T extends AbstractContainerMenu> Holder<MenuType<?>> register(String name, Supplier<MenuType<T>> type)
     {
-        return REGISTRY.register(name, () -> type);
+        return REGISTRY.register(name, type).getDelegate();
     }
 
-    public static void screenSetup()
+    private static MenuType<DragonInvContainer> getDragonInvContainer()
     {
-        ScreenManager.registerFactory(DRAGON_INVENTORY.get(), DragonInvScreen::new);
-    }
-
-    private static ContainerType<DragonInvContainer> getDragonInvContainer()
-    {
-        return IForgeContainerType.create(((windowId, inv, data) ->
+        return IMenuTypeExtension.create(((windowId, inv, data) ->
         {
-            AbstractDragonEntity dragon = (AbstractDragonEntity) ClientEvents.getWorld().getEntityByID(data.readInt());
+            AbstractDragonEntity dragon = (AbstractDragonEntity) ClientEvents.getLevel().getEntity(data.readInt());
             return new DragonInvContainer(dragon.getInvHandler(), inv, windowId);
         }));
     }

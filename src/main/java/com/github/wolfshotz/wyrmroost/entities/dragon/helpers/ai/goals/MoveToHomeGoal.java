@@ -2,9 +2,11 @@ package com.github.wolfshotz.wyrmroost.entities.dragon.helpers.ai.goals;
 
 import com.github.wolfshotz.wyrmroost.WRConfig;
 import com.github.wolfshotz.wyrmroost.entities.dragon.AbstractDragonEntity;
-import net.minecraft.entity.ai.RandomPositionGenerator;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.ai.goal.Goal;
+import net.minecraft.world.entity.ai.util.RandomPos;
+import net.minecraft.world.phys.Vec3;
+
 import java.util.EnumSet;
 
 public class MoveToHomeGoal extends Goal
@@ -15,23 +17,23 @@ public class MoveToHomeGoal extends Goal
     public MoveToHomeGoal(AbstractDragonEntity creatureIn)
     {
         this.dragon = creatureIn;
-        setMutexFlags(EnumSet.of(Flag.MOVE));
+        setFlags(EnumSet.of(Flag.MOVE));
     }
 
     @Override
-    public boolean shouldExecute()
+    public boolean canUse()
     {
-        return !dragon.isWithinHomeDistanceCurrentPosition();
+        return !dragon.isWithinRestriction();
     }
 
     @Override
-    public void startExecuting()
+    public void start()
     {
         dragon.clearAI();
     }
 
     @Override
-    public void resetTask()
+    public void stop()
     {
         this.time = 0;
     }
@@ -40,17 +42,17 @@ public class MoveToHomeGoal extends Goal
     public void tick()
     {
         int sq = WRConfig.homeRadius * WRConfig.homeRadius;
-        Vector3d home = Vector3d.copy(dragon.getHomePosition());
+        Vec3 home = dragon.getRestrictCenter().getBottomCenter();
         final int TIME_UNTIL_TELEPORT = 600; // 30 seconds
 
         time++;
-        if (dragon.getDistanceSq(home) > sq + 35 || time >= TIME_UNTIL_TELEPORT)
-            dragon.trySafeTeleport(dragon.getHomePosition().above());
+        if (dragon.distanceToSqr(home) > sq + 35 || time >= TIME_UNTIL_TELEPORT)
+            dragon.trySafeTeleport(dragon.getRestrictCenter().above());
         else
         {
-            Vector3d movePos;
-            if (dragon.getNavigator().noPath() && (movePos = RandomPositionGenerator.findRandomTargetBlockTowards(dragon, WRConfig.homeRadius, 10, home)) != null)
-                dragon.getNavigator().tryMoveToXYZ(movePos.x, movePos.y, movePos.y, 1.1);
+            BlockPos movePos;
+            if (dragon.getNavigation().isDone() && (movePos = RandomPos.generateRandomPosTowardDirection(dragon, WRConfig.homeRadius, dragon.getRandom(), dragon.getRestrictCenter())) != null)
+                dragon.getNavigation().moveTo(movePos.getX(), movePos.getY(), movePos.getZ(), 1.1);
         }
     }
 }

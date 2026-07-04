@@ -4,29 +4,29 @@ import com.github.wolfshotz.wyrmroost.WRConfig;
 import com.github.wolfshotz.wyrmroost.Wyrmroost;
 import com.github.wolfshotz.wyrmroost.client.render.entity.AbstractDragonRenderer;
 import com.github.wolfshotz.wyrmroost.entities.dragon.DragonFruitDrakeEntity;
-import net.minecraft.client.renderer.entity.EntityRendererManager;
-import net.minecraft.util.ResourceLocation;
-
-import javax.annotation.Nullable;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
+import org.jetbrains.annotations.NotNull;
 
 public class DragonFruitDrakeRenderer extends AbstractDragonRenderer<DragonFruitDrakeEntity, DragonFruitDrakeModel>
 {
     public static final ResourceLocation CHILD = resource("child.png");
     private static final ResourceLocation[] TEXTURES = new ResourceLocation[4];
 
-    public DragonFruitDrakeRenderer(EntityRendererManager manager)
+    public DragonFruitDrakeRenderer(EntityRendererProvider.Context manager)
     {
         super(manager, new DragonFruitDrakeModel(), 1.15f);
     }
 
-    @Nullable
     @Override
-    public ResourceLocation getEntityTexture(DragonFruitDrakeEntity entity)
+    public @NotNull ResourceLocation getTextureLocation(DragonFruitDrakeEntity entity)
     {
-        if (entity.isChild()) return CHILD;
+        if (entity.isBaby()) return CHILD;
 
         int texture = entity.isMale()? 0 : 2;
         if (entity.getVariant() == -1) texture += 1;
+        texture = Mth.clamp(texture, 0, TEXTURES.length - 1);
         if (TEXTURES[texture] == null)
         {
             String path = entity.isMale()? "male" : "female";

@@ -1,11 +1,12 @@
 package com.github.wolfshotz.wyrmroost.entities.dragon.helpers.ai.goals;
 
 import com.github.wolfshotz.wyrmroost.entities.dragon.AbstractDragonEntity;
-import net.minecraft.entity.EntityPredicate;
-import net.minecraft.entity.ai.RandomPositionGenerator;
-import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.Goal;
+import net.minecraft.world.entity.ai.targeting.TargetingConditions;
+import net.minecraft.world.entity.ai.util.DefaultRandomPos;
+import net.minecraft.world.phys.Vec3;
+
 import java.util.EnumSet;
 import java.util.function.Predicate;
 
@@ -16,7 +17,7 @@ public class WRAvoidEntityGoal<T extends LivingEntity> extends Goal
     private final float avoidDistance;
     private final double farSpeed;
     private final double nearSpeed;
-    private final EntityPredicate builtTargetSelector;
+    private final TargetingConditions builtTargetSelector;
     private T avoidTarget;
 
     public WRAvoidEntityGoal(AbstractDragonEntity entity, Class<T> classToAvoid, float avoidDistance, double speed)
@@ -30,38 +31,38 @@ public class WRAvoidEntityGoal<T extends LivingEntity> extends Goal
         this.avoidDistance = distance;
         this.farSpeed = nearSpeedIn;
         this.nearSpeed = farSpeedIn;
-        this.builtTargetSelector = new EntityPredicate().setDistance(distance).setCustomPredicate(targetPredicate);
+        this.builtTargetSelector = TargetingConditions.forCombat().range(distance).selector(targetPredicate);
 
-        setMutexFlags(EnumSet.of(Flag.MOVE));
+        setFlags(EnumSet.of(Flag.MOVE));
     }
 
     @Override
-    public boolean shouldExecute()
+    public boolean canUse()
     {
         if (entity.isTame()) return false;
-        this.avoidTarget = entity.level.func_225318_b(classToAvoid, builtTargetSelector, entity, entity.getPosX(), entity.getPosY(), entity.getPosZ(), entity.getBoundingBox().grow(avoidDistance, 3.0D, avoidDistance));
+        this.avoidTarget = entity.level().getNearestEntity(classToAvoid, builtTargetSelector, entity, entity.getX(), entity.getY(), entity.getZ(), entity.getBoundingBox().inflate(avoidDistance, 3.0D, avoidDistance));
         if (avoidTarget == null) return false;
-        Vector3d pos = RandomPositionGenerator.findRandomTargetBlockAwayFrom(entity, 16, 7, avoidTarget.getPositionVec());
+        Vec3 pos =  DefaultRandomPos.getPosAway(entity, 16, 7, avoidTarget.position());
         if (pos == null) return false;
-        if (avoidTarget.getPositionVec().squareDistanceTo(pos) < avoidTarget.getDistanceSq(entity)) return false;
-        return entity.getNavigator().tryMoveToXYZ(pos.getX(), pos.getY(), pos.getZ(), farSpeed);
+        if (avoidTarget.position().distanceToSqr(pos) < avoidTarget.distanceToSqr(entity)) return false;
+        return entity.getNavigation().moveTo(pos.x, pos.y, pos.z, farSpeed);
     }
 
     @Override
-    public boolean shouldContinueExecuting()
+    public boolean canContinueToUse()
     {
-        return !entity.getNavigator().noPath();
+        return !entity.getNavigation().isDone();
     }
 
 
     public void tick()
     {
-        if (entity.getDistanceSq(avoidTarget) < 49) entity.getNavigator().setSpeed(nearSpeed);
-        else entity.getNavigator().setSpeed(farSpeed);
+        if (entity.distanceToSqr(avoidTarget) < 49) entity.getNavigation().setSpeedModifier(nearSpeed);
+        else entity.getNavigation().setSpeedModifier(farSpeed);
     }
 
     @Override
-    public void resetTask()
+    public void stop()
     {
         avoidTarget = null;
     }

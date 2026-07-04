@@ -4,16 +4,16 @@ import com.github.wolfshotz.wyrmroost.Wyrmroost;
 import com.github.wolfshotz.wyrmroost.client.model.WREntityModel;
 import com.github.wolfshotz.wyrmroost.client.render.RenderHelper;
 import com.github.wolfshotz.wyrmroost.entities.dragon.AbstractDragonEntity;
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.entity.EntityRendererManager;
-import net.minecraft.client.renderer.entity.LivingRenderer;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.MobRenderer;
-import net.minecraft.client.renderer.entity.layers.LayerRenderer;
+import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.EntityType;
 
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -22,23 +22,23 @@ public abstract class AbstractDragonRenderer<T extends AbstractDragonEntity, M e
 {
     public static final String BASE_PATH = "textures/entity/dragon/";
 
-    public AbstractDragonRenderer(EntityRendererManager manager, M model, float shadowSize)
+    public AbstractDragonRenderer(EntityRendererProvider.Context manager, M model, float shadowSize)
     {
         super(manager, model, shadowSize);
     }
 
     @Override
-    protected void preRenderCallback(T entity, MatrixStack ms, float partialTicks)
-    {
-        float scale = entity.getRenderScale();
+    public void render(T entity, float entityYaw, float partialTicks, PoseStack ms, MultiBufferSource buffer, int packedLightIn) {
+        float scale = entity.getScale();
         ms.scale(scale, scale, scale);
+        super.render(entity, entityYaw, partialTicks, ms, buffer, packedLightIn);
     }
 
     /**
      * A conditional layer that can only render if certain conditions are met.
      * E.G. is the dragon sleeping, saddled, etc
      */
-    public class ConditionalLayer extends LayerRenderer<T, M>
+    public class ConditionalLayer extends RenderLayer<T, M>
     {
         public Predicate<T> conditions;
         public final Function<T, RenderType> type;
@@ -51,16 +51,16 @@ public abstract class AbstractDragonRenderer<T extends AbstractDragonEntity, M e
         }
 
         @Override
-        public void render(MatrixStack ms, IRenderTypeBuffer buffer, int packedLightIn, T entity, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch)
+        public void render(PoseStack ms, MultiBufferSource buffer, int packedLightIn, T entity, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch)
         {
             if (conditions.test(entity))
                 renderLayer(ms, buffer, packedLightIn, entity, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch);
         }
 
-        public void renderLayer(MatrixStack ms, IRenderTypeBuffer buffer, int packedLightIn, T entity, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch)
+        public void renderLayer(PoseStack ms, MultiBufferSource buffer, int packedLightIn, T entity, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch)
         {
-            IVertexBuilder builder = buffer.getBuffer(type.apply(entity));
-            getEntityModel().render(ms, builder, packedLightIn, LivingRenderer.getPackedOverlay(entity, 0.0F), 1, 1, 1, 1);
+            VertexConsumer builder = buffer.getBuffer(type.apply(entity));
+            getModel().renderToBuffer(ms, builder, packedLightIn, getOverlayCoords(entity, 0.0F));
         }
 
         public ConditionalLayer addCondition(Predicate<T> condition)
@@ -81,21 +81,21 @@ public abstract class AbstractDragonRenderer<T extends AbstractDragonEntity, M e
         }
 
         @Override
-        public void render(MatrixStack ms, IRenderTypeBuffer buffer, int packedLightIn, T entity, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch)
+        public void render(PoseStack ms, MultiBufferSource buffer, int packedLightIn, T entity, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch)
         {
             if (conditions.test(entity))
             {
                 ResourceLocation rl = texture.apply(entity);
                 if (rl != null)
                 {
-                    IVertexBuilder builder = buffer.getBuffer(RenderHelper.getAdditiveGlow(rl));
-                    getEntityModel().render(ms, builder, 15728640, OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
+                    VertexConsumer builder = buffer.getBuffer(RenderHelper.getAdditiveGlow(rl));
+                    getModel().renderToBuffer(ms, builder, 15728640, OverlayTexture.NO_OVERLAY);
                 }
             }
         }
     }
 
-    public class ArmorLayer extends LayerRenderer<T, M>
+    public class ArmorLayer extends RenderLayer<T, M>
     {
         private final int slotIndex;
 
@@ -106,19 +106,19 @@ public abstract class AbstractDragonRenderer<T extends AbstractDragonEntity, M e
         }
 
         @Override
-        public void render(MatrixStack ms, IRenderTypeBuffer type, int packedLightIn, T entity, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch)
+        public void render(PoseStack ms, MultiBufferSource type, int packedLightIn, T entity, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch)
         {
             if (entity.hasArmor())
             {
-                IVertexBuilder builder = type.getBuffer(RenderType.getEntityCutout(getArmorTexture(entity)));
-                getEntityModel().render(ms, builder, packedLightIn, OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
+                VertexConsumer builder = type.getBuffer(RenderType.entityCutout(getArmorTexture(entity)));
+                getModel().renderToBuffer(ms, builder, packedLightIn, OverlayTexture.NO_OVERLAY);
             }
         }
 
         public ResourceLocation getArmorTexture(T entity)
         {
-            String path = entity.getArmor().getItem().getRegistryName().getPath().replace("_dragon_armor", "");
-            return Wyrmroost.rl(String.format("%s%s/accessories/armor_%s.png", BASE_PATH, entity.getType().getRegistryName().getPath(), path));
+            String path = entity.getArmor().getItem().builtInRegistryHolder().getKey().location().getPath().replace("_dragon_armor", "");
+            return Wyrmroost.rl(String.format("%s%s/accessories/armor_%s.png", BASE_PATH, EntityType.getKey(entity.getType()).getPath(), path));
         }
     }
 }

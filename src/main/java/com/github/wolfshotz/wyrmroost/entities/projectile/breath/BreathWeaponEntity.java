@@ -3,23 +3,21 @@ package com.github.wolfshotz.wyrmroost.entities.projectile.breath;
 import com.github.wolfshotz.wyrmroost.entities.dragon.AbstractDragonEntity;
 import com.github.wolfshotz.wyrmroost.entities.projectile.DragonProjectileEntity;
 import net.minecraft.core.BlockPos;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.shapes.VoxelShapes;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.core.Direction;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.Shapes;
 
 public class BreathWeaponEntity extends DragonProjectileEntity
 {
-    public BreathWeaponEntity(EntityType<?> type, Level world)
-    {
+    public BreathWeaponEntity(EntityType<? extends DragonProjectileEntity> type, Level world) {
         super(type, world);
+        growthRate = 1.025f;
     }
 
-    public BreathWeaponEntity(EntityType<? extends DragonProjectileEntity> type, AbstractDragonEntity shooter)
-    {
-        super(type, shooter, shooter.getApproximateMouthPos(), Vector3d.fromPitchYaw(shooter.rotationPitch, shooter.rotationYawHead));
-        this.growthRate = 1.025f;
+    public BreathWeaponEntity(EntityType<? extends DragonProjectileEntity> type, AbstractDragonEntity shooter) {
+        super(type, shooter, shooter.getApproximateMouthPos(), Vec3.directionFromRotation(shooter.getXRot(), shooter.getYHeadRot()));
     }
 
     @Override
@@ -28,13 +26,13 @@ public class BreathWeaponEntity extends DragonProjectileEntity
 //        BlockState state = world.getBlockState(pos);
 //        state.onProjectileCollision(world, state, result, this); todo.. somehow
 
-        if (!world.isRemote && !noPhysics && !level.getBlockState(pos).getCollisionShape(level, pos).equals(VoxelShapes.empty()))
+        if (!level().isClientSide() && !noPhysics && !level().getBlockState(pos).getCollisionShape(level(), pos).equals(Shapes.empty()))
         {
-            setMotion(acceleration.mul(-Math.abs(direction.getXOffset()) + 1, -Math.abs(direction.getYOffset()) + 1, -Math.abs(direction.getZOffset()) + 1));
+            setDeltaMovement(acceleration.multiply(-Math.abs(direction.getStepX()) + 1, -Math.abs(direction.getStepY()) + 1, -Math.abs(direction.getStepZ()) + 1));
 
             if (!hasCollided)
             {
-                life = ticksExisted + 20;
+                life = tickCount + 20;
                 this.hasCollided = true;
             }
         }

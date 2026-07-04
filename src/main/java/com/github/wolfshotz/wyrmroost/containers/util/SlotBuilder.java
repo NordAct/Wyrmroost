@@ -1,13 +1,13 @@
 package com.github.wolfshotz.wyrmroost.containers.util;
 
-import net.minecraft.util.IItemProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.SlotItemHandler;
+import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.items.SlotItemHandler;
 
 import javax.annotation.Nonnull;
 import java.util.function.BooleanSupplier;
@@ -19,13 +19,11 @@ public class SlotBuilder extends SlotItemHandler
     public static final int CENTER_X = 89;
     public static final int CENTER_Y = 60;
 
-    private int limit = super.getSlotStackLimit();
+    private int limit = super.getMaxStackSize();
     private BooleanSupplier isEnabled = () -> true;
-    private Predicate<ItemStack> isItemValid = super::isItemValid;
-    private Predicate<Player> canTakeStack = super::canTakeStack;
-    private Consumer<SlotBuilder> onSlotUpdate = s ->
-    {
-    };
+    private Predicate<ItemStack> isItemValid = super::mayPlace;
+    private Predicate<Player> canTakeStack = super::mayPickup;
+    private Consumer<SlotBuilder> onSlotUpdate = s -> {};
 
     public SlotBuilder(IItemHandler handler, int index, int posX, int posY)
     {
@@ -55,12 +53,12 @@ public class SlotBuilder extends SlotItemHandler
         return this;
     }
 
-    public SlotBuilder only(IItemProvider item)
+    public SlotBuilder only(ItemLike item)
     {
         return only(s -> s.getItem() == item);
     }
 
-    public SlotBuilder only(Class<? extends IItemProvider> clazz)
+    public SlotBuilder only(Class<? extends ItemLike> clazz)
     {
         if (Block.class.isAssignableFrom(clazz))
         {
@@ -88,37 +86,37 @@ public class SlotBuilder extends SlotItemHandler
     // ===
 
     @Override
-    public boolean isEnabled()
+    public boolean isActive()
     {
         return isEnabled.getAsBoolean();
     }
 
     @Override
-    public void onSlotChanged()
+    public void setChanged()
     {
         this.onSlotUpdate.accept(this);
     }
 
     @Override
-    public boolean isItemValid(@Nonnull ItemStack stack)
+    public boolean mayPlace(@Nonnull ItemStack stack)
     {
-        return isEnabled() && isItemValid.test(stack);
+        return isActive() && isItemValid.test(stack);
     }
 
     @Override
-    public boolean canTakeStack(Player playerIn)
+    public boolean mayPickup(Player playerIn)
     {
         return this.canTakeStack.test(playerIn);
     }
 
     @Override
-    public int getSlotStackLimit()
+    public int getMaxStackSize()
     {
         return limit;
     }
 
     @Override
-    public int getItemStackLimit(@Nonnull ItemStack stack)
+    public int getMaxStackSize(@Nonnull ItemStack stack)
     {
         return limit;
     }

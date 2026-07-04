@@ -1,32 +1,29 @@
 package com.github.wolfshotz.wyrmroost.items;
 
 import com.github.wolfshotz.wyrmroost.client.ClientEvents;
-import com.github.wolfshotz.wyrmroost.client.render.DragonEggStackRenderer;
 import com.github.wolfshotz.wyrmroost.entities.dragon.AbstractDragonEntity;
 import com.github.wolfshotz.wyrmroost.entities.dragonegg.DragonEggEntity;
 import com.github.wolfshotz.wyrmroost.entities.dragonegg.DragonEggProperties;
+import com.github.wolfshotz.wyrmroost.registry.WRDataComponentTypes;
 import com.github.wolfshotz.wyrmroost.registry.WRItems;
 import com.github.wolfshotz.wyrmroost.util.ModUtils;
-import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
-import net.minecraft.item.ItemUseContext;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraft.world.phys.AABB;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
-import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Optional;
 
@@ -34,7 +31,9 @@ public class DragonEggItem extends Item
 {
     public DragonEggItem()
     {
-        super(WRItems.builder().maxStackSize(1).setISTER(() -> DragonEggStackRenderer::new));
+        super(WRItems.builder().stacksTo(1)
+                //.setISTER(() -> DragonEggStackRenderer::new) //todo custom model renderer - Nord
+        );
     }
 
     @Override
@@ -44,81 +43,69 @@ public class DragonEggItem extends Item
         if (!entity.isAlive()) return false;
         if (!(entity instanceof AbstractDragonEntity)) return false;
 
-        CompoundNBT nbt = new CompoundNBT();
-        nbt.putString(DragonEggEntity.DATA_DRAGON_TYPE, EntityType.getKey(entity.getType()).toString());
-        nbt.putInt(DragonEggEntity.DATA_HATCH_TIME, DragonEggProperties.MAP.get(entity.getType()).getHatchTime());
-        stack.setTag(nbt);
+        stack.set(WRDataComponentTypes.DRAGON_TYPE_COMPONENT, EntityType.getKey(entity.getType()).toString());
+        stack.set(WRDataComponentTypes.HATCH_TIME_COMPONENT, DragonEggProperties.MAP.get(entity.getType()).getHatchTime());
 
-        player.sendStatusMessage(getDisplayName(stack), true);
+        player.sendSystemMessage(getName(stack));
         return true;
     }
 
     @Override
-    public ActionResultType onItemUse(ItemUseContext ctx)
+    public InteractionResult useOn(UseOnContext ctx)
     {
         Player player = ctx.getPlayer();
-        if (player.isShiftKeyDown()) return super.onItemUse(ctx);
+        if (player.isShiftKeyDown()) return super.useOn(ctx);
 
-        Level world = ctx.getWorld();
-        CompoundNBT tag = ctx.getItem().getTag();
-        BlockPos pos = ctx.getPos();
-        BlockState state = world.getBlockState(pos);
+        Level level = ctx.getLevel();
+        BlockPos pos = ctx.getClickedPos();
+        ItemStack stack = ctx.getItemInHand();
+        BlockState state = level.getBlockState(pos);
 
-        if (tag == null || !tag.contains(DragonEggEntity.DATA_DRAGON_TYPE)) return ActionResultType.PASS;
-        if (!state.getCollisionShape(world, pos).isEmpty()) pos = pos.relative(ctx.getFace());
-        if (!world.getEntitiesWithinAABB(DragonEggEntity.class, new AxisAlignedBB(pos)).isEmpty())
-            return ActionResultType.FAIL;
+        if (!stack.has(WRDataComponentTypes.DRAGON_TYPE_COMPONENT) || !stack.has(WRDataComponentTypes.HATCH_TIME_COMPONENT)) return InteractionResult.PASS;
+        if (!state.getCollisionShape(level, pos).isEmpty()) pos = pos.relative(ctx.getClickedFace());
+        if (!level.getEntitiesOfClass(DragonEggEntity.class, new AABB(pos)).isEmpty())
+            return InteractionResult.FAIL;
 
-        DragonEggEntity eggEntity = new DragonEggEntity(ModUtils.getEntityTypeByKey(tag.getString(DragonEggEntity.DATA_DRAGON_TYPE)), tag.getInt(DragonEggEntity.DATA_HATCH_TIME), world);
+        DragonEggEntity eggEntity = new DragonEggEntity(ModUtils.getEntityTypeByKey(stack.get(WRDataComponentTypes.DRAGON_TYPE_COMPONENT)), stack.get(WRDataComponentTypes.HATCH_TIME_COMPONENT), level);
         eggEntity.setPos(pos.getX() + 0.5d, pos.getY() + 0.5d, pos.getZ() + 0.5d);
 
-        if (!world.isRemote) world.addEntity(eggEntity);
-        if (!player.isCreative()) player.setHeldItem(ctx.getHand(), ItemStack.EMPTY);
+        if (!level.isClientSide()) level.addFreshEntity(eggEntity);
+        if (!player.isCreative()) player.setItemInHand(ctx.getHand(), ItemStack.EMPTY);
         
-        return ActionResultType.SUCCESS;
+        return InteractionResult.SUCCESS;
     }
     
     @Override
-    public ITextComponent getDisplayName(ItemStack stack)
-    {
-        CompoundNBT tag = stack.getTag();
-        if (tag == null || tag.isEmpty()) return super.getDisplayName(stack);
-        Optional<EntityType<?>> type = EntityType.byKey(tag.getString(DragonEggEntity.DATA_DRAGON_TYPE));
+    public Component getName(ItemStack stack) {
+        if (!stack.has(WRDataComponentTypes.DRAGON_TYPE_COMPONENT)) return super.getName(stack);
+        Optional<EntityType<?>> type = EntityType.byString(stack.get(WRDataComponentTypes.DRAGON_TYPE_COMPONENT));
         
-        if (type.isPresent())
-        {
+        if (type.isPresent()) {
             String dragonTranslation = type.get().getDescription().getString();
-            return new TranslationTextComponent(dragonTranslation + " ").append(new TranslationTextComponent(getDescriptionId()));
+            return Component.translatable(dragonTranslation + " ").append(Component.translatable(getDescriptionId()));
         }
         
-        return super.getDisplayName(stack);
+        return super.getName(stack);
     }
     
     @Override
     @OnlyIn(Dist.CLIENT)
-    public void addInformation(ItemStack stack, @Nullable Level worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn)
-    {
-        CompoundNBT tag = stack.getTag();
-
-        if (tag != null && tag.contains(DragonEggEntity.DATA_HATCH_TIME))
-            tooltip.add(new TranslationTextComponent("item.wyrmroost.egg.tooltip", tag.getInt(DragonEggEntity.DATA_HATCH_TIME) / 1200).mergeStyle(TextFormatting.AQUA));
+    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flags) {
+        if (stack.has(WRDataComponentTypes.HATCH_TIME_COMPONENT))
+            tooltip.add(Component.translatable("item.wyrmroost.egg.tooltip", stack.get(WRDataComponentTypes.HATCH_TIME_COMPONENT) / 1200).withStyle(ChatFormatting.AQUA));
         Player player = ClientEvents.getPlayer();
         if (player != null && player.isCreative())
-            tooltip.add(new TranslationTextComponent("item.wyrmroost.egg.creativetooltip").mergeStyle(TextFormatting.GRAY));
+            tooltip.add(Component.translatable("item.wyrmroost.egg.creativetooltip").withStyle(ChatFormatting.GRAY));
     }
 
-    public static ItemStack getStack(EntityType<?> type)
-    {
+    public static ItemStack getStack(EntityType<?> type) {
         return getStack(type, DragonEggProperties.MAP.get(type).getHatchTime());
     }
 
-    public static ItemStack getStack(EntityType<?> type, int hatchTime)
-    {
-        ItemStack stack = new ItemStack(WRItems.DRAGON_EGG.get());
-        CompoundNBT tag = new CompoundNBT();
-        tag.putString(DragonEggEntity.DATA_DRAGON_TYPE, EntityType.getKey(type).toString());
-        tag.putInt(DragonEggEntity.DATA_HATCH_TIME, hatchTime);
-        stack.setTag(tag);
+    public static ItemStack getStack(EntityType<?> type, int hatchTime) {
+        ItemStack stack = new ItemStack(WRItems.DRAGON_EGG.value());
+        stack.set(WRDataComponentTypes.DRAGON_TYPE_COMPONENT, EntityType.getKey(type).toString());
+        stack.set(WRDataComponentTypes.HATCH_TIME_COMPONENT, hatchTime);
         return stack;
     }
 }

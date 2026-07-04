@@ -1,62 +1,59 @@
 package com.github.wolfshotz.wyrmroost.data;
 
-import ItemModelBuilder;
 import com.github.wolfshotz.wyrmroost.Wyrmroost;
 import com.github.wolfshotz.wyrmroost.items.CoinDragonItem;
 import com.github.wolfshotz.wyrmroost.items.LazySpawnEggItem;
 import com.github.wolfshotz.wyrmroost.registry.WRBlocks;
 import com.github.wolfshotz.wyrmroost.registry.WRItems;
-import com.github.wolfshotz.wyrmroost.util.ModUtils;
-import net.minecraft.block.FlowingFluidBlock;
-import net.minecraft.client.renderer.model.BlockModel;
+import net.minecraft.client.renderer.block.model.BlockModel;
 import net.minecraft.data.DataGenerator;
-import net.minecraft.item.TieredItem;
-import net.minecraft.resources.ResourcePackType;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.data.PackOutput;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.PackType;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemDisplayContext;
+import net.minecraft.world.item.TieredItem;
 import net.minecraft.world.level.block.Block;
-import net.minecraftforge.client.model.generators.*;
-import net.minecraftforge.common.data.ExistingFileHelper;
+import net.minecraft.world.level.block.LiquidBlock;
+import net.neoforged.neoforge.client.model.generators.*;
+import net.neoforged.neoforge.common.data.ExistingFileHelper;
+import net.neoforged.neoforge.registries.DeferredHolder;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @SuppressWarnings("ConstantConditions")
-class ModelData
+public class ModelData
 {
-    private static ExistingFileHelper theGOODExistingFileHelper;
+    static void provide(DataGenerator gen, boolean include, ExistingFileHelper fileHelper, PackOutput output) {
 
-    static void provide(DataGenerator gen, ExistingFileHelper fileHelper)
-    {
-        theGOODExistingFileHelper = fileHelper;
-
-        gen.addProvider(new Blocks(gen));
-        gen.addProvider(new Items(gen));
+        gen.addProvider(include, new Blocks(output, fileHelper));
+        gen.addProvider(include, new Items(output, fileHelper));
     }
 
-    private static class Blocks extends BlockStateProvider
+    private static class Blocks extends BlockModelProvider
     {
         private final List<String> MISSING_TEXTURES = new ArrayList<>();
 
-        Blocks(DataGenerator generator)
+        Blocks(PackOutput output, ExistingFileHelper existingFileHelper)
         {
-            super(generator, Wyrmroost.MOD_ID, theGOODExistingFileHelper);
+            super(output, Wyrmroost.MOD_ID, existingFileHelper);
         }
 
         @Override
-        protected void registerStatesAndModels()
+        protected void registerModels()
         {
             // All unregistered blocks will be done here. They will be simple blocks with all sides of the same texture
             // If this is unwanted, it is important to define so above
-            for (Block block : ModUtils.getRegistryEntries(WRBlocks.REGISTRY))
+            for (Block block : WRBlocks.REGISTRY.getEntries().stream().map(DeferredHolder::value).toList())
             {
-                if (registeredBlocks.containsKey(block)) continue;
-                if (block instanceof FlowingFluidBlock) continue;
+                if (block instanceof LiquidBlock) continue;
 
-                ResourceLocation name = block.getRegistryName();
-                if (!theGOODExistingFileHelper.exists(new ResourceLocation(name.getNamespace(), ModelProvider.BLOCK_FOLDER + "/" + name.getPath()), ResourcePackType.CLIENT_RESOURCES, ".png", "textures"))
+                ResourceLocation name = block.builtInRegistryHolder().key().location();
+                ResourceLocation texture = ResourceLocation.fromNamespaceAndPath(name.getNamespace(), ModelProvider.BLOCK_FOLDER + "/" + name.getPath());
+                if (!existingFileHelper.exists(texture, PackType.CLIENT_RESOURCES, ".png", "textures"))
                     MISSING_TEXTURES.add(name.getPath().replace("block/", ""));
-                else simpleBlock(block);
+                else cubeAll(block.builtInRegistryHolder().key().location().getPath(), texture);
             }
 
             if (!MISSING_TEXTURES.isEmpty())
@@ -68,9 +65,9 @@ class ModelData
     {
         private final List<Item> REGISTERED = new ArrayList<>();
 
-        Items(DataGenerator generator)
+        Items(PackOutput output, ExistingFileHelper existingFileHelper)
         {
-            super(generator, Wyrmroost.MOD_ID, theGOODExistingFileHelper);
+            super(output, Wyrmroost.MOD_ID, existingFileHelper);
         }
 
         private static ResourceLocation resource(String path)
@@ -87,8 +84,8 @@ class ModelData
             builder.parent(new ModelFile.UncheckedModelFile(parent));
 
             // texture
-            ResourceLocation texture = resource(item.getRegistryName().getPath());
-            if (theGOODExistingFileHelper.exists(texture, ResourcePackType.CLIENT_RESOURCES, ".png", "textures"))
+            ResourceLocation texture = resource(item.builtInRegistryHolder().key().location().getPath());
+            if (existingFileHelper.exists(texture, PackType.CLIENT_RESOURCES, ".png", "textures"))
                 builder.texture("layer0", texture);
             else
                 Wyrmroost.LOG.warn("Missing Texture for Item: {} , model will not be registered.", texture.getPath().replace("item/", ""));
@@ -99,7 +96,7 @@ class ModelData
         private ItemModelBuilder itemBare(Item item)
         {
             REGISTERED.add(item);
-            return getBuilder(item.getRegistryName().getPath());
+            return getBuilder(item.builtInRegistryHolder().key().location().getPath());
         }
 
         @Override
@@ -110,28 +107,28 @@ class ModelData
             final ResourceLocation itemGenerated = mcLoc("item/generated");
             final ResourceLocation spawnEggTemplate = mcLoc("item/template_spawn_egg");
 
-            itemBare(WRItems.DRAGON_EGG.get())
+            itemBare(WRItems.DRAGON_EGG.value())
                     .parent(uncheckedModel("builtin/entity"))
                     .guiLight(BlockModel.GuiLight.FRONT)
                     .transforms()
-                    .transform(ModelBuilder.Perspective.GUI).rotation(160, 8, 30).translation(21, 6, 0).scale(1.5f).end()
-                    .transform(ModelBuilder.Perspective.FIRSTPERSON_RIGHT).rotation(180, 10, 4).translation(13, 10, -10).scale(1).end()
-                    .transform(ModelBuilder.Perspective.FIRSTPERSON_LEFT).rotation(180, 10, 4).translation(-2, 11, -12).scale(1).end()
-                    .transform(ModelBuilder.Perspective.THIRDPERSON_RIGHT).rotation(253, 65, 0).translation(8, 2, 10).scale(0.75f).end()
-                    .transform(ModelBuilder.Perspective.THIRDPERSON_LEFT).rotation(253, 65, 0).translation(3, 13, 7).scale(0.75f).end()
-                    .transform(ModelBuilder.Perspective.GROUND).rotation(180, 0, 0).translation(4, 8, -5).scale(0.55f).end();
+                    .transform(ItemDisplayContext.GUI).rotation(160, 8, 30).translation(21, 6, 0).scale(1.5f).end()
+                    .transform(ItemDisplayContext.FIRST_PERSON_RIGHT_HAND).rotation(180, 10, 4).translation(13, 10, -10).scale(1).end()
+                    .transform(ItemDisplayContext.FIRST_PERSON_LEFT_HAND).rotation(180, 10, 4).translation(-2, 11, -12).scale(1).end()
+                    .transform(ItemDisplayContext.THIRD_PERSON_RIGHT_HAND).rotation(253, 65, 0).translation(8, 2, 10).scale(0.75f).end()
+                    .transform(ItemDisplayContext.THIRD_PERSON_LEFT_HAND).rotation(253, 65, 0).translation(3, 13, 7).scale(0.75f).end()
+                    .transform(ItemDisplayContext.GROUND).rotation(180, 0, 0).translation(4, 8, -5).scale(0.55f).end();
 
             getBuilder("desert_wyrm_alive")
                     .parent(uncheckedModel(itemGenerated))
                     .texture("layer0", resource("desert_wyrm_alive"));
-            item(WRItems.LDWYRM.get())
+            item(WRItems.LDWYRM.value())
                     .override()
                     .predicate(Wyrmroost.rl("is_alive"), 1f)
                     .model(uncheckedModel(resource("desert_wyrm_alive")));
 
-            item(WRItems.DRAGON_STAFF.get()).parent(uncheckedModel("item/handheld"));
+            item(WRItems.DRAGON_STAFF.value()).parent(uncheckedModel("item/handheld"));
 
-            final ItemModelBuilder cdBuilder = item(WRItems.COIN_DRAGON.get());
+            final ItemModelBuilder cdBuilder = item(WRItems.COIN_DRAGON.value());
             for (int i = 1; i < 5; i++)
             {
                 String path = "coin_dragon" + i;
@@ -148,21 +145,15 @@ class ModelData
                 itemBare(e).parent(uncheckedModel(spawnEggTemplate));
 
             // All standard item blocks
-            for (Block block : ModUtils.getRegistryEntries(WRBlocks.REGISTRY))
+            for (Block block : WRBlocks.REGISTRY.getEntries().stream().map(DeferredHolder::value).toList())
             {
                 if (REGISTERED.contains(block.asItem())) continue;
-                if (block instanceof FlowingFluidBlock) // Buckets
-                {
-                    itemBare(((FlowingFluidBlock) block).getFluid().getFilledBucket()).parent(uncheckedModel("forge:item/bucket"));
-                    continue;
-                }
-
-                ResourceLocation path = block.getRegistryName();
+                ResourceLocation path = block.builtInRegistryHolder().key().location();
                 itemBare(block.asItem()).parent(uncheckedModel(path.getNamespace() + ":block/" + path.getPath()));
             }
 
             // All items that do not require custom attention
-            for (Item item : ModUtils.getRegistryEntries(WRItems.REGISTRY)) if (!REGISTERED.contains(item)) item(item);
+            for (Item item : WRItems.REGISTRY.getEntries().stream().map(DeferredHolder::value).toList()) if (!REGISTERED.contains(item)) item(item);
         }
 
         @Override

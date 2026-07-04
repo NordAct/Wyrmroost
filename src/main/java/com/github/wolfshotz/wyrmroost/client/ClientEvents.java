@@ -4,26 +4,21 @@ import com.github.wolfshotz.wyrmroost.client.render.RenderHelper;
 import com.github.wolfshotz.wyrmroost.client.render.entity.projectile.BreathWeaponRenderer;
 import com.github.wolfshotz.wyrmroost.entities.dragon.AbstractDragonEntity;
 import com.github.wolfshotz.wyrmroost.items.LazySpawnEggItem;
-import com.github.wolfshotz.wyrmroost.registry.WRIO;
-import com.github.wolfshotz.wyrmroost.registry.WRKeybind;
 import com.github.wolfshotz.wyrmroost.util.animation.IAnimatable;
+import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.color.item.ItemColor;
+import net.minecraft.client.color.item.ItemColors;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.renderer.color.IItemColor;
-import net.minecraft.client.renderer.color.ItemColors;
-import net.minecraft.client.renderer.texture.AtlasTexture;
-import net.minecraft.client.settings.PointOfView;
-import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.client.event.ColorHandlerEvent;
-import net.minecraftforge.client.event.EntityViewRenderEvent;
-import net.minecraftforge.client.event.TextureStitchEvent;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraft.world.phys.Vec3;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.neoforge.client.event.CalculateDetachedCameraDistanceEvent;
+import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
+import net.neoforged.neoforge.client.event.RegisterMaterialAtlasesEvent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,20 +32,17 @@ public class ClientEvents
 {
     public static final List<Runnable> CALLBACKS = new ArrayList<>();
 
-    public static void load()
-    {
-        IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
-        IEventBus forgeBus = MinecraftForge.EVENT_BUS;
+    public static void load(IEventBus bus) {
 
         bus.addListener(ClientEvents::clientSetup);
-        bus.addListener(ClientEvents::stitchTextures);
+        bus.addListener(ClientEvents::addAtlas);
         bus.addListener(ClientEvents::itemColors);
 
-        forgeBus.addListener(RenderHelper::renderWorld);
-        forgeBus.addListener(RenderHelper::renderEntities);
+        bus.addListener(RenderHelper::renderWorld);
+        bus.addListener(RenderHelper::renderEntities);
 //        forgeBus.addListener(RenderHelper::renderFog);
 //        forgeBus.addListener(RenderHelper::fogColors);
-        forgeBus.addListener(ClientEvents::cameraPerspective);
+        bus.addListener(ClientEvents::cameraPerspective);
     }
 
     // ====================
@@ -61,22 +53,16 @@ public class ClientEvents
     {
         CALLBACKS.forEach(Runnable::run);
         CALLBACKS.clear();
-        WRKeybind.registerKeys();
-        WRIO.screenSetup();
     }
 
-    public static void stitchTextures(TextureStitchEvent.Pre evt)
-    {
-        if (evt.getMap().getTextureLocation() == AtlasTexture.LOCATION_BLOCKS_TEXTURE)
-        {
-            evt.addSprite(BreathWeaponRenderer.BLUE_FIRE);
-        }
+    public static void addAtlas(RegisterMaterialAtlasesEvent evt) {
+        evt.register(BreathWeaponRenderer.BLUE_FIRE_MATERIAL.atlasLocation(), BreathWeaponRenderer.BLUE_FIRE_MATERIAL.texture());
     }
 
-    public static void itemColors(ColorHandlerEvent.Item evt)
+    public static void itemColors(RegisterColorHandlersEvent.Item evt)
     {
         ItemColors handler = evt.getItemColors();
-        IItemColor func = (stack, tintIndex) -> ((LazySpawnEggItem) stack.getItem()).getColor(tintIndex);
+        ItemColor func = (stack, tintIndex) -> ((LazySpawnEggItem) stack.getItem()).getColor(tintIndex);
         for (LazySpawnEggItem e : LazySpawnEggItem.SPAWN_EGGS) handler.register(func, e);
     }
 
@@ -84,15 +70,15 @@ public class ClientEvents
     //      Forge Bus
     // =====================
 
-    public static void cameraPerspective(EntityViewRenderEvent.CameraSetup event)
+    public static void cameraPerspective(CalculateDetachedCameraDistanceEvent event)
     {
         Minecraft mc = getClient();
-        Entity entity = mc.player.getRidingEntity();
+        Entity entity = mc.player.getVehicle();
         if (!(entity instanceof AbstractDragonEntity)) return;
-        PointOfView view = mc.gameSettings.func_243230_g();
+        CameraType view = mc.options.getCameraType();
 
-        if (view != PointOfView.FIRST_PERSON)
-            ((AbstractDragonEntity) entity).setMountCameraAngles(view == PointOfView.THIRD_PERSON_BACK, event);
+        if (view != CameraType.FIRST_PERSON)
+            ((AbstractDragonEntity) entity).setMountCameraAngles(view == CameraType.THIRD_PERSON_BACK, event);
     }
 
     // =====================
@@ -103,9 +89,9 @@ public class ClientEvents
         return Minecraft.getInstance();
     }
 
-    public static ClientLevel getWorld()
+    public static ClientLevel getLevel()
     {
-        return getClient().world;
+        return getClient().level;
     }
 
     public static Player getPlayer()
@@ -113,20 +99,20 @@ public class ClientEvents
         return getClient().player;
     }
 
-    public static Vector3d getProjectedView()
+    public static Vec3 getProjectedView()
     {
-        return getClient().gameRenderer.getActiveRenderInfo().getProjectedView();
+        return getClient().gameRenderer.getMainCamera().getPosition();
     }
 
     public static float getPartialTicks()
     {
-        return getClient().getRenderPartialTicks();
+        return getClient().getTimer().getGameTimeDeltaPartialTick(false);
     }
 
     public static boolean handleAnimationPacket(int entityID, int animationIndex)
     {
-        Level world = ClientEvents.getWorld();
-        IAnimatable entity = (IAnimatable) world.getEntityByID(entityID);
+        Level world = ClientEvents.getLevel();
+        IAnimatable entity = (IAnimatable) world.getEntity(entityID);
 
         if (animationIndex < 0) entity.setAnimation(IAnimatable.NO_ANIMATION);
         else entity.setAnimation(entity.getAnimations()[animationIndex]);
