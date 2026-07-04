@@ -14,6 +14,7 @@ import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -32,6 +33,11 @@ public abstract class AbstractDragonRenderer<T extends AbstractDragonEntity, M e
         float scale = entity.getScale();
         ms.scale(scale, scale, scale);
         super.render(entity, entityYaw, partialTicks, ms, buffer, packedLightIn);
+    }
+
+    @Override
+    protected @Nullable RenderType getRenderType(T p_115322_, boolean p_115323_, boolean p_115324_, boolean p_115325_) {
+        return super.getRenderType(p_115322_, p_115323_, p_115324_, p_115325_);
     }
 
     /**
@@ -110,7 +116,7 @@ public abstract class AbstractDragonRenderer<T extends AbstractDragonEntity, M e
         {
             if (entity.hasArmor())
             {
-                VertexConsumer builder = type.getBuffer(RenderType.entityCutout(getArmorTexture(entity)));
+                VertexConsumer builder = type.getBuffer(RenderType.entityCutoutNoCull(getArmorTexture(entity)));
                 getModel().renderToBuffer(ms, builder, packedLightIn, OverlayTexture.NO_OVERLAY);
             }
         }

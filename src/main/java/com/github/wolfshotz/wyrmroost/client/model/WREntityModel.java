@@ -2,10 +2,10 @@ package com.github.wolfshotz.wyrmroost.client.model;
 
 import com.github.wolfshotz.wyrmroost.util.Mafs;
 import net.minecraft.client.model.EntityModel;
-import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,11 +15,10 @@ public abstract class WREntityModel<T extends Entity> extends EntityModel<T>
     public float globalSpeed = 0.5f;
     public final List<WRModelPart> boxList = new ArrayList<>();
     public float time;
-    public MeshDefinition meshDefinition = new MeshDefinition();
     public final int textureWidth;
     public final int textureHeight;
 
-    public WREntityModel(int textureWidth, int textureHeight) { super(RenderType.ENTITY_CUTOUT);
+    public WREntityModel(int textureWidth, int textureHeight) { super(RenderType::entityCutoutNoCull);
         this.textureWidth = textureWidth;
         this.textureHeight = textureHeight;
     }
