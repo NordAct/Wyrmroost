@@ -55,6 +55,7 @@ public class WRModelPart extends ModelPart {
         wrModelPart.xScale = 1 + scaleFactorX;
         wrModelPart.yScale = 1 + scaleFactorY;
         wrModelPart.zScale = 1 + scaleFactorZ;
+        wrModelPart.cubes.addAll(part.cubes);
         setDefaultPose();
         children.put(name, wrModelPart);
     }
