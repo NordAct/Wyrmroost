@@ -108,9 +108,9 @@ public class CanariWyvernEntity extends AbstractDragonEntity
         }
     }
 
-    public InteractionResult interactAt(Player player, Vec3 vec3, InteractionHand hand) {
+    public InteractionResult actuallyInteractWithMob(Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
-        InteractionResult result = super.interactAt(player, vec3, hand);
+        InteractionResult result = super.actuallyInteractWithMob(player, hand);
         if (result.consumesAction()) return result;
 
         if (!isTame() && isFoodItem(stack) && (isPissed() || player.isCreative() || isBaby()))

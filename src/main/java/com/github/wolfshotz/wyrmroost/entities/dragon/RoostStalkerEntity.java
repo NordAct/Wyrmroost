@@ -46,7 +46,6 @@ import net.minecraft.world.level.block.ChestBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.ChestBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
 import java.util.Random;
@@ -145,7 +144,7 @@ public class RoostStalkerEntity extends AbstractDragonEntity
     }
 
     @Override
-    public InteractionResult interactAt(Player player, Vec3 vec3, InteractionHand hand)
+    public InteractionResult actuallyInteractWithMob(Player player, InteractionHand hand)
     {
         ItemStack stack = player.getItemInHand(hand);
         final InteractionResult COMMON_SUCCESS = InteractionResult.sidedSuccess(level().isClientSide());

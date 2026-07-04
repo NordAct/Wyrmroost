@@ -167,7 +167,7 @@ public class RoyalRedEntity extends AbstractDragonEntity
     }
 
     @Override
-    public InteractionResult interactAt(Player player, Vec3 vec3, InteractionHand hand)
+    public InteractionResult actuallyInteractWithMob(Player player, InteractionHand hand)
     {
         ItemStack stack = player.getItemInHand(hand);
         if (!isTame() && isFoodItem(stack))
@@ -199,7 +199,7 @@ public class RoyalRedEntity extends AbstractDragonEntity
             }
         }
 
-        return super.interactAt(player, vec3, hand);
+        return super.actuallyInteractWithMob(player, hand);
     }
 
     @Override
@@ -319,7 +319,7 @@ public class RoyalRedEntity extends AbstractDragonEntity
     @Override
     public Vec3 getPassengerPosOffset(Entity entity, int index)
     {
-        return new Vec3(0, getBbHeight() * 0.85f, index == 0? 0.5f : -1);
+        return new Vec3(0, -0.85f, index == 0? 0.5f : -1);
     }
 
     @Override

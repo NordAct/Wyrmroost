@@ -218,7 +218,7 @@ public class OWDrakeEntity extends AbstractDragonEntity
     }
 
     @Override
-    public InteractionResult interactAt(Player player, Vec3 vec3, InteractionHand hand) {
+    public InteractionResult actuallyInteractWithMob(Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
         if (stack.getItem() == Items.SADDLE && !isSaddled() && !isBaby())
         {
@@ -237,7 +237,7 @@ public class OWDrakeEntity extends AbstractDragonEntity
             return InteractionResult.sidedSuccess(level().isClientSide());
         }
 
-        return super.interactAt(player, vec3, hand);
+        return super.actuallyInteractWithMob(player, hand);
     }
 
     @Override

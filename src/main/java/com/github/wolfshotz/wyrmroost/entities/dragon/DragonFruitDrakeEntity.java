@@ -42,7 +42,6 @@ import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.event.CalculateDetachedCameraDistanceEvent;
 import net.neoforged.neoforge.common.IShearable;
 import net.neoforged.neoforge.common.Tags;
@@ -117,7 +116,7 @@ public class DragonFruitDrakeEntity extends AbstractDragonEntity implements IShe
     }
 
     @Override
-    public InteractionResult interactAt(Player player, Vec3 vec3, InteractionHand hand) {
+    public InteractionResult actuallyInteractWithMob(Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
         if (stack.is(Tags.Items.TOOLS_SHEAR) && hasControllingPassenger())
             return InteractionResult.sidedSuccess(level().isClientSide());
@@ -140,7 +139,7 @@ public class DragonFruitDrakeEntity extends AbstractDragonEntity implements IShe
             return InteractionResult.sidedSuccess(level().isClientSide());
         }
 
-        return super.interactAt(player, vec3, hand);
+        return super.actuallyInteractWithMob(player, hand);
     }
 
     @Override

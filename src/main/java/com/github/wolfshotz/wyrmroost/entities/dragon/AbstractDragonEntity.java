@@ -34,6 +34,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
+import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
@@ -404,11 +405,9 @@ public abstract class AbstractDragonEntity extends TamableAnimal implements IAni
     /**
      * Not to be confused with {@link #rideTick()}, as this is called when were being ridden by something
      */
-    @Override
-    public void positionRider(Entity passenger, MoveFunction callback) {
-        Vec3 offset = getPassengerPosOffset(passenger, getPassengers().indexOf(passenger));
-        Vec3 pos = Mafs.getYawVec(yBodyRot, offset.x, offset.z).add(getX(), getY() + offset.y, getZ()).add(passenger.getPassengerRidingPosition(this));
-        callback.accept(passenger, pos.x, pos.y, pos.z);
+    protected Vec3 getPassengerAttachmentPoint(Entity entity, EntityDimensions dimensions, float delta) {
+        int i = Math.max(this.getPassengers().indexOf(entity), 0);
+        return super.getPassengerAttachmentPoint(entity, dimensions, delta).add(getPassengerPosOffset(entity, i).yRot(-yBodyRot * Mth.DEG_TO_RAD));
     }
 
     public Vec3 getPassengerPosOffset(Entity entity, int index) {
@@ -425,7 +424,7 @@ public abstract class AbstractDragonEntity extends TamableAnimal implements IAni
     // essentially, if the provided boolean is true, it will return SUCCESS, else CONSUME.
     // so since the world is client, it will be SUCCESS on client and CONSUME on server.
     // That way, the server never sends the arm swing packet.
-    public InteractionResult interactAt(Player player, Vec3 vec3, InteractionHand hand) {
+    public InteractionResult actuallyInteractWithMob(Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
         final InteractionResult COMMON_SUCCESS = InteractionResult.sidedSuccess(level().isClientSide());
 
@@ -482,7 +481,7 @@ public abstract class AbstractDragonEntity extends TamableAnimal implements IAni
     {
         ItemStack stack = player.getItemInHand(hand);
         InteractionResult result = stack.interactLivingEntity(player, this, hand);
-        if (!result.consumesAction()) result = interactAt(player, position(), hand);
+        if (!result.consumesAction()) result = actuallyInteractWithMob(player, hand);
         if (result.consumesAction()) setSleeping(false);
         return result;
     }
