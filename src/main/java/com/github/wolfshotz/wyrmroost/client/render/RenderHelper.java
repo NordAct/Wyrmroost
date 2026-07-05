@@ -33,15 +33,6 @@ import net.neoforged.neoforge.client.event.RenderLivingEvent;
 @EventBusSubscriber
 public class RenderHelper
 {
-    // == [Render Types] ==
-    public static RenderType getAdditiveGlow(ResourceLocation locationIn) {
-        return Util.<ResourceLocation, RenderType>memoize((texture) -> RenderType.create("glow_additive", DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS, 1536, false, true, RenderType.CompositeState.builder()
-                .setTextureState(new RenderStateShard.TextureStateShard(locationIn, false, false))
-                .setTransparencyState(RenderType.ADDITIVE_TRANSPARENCY)
-                .createCompositeState(false)
-        )).apply(locationIn);
-    }
-
     public static RenderType getTranslucentGlow(ResourceLocation locationIn)
     {
         return Util.<ResourceLocation, RenderType>memoize((texture) -> RenderType.create("glow_transluscent", DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS, 1536, false, true, RenderType.CompositeState.builder()
@@ -50,9 +41,7 @@ public class RenderHelper
                 .setTransparencyState(RenderType.TRANSLUCENT_TRANSPARENCY)
                 .createCompositeState(false))).apply(locationIn);
     }
-
     // == [Rendering] ==
-
     @SubscribeEvent
     public static void renderWorld(RenderLevelStageEvent evt)
     {

@@ -63,8 +63,7 @@ public class RoostStalkerRenderer extends AbstractDragonRenderer<RoostStalkerEnt
         {
             ItemStack stack = stalker.getItem();
 
-            if (!stack.isEmpty())
-            {
+            if (!stack.isEmpty()) {
                 ms.pushPose();
 
                 if (stalker.isSleeping())

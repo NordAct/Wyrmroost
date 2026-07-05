@@ -3,7 +3,6 @@ package com.github.wolfshotz.wyrmroost.client.render.entity.butterfly;
 import com.github.wolfshotz.wyrmroost.WRConfig;
 import com.github.wolfshotz.wyrmroost.Wyrmroost;
 import com.github.wolfshotz.wyrmroost.client.model.WRModelPart;
-import com.github.wolfshotz.wyrmroost.client.render.RenderHelper;
 import com.github.wolfshotz.wyrmroost.client.render.entity.AbstractDragonRenderer;
 import com.github.wolfshotz.wyrmroost.entities.dragon.ButterflyLeviathanEntity;
 import com.github.wolfshotz.wyrmroost.util.Mafs;
@@ -96,7 +95,7 @@ public class ButterflyLeviathanRenderer extends AbstractDragonRenderer<Butterfly
         public void render(PoseStack ms, MultiBufferSource buffer, int packedLight, ButterflyLeviathanEntity entity, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch)
         {
             int alpha = Mth.clamp(entity.lightningCooldown, 1, 255);
-            VertexConsumer builder = buffer.getBuffer(RenderHelper.getTranslucentGlow(WRConfig.deckTheHalls? CHRISTMAS_GLOW : GLOW));
+            VertexConsumer builder = buffer.getBuffer(RenderType.eyes(WRConfig.deckTheHalls? CHRISTMAS_GLOW : GLOW));
             getModel().renderToBuffer(ms, builder, 15728640, OverlayTexture.NO_OVERLAY, FastColor.ARGB32.color(alpha, 0xFFFFFFFF));
         }
     }

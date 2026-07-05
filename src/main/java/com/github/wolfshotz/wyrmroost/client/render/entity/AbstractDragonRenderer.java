@@ -2,7 +2,6 @@ package com.github.wolfshotz.wyrmroost.client.render.entity;
 
 import com.github.wolfshotz.wyrmroost.Wyrmroost;
 import com.github.wolfshotz.wyrmroost.client.model.WREntityModel;
-import com.github.wolfshotz.wyrmroost.client.render.RenderHelper;
 import com.github.wolfshotz.wyrmroost.entities.dragon.AbstractDragonEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -14,7 +13,6 @@ import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -33,11 +31,6 @@ public abstract class AbstractDragonRenderer<T extends AbstractDragonEntity, M e
         float scale = entity.getScale();
         ms.scale(scale, scale, scale);
         super.render(entity, entityYaw, partialTicks, ms, buffer, packedLightIn);
-    }
-
-    @Override
-    protected @Nullable RenderType getRenderType(T p_115322_, boolean p_115323_, boolean p_115324_, boolean p_115325_) {
-        return super.getRenderType(p_115322_, p_115323_, p_115324_, p_115325_);
     }
 
     /**
@@ -89,12 +82,10 @@ public abstract class AbstractDragonRenderer<T extends AbstractDragonEntity, M e
         @Override
         public void render(PoseStack ms, MultiBufferSource buffer, int packedLightIn, T entity, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch)
         {
-            if (conditions.test(entity))
-            {
+            if (conditions.test(entity)) {
                 ResourceLocation rl = texture.apply(entity);
-                if (rl != null)
-                {
-                    VertexConsumer builder = buffer.getBuffer(RenderHelper.getAdditiveGlow(rl));
+                if (rl != null) {
+                    VertexConsumer builder = buffer.getBuffer(RenderType.entityTranslucentEmissive(rl));
                     getModel().renderToBuffer(ms, builder, 15728640, OverlayTexture.NO_OVERLAY);
                 }
             }
