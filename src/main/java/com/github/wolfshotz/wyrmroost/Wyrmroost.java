@@ -23,7 +23,6 @@ public class Wyrmroost
     public static final Logger LOG = LogManager.getLogger(MOD_ID);
 
     public Wyrmroost(ModContainer container, IEventBus bus) {
-        WRItems.REGISTRY.register(bus);
         WRBlocks.REGISTRY.register(bus);
         WRIO.REGISTRY.register(bus);
         WRSounds.REGISTRY.register(bus);
@@ -31,6 +30,7 @@ public class Wyrmroost
         WRArmorMaterials.REGISTRY.register(bus);
         WREntities.Attributes.REGISTRY.register(bus);
         WREntities.REGISTRY.register(bus);
+        WRItems.REGISTRY.register(bus);
         WRDataComponentTypes.REGISTRY.register(bus);
 
         CommonEvents.load(bus);

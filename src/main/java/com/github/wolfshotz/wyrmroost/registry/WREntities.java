@@ -21,23 +21,25 @@ import com.github.wolfshotz.wyrmroost.entities.dragonegg.DragonEggProperties;
 import com.github.wolfshotz.wyrmroost.entities.projectile.GeodeTippedArrowEntity;
 import com.github.wolfshotz.wyrmroost.entities.projectile.WindGustEntity;
 import com.github.wolfshotz.wyrmroost.entities.projectile.breath.FireBreathEntity;
-import com.github.wolfshotz.wyrmroost.items.LazySpawnEggItem;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.NoopRenderer;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.RangedAttribute;
 import net.minecraft.world.entity.animal.Animal;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.fml.loading.FMLLoader;
+import net.neoforged.neoforge.common.DeferredSpawnEggItem;
 import net.neoforged.neoforge.event.entity.RegisterSpawnPlacementsEvent;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
@@ -182,7 +184,16 @@ public class WREntities {
 
         private Builder<T> spawnEgg(int primColor, int secColor)
         {
-            WRItems.register(name + "_spawn_egg", () -> new LazySpawnEggItem(registered::value, primColor, secColor));
+            WRItems.register(name + "_spawn_egg", () -> new DeferredSpawnEggItem(() -> (EntityType<? extends Mob>) registered.value(), primColor, secColor, WRItems.builder()) {
+                @Override
+                public Component getName(ItemStack stack)
+                {
+                    ResourceLocation regName = EntityType.getKey(getDefaultType());
+                    return Component.translatable("entity." + regName.getNamespace() + "." + regName.getPath())
+                            .append(" ")
+                            .append(Component.translatable("item.wyrmroost.spawn_egg"));
+                }
+            });
             return this;
         }
 

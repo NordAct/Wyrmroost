@@ -1,17 +1,17 @@
 package com.github.wolfshotz.wyrmroost.client;
 
+import com.github.wolfshotz.wyrmroost.client.render.DragonEggStackRenderer;
 import com.github.wolfshotz.wyrmroost.client.render.entity.projectile.BreathWeaponRenderer;
 import com.github.wolfshotz.wyrmroost.client.screen.DragonInvScreen;
 import com.github.wolfshotz.wyrmroost.entities.dragon.AbstractDragonEntity;
-import com.github.wolfshotz.wyrmroost.items.LazySpawnEggItem;
 import com.github.wolfshotz.wyrmroost.registry.WREntities;
 import com.github.wolfshotz.wyrmroost.registry.WRIO;
+import com.github.wolfshotz.wyrmroost.registry.WRItems;
 import com.github.wolfshotz.wyrmroost.util.animation.IAnimatable;
 import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.color.item.ItemColor;
-import net.minecraft.client.color.item.ItemColors;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
@@ -22,6 +22,8 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.*;
+import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
+import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,7 +42,6 @@ public class ClientEvents
 
         bus.addListener(ClientEvents::clientSetup);
         bus.addListener(ClientEvents::addAtlas);
-        bus.addListener(ClientEvents::itemColors);
         bus.addListener(ClientEvents::registerEntityRenderers);
         bus.addListener(ClientEvents::registerMenuScreens);
     }
@@ -57,13 +58,6 @@ public class ClientEvents
 
     public static void addAtlas(RegisterMaterialAtlasesEvent evt) {
         evt.register(BreathWeaponRenderer.BLUE_FIRE_MATERIAL.atlasLocation(), BreathWeaponRenderer.BLUE_FIRE_MATERIAL.texture());
-    }
-
-    public static void itemColors(RegisterColorHandlersEvent.Item evt)
-    {
-        ItemColors handler = evt.getItemColors();
-        ItemColor func = (stack, tintIndex) -> ((LazySpawnEggItem) stack.getItem()).getColor(tintIndex);
-        for (LazySpawnEggItem e : LazySpawnEggItem.SPAWN_EGGS) handler.register(func, e);
     }
 
     // =====================
@@ -132,5 +126,21 @@ public class ClientEvents
 
     public static void registerMenuScreens(RegisterMenuScreensEvent event) {
         event.register(WRIO.DRAGON_INVENTORY.value(), DragonInvScreen::new);
+    }
+
+    @SubscribeEvent // on the mod event bus only on the physical client
+    public static void registerClientExtensions(RegisterClientExtensionsEvent event) {
+        event.registerItem(
+                // The only instance of our IClientItemExtensions, and as such, the only instance of our BEWLR.
+                new IClientItemExtensions() {
+                    private final DragonEggStackRenderer renderer = new DragonEggStackRenderer();
+                    @Override
+                    public BlockEntityWithoutLevelRenderer getCustomRenderer() {
+                        return renderer;
+                    }
+                },
+                // A vararg list of items that use this BEWLR.
+                WRItems.DRAGON_EGG.value()
+        );
     }
 }

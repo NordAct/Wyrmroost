@@ -6,18 +6,13 @@ import com.github.wolfshotz.wyrmroost.entities.dragon.AbstractDragonEntity;
 import com.github.wolfshotz.wyrmroost.items.staff.DragonStaffItem;
 import com.github.wolfshotz.wyrmroost.registry.WRItems;
 import com.github.wolfshotz.wyrmroost.util.ModUtils;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexFormat;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
-import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -33,14 +28,6 @@ import net.neoforged.neoforge.client.event.RenderLivingEvent;
 @EventBusSubscriber
 public class RenderHelper
 {
-    public static RenderType getTranslucentGlow(ResourceLocation locationIn)
-    {
-        return Util.<ResourceLocation, RenderType>memoize((texture) -> RenderType.create("glow_transluscent", DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS, 1536, false, true, RenderType.CompositeState.builder()
-                .setTextureState(new RenderStateShard.TextureStateShard(texture, false, false))
-                .setCullState(RenderType.NO_CULL)
-                .setTransparencyState(RenderType.TRANSLUCENT_TRANSPARENCY)
-                .createCompositeState(false))).apply(locationIn);
-    }
     // == [Rendering] ==
     @SubscribeEvent
     public static void renderWorld(RenderLevelStageEvent evt)

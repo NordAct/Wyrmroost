@@ -4,7 +4,6 @@ import com.github.wolfshotz.wyrmroost.client.screen.DebugScreen;
 import com.github.wolfshotz.wyrmroost.data.DataGatherer;
 import com.github.wolfshotz.wyrmroost.entities.dragon.AbstractDragonEntity;
 import com.github.wolfshotz.wyrmroost.items.CoinDragonItem;
-import com.github.wolfshotz.wyrmroost.items.LazySpawnEggItem;
 import com.github.wolfshotz.wyrmroost.items.base.ArmorBase;
 import com.github.wolfshotz.wyrmroost.registry.WREntities;
 import net.minecraft.world.InteractionResult;
@@ -56,7 +55,6 @@ public class CommonEvents
         {
             CALLBACKS.forEach(Runnable::run);
             CALLBACKS.clear();
-            LazySpawnEggItem.addEggsToMap();
         });
         //WRWorld.Features.init();
     }

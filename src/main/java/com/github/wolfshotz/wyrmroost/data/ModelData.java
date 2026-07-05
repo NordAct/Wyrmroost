@@ -2,7 +2,6 @@ package com.github.wolfshotz.wyrmroost.data;
 
 import com.github.wolfshotz.wyrmroost.Wyrmroost;
 import com.github.wolfshotz.wyrmroost.items.CoinDragonItem;
-import com.github.wolfshotz.wyrmroost.items.LazySpawnEggItem;
 import com.github.wolfshotz.wyrmroost.registry.WRBlocks;
 import com.github.wolfshotz.wyrmroost.registry.WRItems;
 import net.minecraft.client.renderer.block.model.BlockModel;
@@ -12,6 +11,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemDisplayContext;
+import net.minecraft.world.item.SpawnEggItem;
 import net.minecraft.world.item.TieredItem;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.LiquidBlock;
@@ -141,7 +141,7 @@ public class ModelData
             }
 
             // spawn eggs
-            for (LazySpawnEggItem e : LazySpawnEggItem.SPAWN_EGGS)
+            for (Item e : WRItems.REGISTRY.getEntries().stream().filter(item -> item.value() instanceof SpawnEggItem).map(DeferredHolder::value).toList())
                 itemBare(e).parent(uncheckedModel(spawnEggTemplate));
 
             // All standard item blocks
