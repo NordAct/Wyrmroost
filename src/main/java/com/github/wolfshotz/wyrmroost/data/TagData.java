@@ -59,10 +59,21 @@ public class TagData
             tag(WRItems.Tags.DRAGON_MEATS).add(WRItems.RAW_LOWTIER_MEAT.value(), WRItems.COOKED_LOWTIER_MEAT.value(), WRItems.RAW_COMMON_MEAT.value(), WRItems.COOKED_COMMON_MEAT.value(), WRItems.RAW_APEX_MEAT.value(), WRItems.COOKED_APEX_MEAT.value(), WRItems.RAW_BEHEMOTH_MEAT.value(), WRItems.COOKED_BEHEMOTH_MEAT.value());
             tag(ItemTags.MEAT).addTag(WRItems.Tags.DRAGON_MEATS);
             tag(Tags.Items.FOODS_RAW_MEAT)
-                    .add(WRItems.RAW_LOWTIER_MEAT.value(), WRItems.COOKED_LOWTIER_MEAT.value(), WRItems.RAW_COMMON_MEAT.value(), WRItems.COOKED_COMMON_MEAT.value(), WRItems.RAW_APEX_MEAT.value())
+                    .add(
+                            WRItems.RAW_LOWTIER_MEAT.value(),
+                            WRItems.RAW_COMMON_MEAT.value(),
+                            WRItems.RAW_APEX_MEAT.value(),
+                            WRItems.RAW_BEHEMOTH_MEAT.value()
+
+                            )
                     .add(WRItems.LDWYRM.value());
             tag(Tags.Items.FOODS_COOKED_MEAT)
-                    .add(WRItems.COOKED_COMMON_MEAT.value(), WRItems.RAW_APEX_MEAT.value(), WRItems.COOKED_APEX_MEAT.value(), WRItems.RAW_BEHEMOTH_MEAT.value(), WRItems.COOKED_BEHEMOTH_MEAT.value())
+                    .add(
+                            WRItems.COOKED_LOWTIER_MEAT.value(),
+                            WRItems.COOKED_COMMON_MEAT.value(),
+                            WRItems.COOKED_APEX_MEAT.value(),
+                            WRItems.COOKED_BEHEMOTH_MEAT.value()
+                    )
                     .add(WRItems.COOKED_MINUTUS.value());
 
             tag(Tags.Items.INGOTS).addTag(WRItems.Tags.PLATINUM_INGOTS);

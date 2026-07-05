@@ -1,9 +1,8 @@
 {
   "values": [
+    "wyrmroost:cooked_lowtier_meat",
     "wyrmroost:cooked_common_meat",
-    "wyrmroost:raw_apex_meat",
     "wyrmroost:cooked_apex_meat",
-    "wyrmroost:raw_behemoth_meat",
     "wyrmroost:cooked_behemoth_meat",
     "wyrmroost:cooked_desertwyrm"
   ]
