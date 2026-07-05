@@ -39,6 +39,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.MenuProvider;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
@@ -47,8 +48,10 @@ import net.minecraft.world.entity.ai.control.BodyRotationControl;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.animal.Animal;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.food.FoodProperties;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ShieldItem;
@@ -74,7 +77,7 @@ import java.util.function.Supplier;
  * Created by com.github.WolfShotz 7/10/19 - 21:36
  * This is where the magic happens. Here be our Dragons!
  */
-public abstract class AbstractDragonEntity extends TamableAnimal implements IAnimatable
+public abstract class AbstractDragonEntity extends TamableAnimal implements IAnimatable, MenuProvider
 {
     public static final byte HEAL_PARTICLES_DATA_ID = 8;
 
@@ -101,7 +104,7 @@ public abstract class AbstractDragonEntity extends TamableAnimal implements IAni
 
         invHandler = createInv();
         lookControl = new LessShitLookController(this);
-        if (hasEntityDataAccessor(FLYING)) moveControl = new FlyerMoveController(this);
+        if (mayFly()) moveControl = new FlyerMoveController(this);
 
         registerDataEntry("HomePos", EntityDataEntry.BLOCK_POS.optional(), HOME_POS, Optional.empty());
         registerDataEntry("BreedCount", EntityDataEntry.INTEGER, () -> breedCount, i -> breedCount = i);
@@ -169,14 +172,9 @@ public abstract class AbstractDragonEntity extends TamableAnimal implements IAni
         registerDataEntry(key, type, () -> entityData.get(param), v -> entityData.set(param, v));
     }
 
-    public boolean hasEntityDataAccessor(EntityDataAccessor<?> param)
-    {
-        return entityData.itemsById.length < param.id();
-    }
-
     public int getVariant()
     {
-        return hasEntityDataAccessor(VARIANT)? entityData.get(VARIANT) : 0;
+        return hasVariants() ? entityData.get(VARIANT) : 0;
     }
 
     public void setVariant(int variant)
@@ -189,7 +187,7 @@ public abstract class AbstractDragonEntity extends TamableAnimal implements IAni
      */
     public boolean isMale()
     {
-        return hasEntityDataAccessor(GENDER)? entityData.get(GENDER) : true;
+        return hasGender() ? entityData.get(GENDER) : true;
     }
 
     public void setGender(boolean sex)
@@ -199,7 +197,7 @@ public abstract class AbstractDragonEntity extends TamableAnimal implements IAni
 
     public boolean isSleeping()
     {
-        return hasEntityDataAccessor(SLEEPING)? entityData.get(SLEEPING) : false;
+        return maySleep() ? entityData.get(SLEEPING) : false;
     }
 
     public void setSleeping(boolean sleep)
@@ -267,6 +265,7 @@ public abstract class AbstractDragonEntity extends TamableAnimal implements IAni
     public void setSit(boolean sitting)
     {
         setOrderedToSit(sitting);
+        setInSittingPose(sitting);
     }
 
     @Override
@@ -475,8 +474,7 @@ public abstract class AbstractDragonEntity extends TamableAnimal implements IAni
 
     // Override to make processInteract way less annoying
     @Override
-    public InteractionResult mobInteract(Player player, InteractionHand hand)
-    {
+    public InteractionResult mobInteract(Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
         InteractionResult result = stack.interactLivingEntity(player, this, hand);
         if (!result.consumesAction()) result = actuallyInteractWithMob(player, hand);
@@ -863,7 +861,7 @@ public abstract class AbstractDragonEntity extends TamableAnimal implements IAni
     {
         AbstractDragonEntity dragon = (AbstractDragonEntity) mate;
         if (isInSittingPose() || dragon.isInSittingPose()) return false;
-        if (hasEntityDataAccessor(GENDER) && isMale() == dragon.isMale()) return false;
+        if (hasGender() && isMale() == dragon.isMale()) return false;
         return super.canMate(mate);
     }
 
@@ -1038,8 +1036,8 @@ public abstract class AbstractDragonEntity extends TamableAnimal implements IAni
     @Override
     public SpawnGroupData finalizeSpawn(ServerLevelAccessor world, DifficultyInstance difficulty, MobSpawnType reason, @Nullable SpawnGroupData data)
     {
-        if (hasEntityDataAccessor(GENDER)) setGender(random.nextBoolean());
-        if (hasEntityDataAccessor(VARIANT)) setVariant(determineVariant());
+        if (hasGender()) setGender(random.nextBoolean());
+        if (hasVariants()) setVariant(determineVariant());
 
         applyAttributes();
         setHealth(getMaxHealth());
@@ -1119,8 +1117,7 @@ public abstract class AbstractDragonEntity extends TamableAnimal implements IAni
      * Do not perform any AI actions while: Not Sleeping; not being controlled, etc.
      */
     @Override
-    protected boolean isImmobile()
-    {
+    protected boolean isImmobile() {
         return super.isImmobile() || isSleeping() || isRiding();
     }
 
@@ -1184,7 +1181,7 @@ public abstract class AbstractDragonEntity extends TamableAnimal implements IAni
                 .withStyle(ChatFormatting.RED)
                 .append(Component.literal(String.format(" %s / %s", (int) (getHealth() / 2), (int) getMaxHealth() / 2)).withStyle(ChatFormatting.WHITE))
                 .getString());
-        if (hasEntityDataAccessor(GENDER))
+        if (hasGender())
         {
             boolean isMale = isMale();
             screen.addTooltip(Component.translatable("entity.wyrmroost.dragons.gender." + (isMale? "male" : "female"))
@@ -1268,6 +1265,18 @@ public abstract class AbstractDragonEntity extends TamableAnimal implements IAni
 
     public static AttributeSupplier.Builder createDragonAttributes() {
         return Mob.createMobAttributes()
+                .add(Attributes.SCALE, 1)
                 .add(Attributes.STEP_HEIGHT, 1);
     }
+
+    @Override
+    public @Nullable AbstractContainerMenu createMenu(int i, Inventory inventory, Player player) {
+        if (level().isClientSide() || invHandler == null || getOwner() != player) return null;
+        return new DragonInvContainer(invHandler, inventory, i);
+    }
+
+    public abstract boolean hasGender();
+    public abstract boolean mayFly();
+    public abstract boolean maySleep();
+    public abstract boolean hasVariants();
 }

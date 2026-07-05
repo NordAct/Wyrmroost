@@ -65,28 +65,16 @@ public final class Mafs
     }
 
     @Nullable
-    public static EntityHitResult rayTraceEntities(Entity shooter, double range, @Nullable Predicate<Entity> filter)
-    {
-        Vec3 eyes = shooter.getEyePosition(1f);
-        Vec3 end = eyes.add(shooter.getLookAngle().scale((float) range));
-
-        EntityHitResult result = null;
-        double distance = range * range;
-        for (Entity entity : shooter.level().getEntities(shooter, shooter.getBoundingBox().inflate(range), filter))
-        {
-            EntityHitResult entityhitresult = ProjectileUtil.getEntityHitResult(
-                    entity, eyes, end, entity.getBoundingBox().inflate(0.3), target -> !target.isSpectator() && target.isPickable(), distance
-            );
-            if (entityhitresult != null) {
-                double dist = eyes.distanceToSqr(entityhitresult.getLocation());
-                if (dist < distance)
-                {
-                    result = entityhitresult;
-                    distance = dist;
-                }
-            }
-        }
-
-        return result;
+    public static EntityHitResult rayTraceEntities(Entity shooter, double range, Predicate<Entity> filter) {
+        Vec3 viewVector = shooter.getViewVector(0);
+        Vec3 eyePos = shooter.getEyePosition();
+        return ProjectileUtil.getEntityHitResult(
+                shooter,
+                eyePos,
+                eyePos.add(viewVector.scale(range)),
+                shooter.getBoundingBox().expandTowards(viewVector.scale(range)).inflate(1.0, 1.0, 1.0),
+                filter,
+                range
+        );
     }
 }

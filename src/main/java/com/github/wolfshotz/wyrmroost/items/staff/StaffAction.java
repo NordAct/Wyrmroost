@@ -19,9 +19,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
-import net.minecraft.world.phys.HitResult;
 
 import javax.annotation.Nullable;
 
@@ -32,7 +30,7 @@ public enum StaffAction
                 @Override
                 public boolean rightClick(AbstractDragonEntity dragon, Player player, ItemStack stack)
                 {
-                    if (player.level().isClientSide()) StaffScreen.open(dragon, stack);
+                    if (player.level().isClientSide()) StaffScreen.open(dragon);
                     return true;
                 }
             },
@@ -100,16 +98,7 @@ public enum StaffAction
                 }
 
                 @Override
-                public void render(AbstractDragonEntity dragon, PoseStack ms, float partialTicks)
-                {
-                    HitResult rtr = ClientEvents.getClient().hitResult;
-                    if (rtr instanceof BlockHitResult hitResult)
-                        RenderHelper.drawBlockPos(ms,
-                                hitResult.getBlockPos(),
-                                dragon.level(),
-                                Math.cos((dragon.tickCount + partialTicks) * 0.2) * 4.5 + 4.5,
-                                0x4d0000ff);
-                }
+                public void render(AbstractDragonEntity dragon, PoseStack ms, float partialTicks) {}
 
                 @Override
                 public String getTranslateKey(@Nullable AbstractDragonEntity dragon)

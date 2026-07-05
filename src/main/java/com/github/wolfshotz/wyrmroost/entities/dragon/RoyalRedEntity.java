@@ -447,6 +447,26 @@ public class RoyalRedEntity extends AbstractDragonEntity
     }
 
     @Override
+    public boolean hasGender() {
+        return true;
+    }
+
+    @Override
+    public boolean mayFly() {
+        return true;
+    }
+
+    @Override
+    public boolean maySleep() {
+        return true;
+    }
+
+    @Override
+    public boolean hasVariants() {
+        return true;
+    }
+
+    @Override
     @SuppressWarnings("ConstantConditions")
     public void applyAttributes()
     {

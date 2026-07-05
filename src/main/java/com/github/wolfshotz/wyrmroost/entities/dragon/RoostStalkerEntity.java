@@ -314,6 +314,26 @@ public class RoostStalkerEntity extends AbstractDragonEntity
     }
 
     @Override
+    public boolean hasGender() {
+        return false;
+    }
+
+    @Override
+    public boolean mayFly() {
+        return false;
+    }
+
+    @Override
+    public boolean maySleep() {
+        return true;
+    }
+
+    @Override
+    public boolean hasVariants() {
+        return true;
+    }
+
+    @Override
     public DragonInvHandler createInv()
     {
         return new DragonInvHandler(this, 1);

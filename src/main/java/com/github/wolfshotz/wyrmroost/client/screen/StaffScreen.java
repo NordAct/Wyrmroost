@@ -3,7 +3,6 @@ package com.github.wolfshotz.wyrmroost.client.screen;
 import com.github.wolfshotz.wyrmroost.client.screen.widgets.NameFieldWidget;
 import com.github.wolfshotz.wyrmroost.client.screen.widgets.StaffActionButton;
 import com.github.wolfshotz.wyrmroost.entities.dragon.AbstractDragonEntity;
-import com.github.wolfshotz.wyrmroost.items.staff.DragonStaffItem;
 import com.github.wolfshotz.wyrmroost.items.staff.StaffAction;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -12,7 +11,6 @@ import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.util.FormattedCharSequence;
-import net.minecraft.world.item.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,9 +21,8 @@ public class StaffScreen extends Screen
     public final List<FormattedCharSequence> toolTip = new ArrayList<>();
     public final List<StaffAction> actions = new ArrayList<>();
 
-    public StaffScreen(AbstractDragonEntity dragon)
-    {
-        super(Component.literal("Staff Screen"));
+    public StaffScreen(AbstractDragonEntity dragon) {
+        super(Component.empty());
         this.dragon = dragon;
     }
 
@@ -36,7 +33,7 @@ public class StaffScreen extends Screen
         toolTip.clear();
         dragon.addScreenInfo(this);
 
-        addWidget(new NameFieldWidget(font, (width / 2) - 63, (height / 2) + 25, 120, 12, dragon));
+        addRenderableWidget(new NameFieldWidget(font, (width / 2) - 63, (height / 2) + 25, 120, 12, dragon));
 
         initActions();
     }
@@ -54,7 +51,7 @@ public class StaffScreen extends Screen
             int y = (int) (radius * Math.sin(deg));
             x += (width / 2) - 50;
             y += (height / 2) - 10;
-            addWidget(new StaffActionButton(x, y, name, action));
+            addRenderableWidget(new StaffActionButton(x, y, name, action));
         }
     }
 
@@ -69,7 +66,7 @@ public class StaffScreen extends Screen
             ms.drawString(font, Character.toString('\u2726'), x - 40, y - 40, 0xffff00);
 
         int scale = (int) -(dragon.getBbWidth() * dragon.getBbHeight()) + 23; // linear decay: smaller scale bigger the dragon. if things get problematic, exponential?
-        InventoryScreen.renderEntityInInventoryFollowsMouse(ms, x - 100, y - 100, x + 100, y + 100, scale, 0, x - mouseX, y - mouseY, dragon);
+        InventoryScreen.renderEntityInInventoryFollowsMouse(ms, x - 100, y - 100, x + 100, y + 100, scale, -dragon.getBbHeight() / 2, mouseX, mouseY, dragon);
         if (mouseX >= x - 40 && mouseY >= y - 40 && mouseX < x + 45 && mouseY < y + 15)
             ms.renderTooltip(font, toolTip, mouseX, mouseY);
     }
@@ -81,9 +78,7 @@ public class StaffScreen extends Screen
 
     public void addTooltip(String string) { toolTip.add(FormattedCharSequence.forward(string, Style.EMPTY)); }
 
-    public static void open(AbstractDragonEntity dragon, ItemStack stack)
-    {
-        DragonStaffItem.bindDragon(dragon, stack);
+    public static void open(AbstractDragonEntity dragon) {
         if (dragon.level().isClientSide()) Minecraft.getInstance().setScreen(new StaffScreen(dragon));
     }
 }

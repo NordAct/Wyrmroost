@@ -18,9 +18,9 @@ import java.util.function.Supplier;
 public class WRDataComponentTypes {
     public static final DeferredRegister<DataComponentType<?>> REGISTRY = DeferredRegister.create(Registries.DATA_COMPONENT_TYPE, Wyrmroost.MOD_ID);
 
-    public static final Supplier<DataComponentType<Integer>> ACTION_COMPONENT = register(DragonStaffItem.DATA_ACTION, ByteBufCodecs.INT, null);
-    public static final Supplier<DataComponentType<Integer>> DRAGON_ID_COMPONENT = register(DragonStaffItem.DATA_DRAGON_ID, ByteBufCodecs.INT, null);
-    public static final Supplier<DataComponentType<Integer>> HATCH_TIME_COMPONENT = register(DragonEggEntity.DATA_HATCH_TIME, ByteBufCodecs.INT, Codec.INT);
+    public static final Supplier<DataComponentType<Integer>> ACTION_COMPONENT = register(DragonStaffItem.DATA_ACTION, ByteBufCodecs.VAR_INT, null);
+    public static final Supplier<DataComponentType<Integer>> DRAGON_ID_COMPONENT = register(DragonStaffItem.DATA_DRAGON_ID, ByteBufCodecs.VAR_INT, null);
+    public static final Supplier<DataComponentType<Integer>> HATCH_TIME_COMPONENT = register(DragonEggEntity.DATA_HATCH_TIME, ByteBufCodecs.VAR_INT, Codec.INT);
     public static final Supplier<DataComponentType<String>> DRAGON_TYPE_COMPONENT = register(DragonEggEntity.DATA_DRAGON_TYPE, ByteBufCodecs.STRING_UTF8, Codec.STRING);
     public static final Supplier<DataComponentType<CompoundTag>> DRAGON_TAG_COMPONENT = register("dragon_tag", ByteBufCodecs.COMPOUND_TAG, CompoundTag.CODEC);
 

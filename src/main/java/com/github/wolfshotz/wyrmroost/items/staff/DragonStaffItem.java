@@ -6,6 +6,7 @@ import com.github.wolfshotz.wyrmroost.registry.WRDataComponentTypes;
 import com.github.wolfshotz.wyrmroost.registry.WRItems;
 import com.github.wolfshotz.wyrmroost.util.ModUtils;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
@@ -59,11 +60,8 @@ public class DragonStaffItem extends Item
     @Override
     public boolean onLeftClickEntity(ItemStack stack, Player player, Entity entity)
     {
-        if (entity instanceof AbstractDragonEntity)
-        {
-            AbstractDragonEntity dragon = (AbstractDragonEntity) entity;
-            if (dragon.isOwnedBy(player))
-            {
+        if (entity instanceof AbstractDragonEntity dragon) {
+            if (dragon.isOwnedBy(player)) {
                 bindDragon(dragon, stack);
                 ModUtils.playLocalSound(player.level(), player.blockPosition(), SoundEvents.ENCHANTMENT_TABLE_USE, 1, 1);
                 return true;
@@ -77,13 +75,10 @@ public class DragonStaffItem extends Item
      */
     @Override
     public InteractionResult interactLivingEntity(ItemStack stack, Player playerIn, LivingEntity target, InteractionHand hand) {
-        if (target instanceof AbstractDragonEntity)
-        {
-            AbstractDragonEntity dragon = (AbstractDragonEntity) target;
-            if (dragon.isOwnedBy(playerIn))
-            {
+        if (target instanceof AbstractDragonEntity dragon) {
+            if (dragon.isOwnedBy(playerIn)) {
                 bindDragon(dragon, stack);
-                if (playerIn.level().isClientSide()) StaffScreen.open(dragon, stack);
+                if (playerIn.level().isClientSide()) StaffScreen.open(dragon);
                 return InteractionResult.sidedSuccess(playerIn.level().isClientSide());
             }
         }
@@ -122,7 +117,7 @@ public class DragonStaffItem extends Item
      */
     @Override
     public void verifyComponentsAfterLoad(ItemStack stack) {
-        reset(stack);
+        //reset(stack);
     }
 
     @Override
@@ -152,8 +147,8 @@ public class DragonStaffItem extends Item
     public static void bindDragon(AbstractDragonEntity dragon, ItemStack stack)
     {
         assertStaff(stack);
-
         stack.set(WRDataComponentTypes.DRAGON_ID_COMPONENT.get(), dragon.getId());
+        stack.set(DataComponents.CUSTOM_NAME, dragon.getDisplayName());
     }
 
     @Nullable

@@ -97,7 +97,7 @@ public class WREntities {
             .spawnEgg(0x17283C, 0x7A6F5A)
             .dragonEgg(new DragonEggProperties(0.75f, 1.25f, 40000).setConditions(Entity::isInWater))
             .renderer(ButterflyLeviathanRenderer::new)
-            .build(b -> b.sized(4f, 3f));
+            .build(b -> b.sized(2.95f, 2.95f));
 
     public static final Holder<EntityType<?>> DRAGON_FRUIT_DRAKE = Builder.creature("dragon_fruit_drake", DragonFruitDrakeEntity::new)
             .attributes(DragonFruitDrakeEntity::createAttributes)
@@ -121,7 +121,7 @@ public class WREntities {
             .spawnEgg(0x8a0900, 0x0)
             .dragonEgg(new DragonEggProperties(0.6f, 1f, 72000))
             .renderer(RoyalRedRenderer::new)
-            .build(b -> b.sized(3f, 3.9f).fireImmune());
+            .build(b -> b.sized(2.95f, 2.95f).fireImmune());
 
     public static final Holder<EntityType<?>> COIN_DRAGON = Builder.creature("coin_dragon", CoinDragonEntity::new)
             .renderer(CoinDragonRenderer::new)

@@ -515,6 +515,26 @@ public class ButterflyLeviathanEntity extends AbstractDragonEntity
         return new Animation[] {LIGHTNING_ANIMATION, CONDUIT_ANIMATION, BITE_ANIMATION};
     }
 
+    @Override
+    public boolean hasGender() {
+        return false;
+    }
+
+    @Override
+    public boolean mayFly() {
+        return false;
+    }
+
+    @Override
+    public boolean maySleep() {
+        return false;
+    }
+
+    @Override
+    public boolean hasVariants() {
+        return true;
+    }
+
     private static void createLightning(Level world, Vec3 position, boolean effectOnly)
     {
         if (world.isClientSide()) return;

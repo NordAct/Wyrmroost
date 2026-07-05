@@ -229,6 +229,26 @@ public class AlpineEntity extends AbstractDragonEntity
         return new Animation[] {ROAR_ANIMATION, WIND_GUST_ANIMATION, BITE_ANIMATION};
     }
 
+    @Override
+    public boolean hasGender() {
+        return false;
+    }
+
+    @Override
+    public boolean mayFly() {
+        return true;
+    }
+
+    @Override
+    public boolean maySleep() {
+        return true;
+    }
+
+    @Override
+    public boolean hasVariants() {
+        return true;
+    }
+
     public static AttributeSupplier.Builder createAttributes()
     {
         return AbstractDragonEntity.createDragonAttributes()

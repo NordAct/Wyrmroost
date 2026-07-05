@@ -22,10 +22,12 @@ public class DragonInvScreen extends AbstractContainerScreen<DragonInvContainer>
     }
 
     @Override
-    public void render(GuiGraphics ms, int mouseX, int mouseY, float partialTicks)
-    {
-        super.render(ms, mouseX, mouseY, partialTicks);
-        renderTooltip(ms, mouseX, mouseY);
+    protected void init() {
+        super.init();
+        titleLabelX = (imageWidth / 2 - font.width(title) / 2);
+        titleLabelY = 6;
+        inventoryLabelX = 8;
+        inventoryLabelY = (this.imageHeight - 96 + 2);
     }
 
     @Override
@@ -39,13 +41,5 @@ public class DragonInvScreen extends AbstractContainerScreen<DragonInvContainer>
         for (Slot slot : menu.slots)
             if (slot.isActive())
                 ms.blit(TEXTURE, (midX + slot.x) - 1, (midY + slot.y) - 1, 194, 0, 18, 18);
-    }
-
-    @Override
-    protected void renderLabels(GuiGraphics ms, int x, int y)
-    {
-        String name = menu.inventory.dragon.getName().getString();
-        ms.drawString(font, name, (imageWidth / 2 - font.width(name) / 2), 6, 0x404040);
-        ms.drawString(font, playerInventoryTitle.getString(), 8, (this.imageHeight - 96 + 2), 4210752);
     }
 }

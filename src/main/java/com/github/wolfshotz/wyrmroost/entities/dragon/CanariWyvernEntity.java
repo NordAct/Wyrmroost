@@ -206,6 +206,26 @@ public class CanariWyvernEntity extends AbstractDragonEntity
     }
 
     @Override
+    public boolean hasGender() {
+        return true;
+    }
+
+    @Override
+    public boolean mayFly() {
+        return true;
+    }
+
+    @Override
+    public boolean maySleep() {
+        return true;
+    }
+
+    @Override
+    public boolean hasVariants() {
+        return true;
+    }
+
+    @Override
     public int determineVariant()
     {
         return random.nextInt(5);

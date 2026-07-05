@@ -306,6 +306,26 @@ public class DragonFruitDrakeEntity extends AbstractDragonEntity implements IShe
     }
 
     @Override
+    public boolean hasGender() {
+        return true;
+    }
+
+    @Override
+    public boolean mayFly() {
+        return false;
+    }
+
+    @Override
+    public boolean maySleep() {
+        return true;
+    }
+
+    @Override
+    public boolean hasVariants() {
+        return true;
+    }
+
+    @Override
     public SpawnGroupData finalizeSpawn(ServerLevelAccessor world, DifficultyInstance difficulty, MobSpawnType reason, @Nullable SpawnGroupData data)
     {
         if (data == null)

@@ -243,6 +243,26 @@ public class SilverGliderEntity extends AbstractDragonEntity
         return stack.is(WRItems.Tags.SILVER_GLIDER_BREEDING_ITEMS);
     }
 
+    @Override
+    public boolean hasGender() {
+        return true;
+    }
+
+    @Override
+    public boolean mayFly() {
+        return true;
+    }
+
+    @Override
+    public boolean maySleep() {
+        return true;
+    }
+
+    @Override
+    public boolean hasVariants() {
+        return true;
+    }
+
     public static boolean getSpawnPlacement(EntityType<SilverGliderEntity> fEntityType, ServerLevelAccessor world, MobSpawnType spawnReason, BlockPos blockPos, RandomSource random)
     {
         if (spawnReason == MobSpawnType.SPAWNER) return true;

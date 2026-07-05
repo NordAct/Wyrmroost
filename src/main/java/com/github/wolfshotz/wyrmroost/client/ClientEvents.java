@@ -1,9 +1,11 @@
 package com.github.wolfshotz.wyrmroost.client;
 
 import com.github.wolfshotz.wyrmroost.client.render.entity.projectile.BreathWeaponRenderer;
+import com.github.wolfshotz.wyrmroost.client.screen.DragonInvScreen;
 import com.github.wolfshotz.wyrmroost.entities.dragon.AbstractDragonEntity;
 import com.github.wolfshotz.wyrmroost.items.LazySpawnEggItem;
 import com.github.wolfshotz.wyrmroost.registry.WREntities;
+import com.github.wolfshotz.wyrmroost.registry.WRIO;
 import com.github.wolfshotz.wyrmroost.util.animation.IAnimatable;
 import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
@@ -17,11 +19,9 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
-import net.neoforged.neoforge.client.event.CalculateDetachedCameraDistanceEvent;
-import net.neoforged.neoforge.client.event.EntityRenderersEvent;
-import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
-import net.neoforged.neoforge.client.event.RegisterMaterialAtlasesEvent;
+import net.neoforged.neoforge.client.event.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +31,7 @@ import java.util.List;
  * Also a client helper class because yes.
  */
 @SuppressWarnings("unused")
+@EventBusSubscriber
 public class ClientEvents
 {
     public static final List<Runnable> CALLBACKS = new ArrayList<>();
@@ -41,6 +42,7 @@ public class ClientEvents
         bus.addListener(ClientEvents::addAtlas);
         bus.addListener(ClientEvents::itemColors);
         bus.addListener(ClientEvents::registerEntityRenderers);
+        bus.addListener(ClientEvents::registerMenuScreens);
     }
 
     // ====================
@@ -126,6 +128,9 @@ public class ClientEvents
                     context -> pair.getSecond().apply(context)
             );
         });
+    }
 
+    public static void registerMenuScreens(RegisterMenuScreensEvent event) {
+        event.register(WRIO.DRAGON_INVENTORY.value(), DragonInvScreen::new);
     }
 }

@@ -50,7 +50,7 @@ public class FlyerWanderGoal extends WaterAvoidingRandomStrollGoal
 
         if (dragon.isFlying() || (!dragon.isLeashed() && dragon.getRandom().nextFloat() <= probability + 0.02))
         {
-            if ((dragon.hasEntityDataAccessor(AbstractDragonEntity.SLEEPING) && !dragon.level().isDay()) || dragon.getRandom().nextFloat() <= probability)
+            if ((dragon.maySleep() && !dragon.level().isDay()) || dragon.getRandom().nextFloat() <= probability)
                 position = LandRandomPos.getPos(dragon, 20, 25);
             else
             {

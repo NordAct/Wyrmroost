@@ -8,7 +8,6 @@ import com.github.wolfshotz.wyrmroost.registry.WRItems;
 import com.github.wolfshotz.wyrmroost.util.ModUtils;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
@@ -18,24 +17,20 @@ import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.neoforged.neoforge.client.event.RenderLivingEvent;
-import org.joml.Matrix4f;
 
-import java.util.OptionalDouble;
-
+@EventBusSubscriber
 public class RenderHelper
 {
     // == [Render Types] ==
@@ -56,54 +51,33 @@ public class RenderHelper
                 .createCompositeState(false))).apply(locationIn);
     }
 
-    public static RenderType getThiccLines(double thickness)
-    {
-        return Util.<Double, RenderType>memoize((thick) -> RenderType.create("thickened_lines", DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.DEBUG_LINE_STRIP, 1536, RenderType.CompositeState.builder()
-                .setLineState(new  RenderStateShard.LineStateShard(OptionalDouble.of(thick)))
-                .setTransparencyState(RenderType.TRANSLUCENT_TRANSPARENCY)
-                .setWriteMaskState(RenderStateShard.COLOR_WRITE)
-                .createCompositeState(false))).apply(thickness);
-    }
-
     // == [Rendering] ==
 
     @SubscribeEvent
     public static void renderWorld(RenderLevelStageEvent evt)
     {
-        PoseStack ms = evt.getPoseStack();
-        float partialTicks = evt.getPartialTick().getGameTimeDeltaPartialTick(false);
-
-        renderDragonStaff(ms, partialTicks);
-        DebugBox.INSTANCE.render(ms);
+        if (evt.getStage() == RenderLevelStageEvent.Stage.AFTER_SKY) {
+            PoseStack ms = evt.getPoseStack();
+            ms.pushPose();
+            float partialTicks = evt.getPartialTick().getGameTimeDeltaPartialTick(false);
+            renderDragonStaff(ms, partialTicks);
+            DebugBox.INSTANCE.render(ms);
+            ms.popPose();
+        }
     }
 
-    private static final Object2IntMap<Entity> ENTITY_OUTLINE_MAP = new Object2IntOpenHashMap<>(1);
+    public static final Object2IntMap<Entity> ENTITY_OUTLINE_MAP = new Object2IntOpenHashMap<>(1);
 
     public static void renderEntityOutline(Entity entity, int red, int green, int blue, int alpha)
     {
-        //ENTITY_OUTLINE_MAP.put(entity, ((alpha & 0xFF) << 24) | ((red & 0xFF) << 16) | ((green & 0xFF) << 8) | ((blue & 0xFF)));
+        ENTITY_OUTLINE_MAP.put(entity, ((alpha & 0xFF) << 24) | ((red & 0xFF) << 16) | ((green & 0xFF) << 8) | ((blue & 0xFF)));
     }
 
-    // todo: find a better, shaders friendly way to do this
-    public static void renderEntities(RenderLivingEvent.Pre<? super LivingEntity, ?> event)
+    @SubscribeEvent
+    public static void renderEntities(RenderLivingEvent.Post<? super LivingEntity, ?> event)
     {
-        //LivingEntity entity = event.getEntity(); //todo check if it even needs this anymore - Nord
-        //int color = ENTITY_OUTLINE_MAP.removeInt(entity);
-        //if (color != 0)
-        //{
-        //    event.setCanceled(true);
-//
-        //    Minecraft mc = ClientEvents.getClient();
-        //    OutlineLayerBuffer buffer = mc.getRenderTypeBuffers().getOutlineBufferSource();
-        //    MatrixStack ms = event.getMatrixStack();
-        //    LivingRenderer<? super LivingEntity, ?> renderer = event.getRenderer();
-        //    float partialTicks = event.getPartialRenderTick();
-        //    float yaw = Mth.lerpInt(partialTicks, entity.prevRotationYaw, entity.rotationYaw);
-//
-        //    buffer.setColor((color >> 16) & 0xFF, (color >> 8) & 0xFF, color & 0xFF, (color >> 24) & 0xFF);
-        //    renderer.render(entity, yaw, partialTicks, ms, buffer, 15728640);
-        //    buffer.finish();
-        //}
+        LivingEntity entity = event.getEntity();
+        ENTITY_OUTLINE_MAP.removeInt(entity);
     }
 
 //    public static void fogColors(EntityViewRenderEvent.FogColors evt)
@@ -145,32 +119,6 @@ public class RenderHelper
             LivingEntity target = dragon.getTarget();
             if (target != null) renderEntityOutline(target, 255, 0, 0, 100);
         }
-        dragon.getHomePos().ifPresent(pos -> RenderHelper.drawBlockPos(ms, pos, dragon.level(), 4, 0xff0000ff));
-    }
-
-    public static void drawShape(PoseStack ms, VertexConsumer buffer, VoxelShape shapeIn, double xIn, double yIn, double zIn, float red, float green, float blue, float alpha)
-    {
-        Matrix4f matrix4f = ms.last().pose();
-        shapeIn.forAllBoxes((x1, y1, z1, x2, y2, z2) ->
-        {
-            buffer.addVertex(matrix4f, (float) (x1 + xIn), (float) (y1 + yIn), (float) (z1 + zIn)).setColor(red, green, blue, alpha);
-            buffer.addVertex(matrix4f, (float) (x2 + xIn), (float) (y2 + yIn), (float) (z2 + zIn)).setColor(red, green, blue, alpha);
-        });
-    }
-
-    public static void drawBlockPos(PoseStack ms, BlockPos pos, Level world, double lineThickness, int argb)
-    {
-        Vec3 view = ClientEvents.getProjectedView();
-        double x = pos.getX() - view.x;
-        double y = pos.getY() - view.y;
-        double z = pos.getZ() - view.z;
-
-        MultiBufferSource.BufferSource impl = Minecraft.getInstance().renderBuffers().bufferSource();
-        RenderHelper.drawShape(ms,
-                impl.getBuffer(getThiccLines(lineThickness)),
-                world.getBlockState(pos).getShape(world, pos),
-                x, y, z,
-                ((argb >> 16) & 0xFF) / 255f, ((argb >> 8) & 0xFF) / 255f, (argb & 0xFF) / 255f, ((argb >> 24) & 0xFF) / 255f);
     }
 
     public enum DebugBox

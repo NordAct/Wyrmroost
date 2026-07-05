@@ -421,6 +421,26 @@ public class OWDrakeEntity extends AbstractDragonEntity
         return new Animation[] {NO_ANIMATION, GRAZE_ANIMATION, HORN_ATTACK_ANIMATION, ROAR_ANIMATION};
     }
 
+    @Override
+    public boolean hasGender() {
+        return true;
+    }
+
+    @Override
+    public boolean mayFly() {
+        return false;
+    }
+
+    @Override
+    public boolean maySleep() {
+        return true;
+    }
+
+    @Override
+    public boolean hasVariants() {
+        return true;
+    }
+
     public static AttributeSupplier.Builder createAttributes()
     {
         return AbstractDragonEntity.createDragonAttributes()

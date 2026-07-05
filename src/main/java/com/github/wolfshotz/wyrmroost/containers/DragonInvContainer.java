@@ -96,7 +96,7 @@ public class DragonInvContainer extends AbstractContainerMenu
         return new MenuProvider()
         {
             @Override
-            public Component getDisplayName() { return Component.literal("Dragon Inventory"); }
+            public Component getDisplayName() { return dragon.getName(); }
 
             @Override
             public DragonInvContainer createMenu(int id, Inventory playersInv, Player player)

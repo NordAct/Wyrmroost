@@ -56,6 +56,10 @@
 - Added `#wyrmroost:roost_stalker_taming_items` tag, which contains items that Roost Stalker may eat in case if it happens to get in its mouth. By default contains eggs tag
 - Dragon Fruit Drake now can be sheared by any shears instead just vanilla ones (via checking against `#c:tools/shear` tag)
 - Silver Glider now can spawn on any sand from `#c:sands` rather than just checking for vanilla sand block
-
+- Made bug that caused flying dragons to be infinitely stuck in a loop between trying to land and take off if they're too close to the ground less annoying (proper fix requires rewriting entire thing)
+- Fixed missing inventory title in case if dragon did not have custom name
+- Removed home position highlight because it was buggy and I couldn't find way to fix it
+- Replaced old staff selection glow with vanilla one as it was buggy too. And also now it's for sure shader friendly
+- Downscaled Royal Red and Butterfly Leviathan hitboxes to have 2.95 block height and width to mitigate some performance issues
 
 - Other possible changes in mod behavior that came up as result of porting process. Mostly unintentional, because I had to remap entire mob from MCP mappings to Mojmaps by hand (shoutout to shedaniel for making mappings translator tool, it wouldn't be possible to make this port otherwise) or because of differences between game versions
