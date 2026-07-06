@@ -12,8 +12,11 @@ import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackType;
-import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundSource;
+import net.minecraft
+        .sounds.SoundEvent;
+import net.minecraft
+        .sounds
+        .SoundSource;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import net.neoforged.neoforge.registries.DeferredHolder;
 
@@ -51,53 +54,148 @@ public class SoundData implements DataProvider
 
     public void registerSounds(JsonObject json)
     {
-        getBuilder(WRSounds.WING_FLAP.value()).subtitle("Dragon wing flaps").sounds(Wyrmroost::rl, "entity/other/wings/%s", "flap1", "flap2", "flap3").build(json);
-        getBuilder(WRSounds.FIRE_BREATH.value()).subtitle("Dragon breathes fire").sound(Wyrmroost.rl("entity/other/breath/fire_breath")).build(json);
+        getBuilder(WRSounds.WING_FLAP.value())
+                .subtitle("sound.wyrmroost.entity.other.flap")
+                .sound(Wyrmroost.rl("entity/other/wings/flap1"), 3, 1)
+                .sound(Wyrmroost.rl("entity/other/wings/flap2"), 3, 1)
+                .sound(Wyrmroost.rl("entity/other/wings/flap3"), 3, 1)
+                .build(json);
+        getBuilder(WRSounds.FIRE_BREATH.value())
+                .subtitle("sound.wyrmroost.entity.other.fire_breath")
+                .sound(Wyrmroost.rl("entity/other/breath/fire_breath"))
+                .build(json);
 
-        getBuilder(WRSounds.ENTITY_LDWYRM_IDLE.value()).subtitle("Desertwyrm clicks").sounds(Wyrmroost::rl, "entity/lesser_desertwyrm/%s", "idle1", "idle2").build(json);
+        getBuilder(WRSounds.ENTITY_LDWYRM_IDLE.value())
+                .subtitle("sound.wyrmroost.entity.lesser_desertwyrm.idle")
+                .sounds(Wyrmroost::rl, "entity/lesser_desertwyrm/%s", "idle1", "idle2")
+                .build(json);
 
-        getBuilder(WRSounds.ENTITY_SILVERGLIDER_IDLE.value()).subtitle("Silver Glider whistles").sounds(Wyrmroost::rl, "entity/silver_glider/%s", "idle1", "idle2", "idle3", "idle4").build(json);
-        getBuilder(WRSounds.ENTITY_SILVERGLIDER_HURT.value()).subtitle("Silver Glider screeches").sound(Wyrmroost.rl("entity/silver_glider/hurt")).build(json);
-        getBuilder(WRSounds.ENTITY_SILVERGLIDER_DEATH.value()).subtitle("Silver Glider moans").sound(Wyrmroost.rl("entity/silver_glider/death")).build(json);
+        getBuilder(WRSounds.ENTITY_SILVERGLIDER_IDLE.value())
+                .subtitle("sound.wyrmroost.entity.silver_glider.idle")
+                .sounds(Wyrmroost::rl, "entity/silver_glider/%s", "idle1", "idle2", "idle3", "idle4")
+                .build(json);
+        getBuilder(WRSounds.ENTITY_SILVERGLIDER_HURT.value())
+                .subtitle("sound.wyrmroost.entity.silver_glider.hurt").sound(Wyrmroost.rl("entity/silver_glider/hurt"))
+                .build(json);
+        getBuilder(WRSounds.ENTITY_SILVERGLIDER_DEATH.value())
+                .subtitle("sound.wyrmroost.entity.silver_glider.death").sound(Wyrmroost.rl("entity/silver_glider/death"))
+                .build(json);
 
-        getBuilder(WRSounds.ENTITY_OWDRAKE_IDLE.value()).subtitle("Overworld Drake snorts").sounds(Wyrmroost::rl, "entity/overworld_drake/%s", "idle1", "idle2", "idle3").build(json);
-        getBuilder(WRSounds.ENTITY_OWDRAKE_HURT.value()).subtitle("Overworld Drake outcries").sounds(Wyrmroost::rl, "entity/overworld_drake/%s", "idle1", "idle2", "idle3").build(json);
-        getBuilder(WRSounds.ENTITY_OWDRAKE_DEATH.value()).subtitle("Overworld Drake moans").sound(Wyrmroost.rl("entity/overworld_drake/death")).build(json);
-        getBuilder(WRSounds.ENTITY_OWDRAKE_ROAR.value()).subtitle("Overworld Drake roars").sound(Wyrmroost.rl("entity/overworld_drake/roar")).build(json);
+        getBuilder(WRSounds.ENTITY_OWDRAKE_IDLE.value())
+                .subtitle("sound.wyrmroost.entity.overworld_drake.idle")
+                .sounds(Wyrmroost::rl, "entity/overworld_drake/%s", "idle1", "idle2", "idle3")
+                .build(json);
+        getBuilder(WRSounds.ENTITY_OWDRAKE_HURT.value())
+                .subtitle("sound.wyrmroost.entity.overworld_drake.hurt")
+                .sounds(Wyrmroost::rl, "entity/overworld_drake/%s", "idle1", "idle2", "idle3")
+                .build(json);
+        getBuilder(WRSounds.ENTITY_OWDRAKE_DEATH.value())
+                .subtitle("sound.wyrmroost.entity.overworld_drake.death").sound(Wyrmroost.rl("entity/overworld_drake/death"))
+                .build(json);
+        getBuilder(WRSounds.ENTITY_OWDRAKE_ROAR.value())
+                .subtitle("sound.wyrmroost.entity.overworld_drake.roar").sound(Wyrmroost.rl("entity/overworld_drake/roar"))
+                .build(json);
 
-        getBuilder(WRSounds.ENTITY_STALKER_IDLE.value()).subtitle("Rooststalker clicks").sounds(Wyrmroost::rl, "entity/roost_stalker/%s", "idle1", "idle2", "idle3").build(json);
-        getBuilder(WRSounds.ENTITY_STALKER_HURT.value()).subtitle("Rooststalker screeches").sound(Wyrmroost.rl("entity/roost_stalker/hurt")).build(json);
-        getBuilder(WRSounds.ENTITY_STALKER_DEATH.value()).subtitle("Rooststalker moans").sound(Wyrmroost.rl("entity/roost_stalker/death")).build(json);
+        getBuilder(WRSounds.ENTITY_STALKER_IDLE.value())
+                .subtitle("Rooststalker clicks")
+                .sounds(Wyrmroost::rl, "entity/roost_stalker/%s", "idle1", "idle2", "idle3")
+                .build(json);
+        getBuilder(WRSounds.ENTITY_STALKER_HURT.value())
+                .subtitle("Rooststalker screeches").sound(Wyrmroost.rl("entity/roost_stalker/hurt"))
+                .build(json);
+        getBuilder(WRSounds.ENTITY_STALKER_DEATH.value())
+                .subtitle("Rooststalker moans").sound(Wyrmroost.rl("entity/roost_stalker/death"))
+                .build(json);
 
-        getBuilder(WRSounds.ENTITY_BFLY_IDLE.value()).subtitle("Butterfly Leviathan trumpets").sounds(Wyrmroost::rl, "entity/butterfly_leviathan/%s", "idle1", "idle2", "idle3").build(json);
-        getBuilder(WRSounds.ENTITY_BFLY_HURT.value()).subtitle("Butterfly Leviathan outcries").sounds(Wyrmroost::rl, "entity/butterfly_leviathan/%s", "hurt1", "hurt2").build(json);
-        getBuilder(WRSounds.ENTITY_BFLY_ROAR.value()).subtitle("Butterfly Leviathan ascends").sound(Wyrmroost.rl("entity/butterfly_leviathan/roar")).build(json);
-        getBuilder(WRSounds.ENTITY_BFLY_DEATH.value()).subtitle("Butterfly Leviathan dies").sound(Wyrmroost.rl("entity/butterfly_leviathan/death")).build(json);
+        getBuilder(WRSounds.ENTITY_BFLY_IDLE.value())
+                .subtitle("sound.wyrmroost.entity.butterfly_leviathan.idle")
+                .sounds(Wyrmroost::rl, "entity/butterfly_leviathan/%s", "idle1", "idle2", "idle3")
+                .build(json);
+        getBuilder(WRSounds.ENTITY_BFLY_HURT.value())
+                .subtitle("sound.wyrmroost.entity.butterfly_leviathan.hurt")
+                .sounds(Wyrmroost::rl, "entity/butterfly_leviathan/%s", "hurt1", "hurt2")
+                .build(json);
+        getBuilder(WRSounds.ENTITY_BFLY_ROAR.value())
+                .subtitle("sound.wyrmroost.entity.butterfly_leviathan.roar").sound(Wyrmroost.rl("entity/butterfly_leviathan/roar"))
+                .build(json);
+        getBuilder(WRSounds.ENTITY_BFLY_DEATH.value())
+                .subtitle("sound.wyrmroost.entity.butterfly_leviathan.death").sound(Wyrmroost.rl("entity/butterfly_leviathan/death"))
+                .build(json);
 
-        getBuilder(WRSounds.ENTITY_CANARI_IDLE.value()).subtitle("Canari Wyvern chirps").sounds(Wyrmroost::rl, "entity/canari_wyvern/%s", "idle1", "idle2", "idle3", "idle4").build(json);
-        getBuilder(WRSounds.ENTITY_CANARI_HURT.value()).subtitle("Canari Wyvern screeches").sounds(Wyrmroost::rl, "entity/canari_wyvern/%s", "hurt1", "hurt2", "hurt3").build(json);
-        getBuilder(WRSounds.ENTITY_CANARI_DEATH.value()).subtitle("Canari Wyvern dies").sound(Wyrmroost.rl("entity/canari_wyvern/death")).build(json);
+        getBuilder(WRSounds.ENTITY_CANARI_IDLE.value())
+                .subtitle("sound.wyrmroost.entity.canari_wyvern.idle")
+                .sounds(Wyrmroost::rl, "entity/canari_wyvern/%s", "idle1", "idle2", "idle3", "idle4")
+                .build(json);
+        getBuilder(WRSounds.ENTITY_CANARI_HURT.value())
+                .subtitle("sound.wyrmroost.entity.canari_wyvern.hurt")
+                .sounds(Wyrmroost::rl, "entity/canari_wyvern/%s", "hurt1", "hurt2", "hurt3")
+                .build(json);
+        getBuilder(WRSounds.ENTITY_CANARI_DEATH.value())
+                .subtitle("sound.wyrmroost.entity.canari_wyvern.death").sound(Wyrmroost.rl("entity/canari_wyvern/death"))
+                .build(json);
 
-        getBuilder(WRSounds.ENTITY_DFD_IDLE.value()).subtitle("Dragon Fruit mumbles").sounds(Wyrmroost::rl, "entity/dragonfruit_drake/%s", "idle1", "idle2", "idle3", "idle4").build(json);
-        getBuilder(WRSounds.ENTITY_DFD_HURT.value()).subtitle("Dragon Fruit screeches").sounds(Wyrmroost::rl, "entity/dragonfruit_drake/%s", "hurt", "hurt1", "hurt2", "hurt3").build(json);
-        getBuilder(WRSounds.ENTITY_DFD_DEATH.value()).subtitle("Dragon Fruit moans").sound(Wyrmroost.rl("entity/dragonfruit_drake/death")).build(json);
+        getBuilder(WRSounds.ENTITY_DFD_IDLE.value())
+                .subtitle("sound.wyrmroost.entity.dragonfruit_drake.idle")
+                .sounds(Wyrmroost::rl, "entity/dragonfruit_drake/%s", "idle1", "idle2", "idle3", "idle4")
+                .build(json);
+        getBuilder(WRSounds.ENTITY_DFD_HURT.value())
+                .subtitle("sound.wyrmroost.entity.dragonfruit_drake.hurt")
+                .sounds(Wyrmroost::rl, "entity/dragonfruit_drake/%s", "hurt", "hurt1", "hurt2", "hurt3")
+                .build(json);
+        getBuilder(WRSounds.ENTITY_DFD_DEATH.value())
+                .subtitle("sound.wyrmroost.entity.dragonfruit_drake.death").sound(Wyrmroost.rl("entity/dragonfruit_drake/death"))
+                .build(json);
 
-        getBuilder(WRSounds.ENTITY_ROYALRED_IDLE.value()).subtitle("Royal Red grunts").sounds(Wyrmroost::rl, "entity/royal_red/%s", "idle1", "idle2").build(json);
-        getBuilder(WRSounds.ENTITY_ROYALRED_HURT.value()).subtitle("Royal Red screams").sounds(Wyrmroost::rl, "entity/royal_red/%s", "hurt1", "hurt2").build(json);
-        getBuilder(WRSounds.ENTITY_ROYALRED_DEATH.value()).subtitle("Royal Red outcries").sound(Wyrmroost.rl("entity/royal_red/death")).build(json);
-        getBuilder(WRSounds.ENTITY_ROYALRED_ROAR.value()).subtitle("Royal Red roars").sound(Wyrmroost.rl("entity/royal_red/roar")).build(json);
+        getBuilder(WRSounds.ENTITY_ROYALRED_IDLE.value())
+                .subtitle("sound.wyrmroost.entity.royal_red.idle")
+                .sounds(Wyrmroost::rl, "entity/royal_red/%s", "idle1", "idle2")
+                .build(json);
+        getBuilder(WRSounds.ENTITY_ROYALRED_HURT.value())
+                .subtitle("sound.wyrmroost.entity.royal_red.hurt")
+                .sounds(Wyrmroost::rl, "entity/royal_red/%s", "hurt1", "hurt2")
+                .build(json);
+        getBuilder(WRSounds.ENTITY_ROYALRED_DEATH.value())
+                .subtitle("sound.wyrmroost.entity.royal_red.death").sound(Wyrmroost.rl("entity/royal_red/death"))
+                .build(json);
+        getBuilder(WRSounds.ENTITY_ROYALRED_ROAR.value())
+                .subtitle("sound.wyrmroost.entity.royal_red.roar").sound(Wyrmroost.rl("entity/royal_red/roar"))
+                .build(json);
 
-        getBuilder(WRSounds.ENTITY_ALPINE_IDLE.value()).subtitle("Alpine growls").sounds(Wyrmroost::rl, "entity/alpine/%s", "idle1", "idle2").build(json);
-        getBuilder(WRSounds.ENTITY_ALPINE_HURT.value()).subtitle("Alpine whinse").sounds(Wyrmroost::rl, "entity/alpine/%s", "hurt1", "hurt2", "hurt3").build(json);
-        getBuilder(WRSounds.ENTITY_ALPINE_ROAR.value()).subtitle("Alpine roars").sounds(Wyrmroost::rl, "entity/alpine/%s", "roar", "roar1", "roar2").build(json);
-        getBuilder(WRSounds.ENTITY_ALPINE_DEATH.value()).subtitle("Alpine screeches").sound(Wyrmroost.rl("entity/alpine/death")).build(json);
+        getBuilder(WRSounds.ENTITY_ALPINE_IDLE.value())
+                .subtitle("sound.wyrmroost.entity.alpine.idle")
+                .sounds(Wyrmroost::rl, "entity/alpine/%s", "idle1", "idle2")
+                .build(json);
+        getBuilder(WRSounds.ENTITY_ALPINE_HURT.value())
+                .subtitle("sound.wyrmroost.entity.alpine.hurt")
+                .sounds(Wyrmroost::rl, "entity/alpine/%s", "hurt1", "hurt2", "hurt3")
+                .build(json);
+        getBuilder(WRSounds.ENTITY_ALPINE_ROAR.value())
+                .subtitle("sound.wyrmroost.entity.alpine.roar")
+                .sounds(Wyrmroost::rl, "entity/alpine/%s", "roar", "roar1", "roar2")
+                .build(json);
+        getBuilder(WRSounds.ENTITY_ALPINE_DEATH.value())
+                .subtitle("sound.wyrmroost.entity.alpine.death").sound(Wyrmroost.rl("entity/alpine/death"))
+                .build(json);
 
-        getBuilder(WRSounds.ENTITY_COINDRAGON_IDLE.value()).subtitle("Coin Dragon chirps").sounds(Wyrmroost::rl, "entity/coin_dragon/%s", "idle", "idle1", "idle2").build(json);
+        getBuilder(WRSounds.ENTITY_COINDRAGON_IDLE.value())
+                .subtitle("Coin Dragon chirps")
+                .sounds(Wyrmroost::rl, "entity/coin_dragon/%s", "idle", "idle1", "idle2")
+                .build(json);
 
-//        getBuilder(WRSounds.ENTITY_ORBWYRM_IDLE.value().subtitle("Orbwyrm Hissing").sounds(Wyrmroost::rl, "entity/orbwyrm/%s", "idle1", "idle2", "idle3").build(json);
-//        getBuilder(WRSounds.ENTITY_ORBWYRM_HURT.value().subtitle("Orbwyrm Screech").sounds(Wyrmroost::rl, "entity/orbwyrm/%s", "hurt1", "hurt2", "hurt3").build(json);
-//        getBuilder(WRSounds.ENTITY_ORBWYRM_HISS.value().subtitle("Orbwyrm Hiss").sound(Wyrmroost.rl("entity/orbwyrm/hiss")).build(json);
-//        getBuilder(WRSounds.ENTITY_ORBWYRM_DEATH.value().subtitle("Orbwyrm Cry").sound(Wyrmroost.rl("entity/orbwyrm/death")).build(json);
+//        getBuilder(WRSounds.ENTITY_ORBWYRM_IDLE.value()
+//        .subtitle("Orbwyrm Hissing")
+//        .sounds(Wyrmroost::rl, "entity/orbwyrm/%s", "idle1", "idle2", "idle3")
+//        .build(json);
+//        getBuilder(WRSounds.ENTITY_ORBWYRM_HURT.value()
+//        .subtitle("Orbwyrm Screech")
+//        .sounds(Wyrmroost::rl, "entity/orbwyrm/%s", "hurt1", "hurt2", "hurt3")
+//        .build(json);
+//        getBuilder(WRSounds.ENTITY_ORBWYRM_HISS.value()
+//        .subtitle("Orbwyrm Hiss").sound(Wyrmroost.rl("entity/orbwyrm/hiss"))
+//        .build(json);
+//        getBuilder(WRSounds.ENTITY_ORBWYRM_DEATH.value()
+//        .subtitle("Orbwyrm Cry").sound(Wyrmroost.rl("entity/orbwyrm/death"))
+//        .build(json);
     }
 
     private Builder getBuilder(SoundEvent sound)

@@ -154,7 +154,5 @@ public class CoinDragonModel extends WREntityModel<CoinDragonEntity>
             tails[i - 1].xRot = Mth.cos(ageInTicks * 0.2f + 0.8f * -i) * 0.1f + 0.35f;
 
         coin.xRot = Mth.cos(ageInTicks * 0.15f) * 0.08f - 0.875f;
-
-        resetToDefaultPose();
     }
 }

@@ -42,7 +42,7 @@ public class CoinDragonItem extends Item
     {
         Level world = context.getLevel();
         CoinDragonEntity entity = (CoinDragonEntity) WREntities.COIN_DRAGON.value().create(context.getLevel());
-        BlockPos pos = context.getClickedPos().offset(context.getHorizontalDirection().getNormal());
+        BlockPos pos = context.getClickedPos().relative(context.getClickedFace());
         ItemStack stack = context.getItemInHand();
         Player player = context.getPlayer();
 
@@ -53,10 +53,9 @@ public class CoinDragonItem extends Item
             if (stack.has(DataComponents.CUSTOM_NAME)) entity.setCustomName(stack.getDisplayName()); // set entity name from stack name
         }
 
-        entity.setPos(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5);
-        if (!world.noCollision(entity))
-        {
-            player.sendSystemMessage(Component.translatable("item.wyrmroost.soul_crystal.fail").withStyle(ChatFormatting.RED));
+        entity.setPos(pos.getCenter());
+        if (!world.noCollision(entity)) {
+            if (world.isClientSide()) player.sendSystemMessage(Component.translatable("item.wyrmroost.soul_crystal.fail").withStyle(ChatFormatting.RED));
             return InteractionResult.FAIL;
         }
 

@@ -49,7 +49,7 @@ public class CoinDragonEntity extends Mob
     protected void defineSynchedData(SynchedEntityData.Builder builder)
     {
         super.defineSynchedData(builder);
-        entityData.set(VARIANT, random.nextInt(5));
+        builder.define(VARIANT, random.nextInt(5));
     }
 
     @Override
@@ -166,8 +166,9 @@ public class CoinDragonEntity extends Mob
 
     public double getAltitude()
     {
-        BlockPos.MutableBlockPos pos = blockPosition().mutable().move(0, -1, 0);
-        while (pos.getY() > 0 && !level().getBlockState(pos).isSolid()) pos.setY(pos.getY() - 1);
+        BlockPos.MutableBlockPos pos = blockPosition().mutable();
+        while (pos.getY() > level().getMinBuildHeight() && !level().getBlockState(pos).isSolid())
+            pos.move(0, -1, 0);
         return getY() - pos.getY();
     }
 

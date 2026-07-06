@@ -10,8 +10,8 @@ public class WRSounds
 {
     public static final DeferredRegister<SoundEvent> REGISTRY = DeferredRegister.create(Registries.SOUND_EVENT, Wyrmroost.MOD_ID);
 
-    public static final Holder<SoundEvent> WING_FLAP = register("wing.flap");
-    public static final Holder<SoundEvent> FIRE_BREATH = register("breathweapon.fire");
+    public static final Holder<SoundEvent> WING_FLAP = register("wing.flap", 48);
+    public static final Holder<SoundEvent> FIRE_BREATH = register("breathweapon.fire", 16);
 
     public static final Holder<SoundEvent> ENTITY_LDWYRM_IDLE = entity("ldwyrm.idle");
 
@@ -58,13 +58,18 @@ public class WRSounds
 //    public static final RegistryObject<SoundEvent> ENTITY_ORBWYRM_HISS = entity("orbwyrm.hiss");
 //    public static final RegistryObject<SoundEvent> ENTITY_ORBWYRM_DEATH = entity("orbwyrm.death");
 
-    public static Holder<SoundEvent> register(String name)
+    public static Holder<SoundEvent> register(String name, float range)
     {
         return REGISTRY.register(name, () -> SoundEvent.createVariableRangeEvent(Wyrmroost.rl(name)));
     }
 
+    public static Holder<SoundEvent> entity(String name, float range)
+    {
+        return register("entity." + name, range);
+    }
+
     public static Holder<SoundEvent> entity(String name)
     {
-        return register("entity." + name);
+        return entity(name, 16);
     }
 }

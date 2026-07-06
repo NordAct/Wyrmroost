@@ -44,7 +44,7 @@ public class SoulCrystalItem extends Item {
         if (!isSuitableEntity(target)) return InteractionResult.PASS;
         TamableAnimal dragon = (TamableAnimal) target;
         if (dragon.getOwner() != player) {
-            player.sendSystemMessage(Component.translatable("item.wyrmroost.soul_crystal.not_owner").withStyle(ChatFormatting.RED));
+            if (world.isClientSide()) player.sendSystemMessage(Component.translatable("item.wyrmroost.soul_crystal.not_owner").withStyle(ChatFormatting.RED));
             return InteractionResult.FAIL;
         }
 
@@ -87,7 +87,7 @@ public class SoulCrystalItem extends Item {
         Player player = context.getPlayer();
         if (!stack.get(WRDataComponentTypes.DRAGON_TAG_COMPONENT).getUUID("Owner").equals(player.getUUID()))
         {
-            player.sendSystemMessage(Component.translatable("item.wyrmroost.soul_crystal.not_owner").withStyle(ChatFormatting.RED));
+            if (world.isClientSide()) player.sendSystemMessage(Component.translatable("item.wyrmroost.soul_crystal.not_owner").withStyle(ChatFormatting.RED));
             return InteractionResult.FAIL;
         }
         TamableAnimal dragon = getContained(stack, world);
@@ -97,7 +97,7 @@ public class SoulCrystalItem extends Item {
         dragon.setYRot(dragon.getYRot());
         dragon.setXRot(dragon.getXRot());
         if (!world.isUnobstructed(dragon, Shapes.create(dragon.getBoundingBox()))) {
-            player.sendSystemMessage(Component.translatable("item.wyrmroost.soul_crystal.fail").withStyle(ChatFormatting.RED));
+            if (world.isClientSide()) player.sendSystemMessage(Component.translatable("item.wyrmroost.soul_crystal.fail").withStyle(ChatFormatting.RED));
             return InteractionResult.FAIL;
         }
 

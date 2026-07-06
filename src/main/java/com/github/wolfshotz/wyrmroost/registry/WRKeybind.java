@@ -52,7 +52,7 @@ public class WRKeybind extends KeyMapping
     @SubscribeEvent
     public static void registerKeys(RegisterKeyMappingsEvent event)
     {
-        event.register(new WRKeybind("key.mountKey1", GLFW.GLFW_KEY_V, KeybindPacket.MOUNT_KEY1));
-        event.register(new WRKeybind("key.mountKey2", GLFW.GLFW_KEY_G, KeybindPacket.MOUNT_KEY2));
+        event.register(new WRKeybind("key.genericAttack", GLFW.GLFW_KEY_V, KeybindPacket.MOUNT_KEY1));
+        event.register(new WRKeybind("key.specialAttack", GLFW.GLFW_KEY_G, KeybindPacket.MOUNT_KEY2));
     }
 }

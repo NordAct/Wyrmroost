@@ -62,5 +62,8 @@
 - Replaced old staff selection glow with vanilla one as it was buggy too. And also now it's for sure shader friendly
 - Downscaled Royal Red and Butterfly Leviathan hitboxes to have 2.95 block height and width to mitigate some performance issues
 - Lesser Desert Wyrm now burrows in blocks from `#wymroost:lesser_desert_wyrm_can_burrow_in` that by default contains `#c:sands` tag
+- All of stereo sounds have been converted to mono, so distance effects now apply properly
+  - As consequence of this change, some sounds may appear quieter than before. ~~Chair~~ Butterfly Leviathan sound included
+- Fixed missing translation of keybinds
 
 - Other possible changes in mod behavior that came up as result of porting process. Mostly unintentional, because I had to remap entire mob from MCP mappings to Mojmaps by hand (shoutout to shedaniel for making mappings translator tool, it wouldn't be possible to make this port otherwise) or because of differences between game versions

@@ -20,12 +20,12 @@ public class ArmorBase extends ArmorItem
     @Override
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> lines, TooltipFlag flags) {
         super.appendHoverText(stack, context, lines, flags);
-        lines.add(Component.translatable("item.wyrmroost.armors.set", Component.translatable("item.wyrmroost.armors." + material.getRegisteredName()).withStyle(stack.getRarity().getStyleModifier())));
+        lines.add(Component.translatable("item.wyrmroost.armors.set", Component.translatable("item.wyrmroost.armors." + getMaterialName(material)).withStyle(stack.getRarity().getStyleModifier())));
 
         if (hasDescription())
         {
             lines.add(Component.empty());
-            lines.add(Component.translatable(String.format("item.wyrmroost.armors.%s.desc", material.getRegisteredName().toLowerCase())));
+            lines.add(Component.translatable(String.format("item.wyrmroost.armors.%s.desc", getMaterialName(material))));
         }
     }
 
@@ -34,12 +34,9 @@ public class ArmorBase extends ArmorItem
         return false;
     }
 
-    public void applyFullSetBonus(LivingEntity entity, boolean hasFullSet)
-    {
-    }
+    public void applyFullSetBonus(LivingEntity entity, boolean hasFullSet) {}
 
-    public static boolean hasFullSet(LivingEntity entity)
-    {
+    public static boolean hasFullSet(LivingEntity entity) {
         Item prev = null;
         for (ItemStack itemStack : entity.getArmorSlots()) {
 
@@ -48,5 +45,9 @@ public class ArmorBase extends ArmorItem
             else return false;
         }
         return true;
+    }
+
+    private String getMaterialName(Holder<ArmorMaterial> material) {
+        return material.unwrapKey().map(key -> key.location().getPath()).orElse("");
     }
 }

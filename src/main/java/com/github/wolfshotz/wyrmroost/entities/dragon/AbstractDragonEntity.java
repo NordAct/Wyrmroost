@@ -993,7 +993,7 @@ public abstract class AbstractDragonEntity extends TamableAnimal implements IAni
         volume *= getSoundVolume();
         pitch *= getVoicePitch();
 
-        if (local) level().playSound(this, blockPosition(), sound, getSoundSource(), volume, pitch);
+        if (local) level().playLocalSound(this, sound, getSoundSource(), volume, pitch);
         else level().playSound(null, getX(), getY(), getZ(), sound, getSoundSource(), volume, pitch);
     }
 
