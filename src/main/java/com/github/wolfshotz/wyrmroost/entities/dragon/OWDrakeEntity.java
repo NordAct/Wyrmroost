@@ -217,6 +217,10 @@ public class OWDrakeEntity extends AbstractDragonEntity
         }
     }
 
+    public Vec3 getPassengerPosOffset(Entity entity, int index) {
+        return new Vec3(0, -0.5, 0);
+    }
+
     @Override
     public InteractionResult actuallyInteractWithMob(Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);

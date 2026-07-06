@@ -1186,6 +1186,11 @@ public abstract class AbstractDragonEntity extends TamableAnimal implements IAni
     }
 
     @Override
+    protected float sanitizeScale(float scale) {
+        return super.sanitizeScale(scale) * getAgeScale();
+    }
+
+    @Override
     public int getBaseExperienceReward()
     {
         return Math.max((int) ((getBbWidth() * getBbHeight()) * 0.25) + random.nextInt(3), super.getBaseExperienceReward());

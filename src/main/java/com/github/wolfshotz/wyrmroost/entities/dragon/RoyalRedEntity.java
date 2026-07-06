@@ -319,13 +319,18 @@ public class RoyalRedEntity extends AbstractDragonEntity
     @Override
     public Vec3 getPassengerPosOffset(Entity entity, int index)
     {
-        return new Vec3(0, -0.85f, index == 0? 0.5f : -1);
+        return new Vec3(0, -0.1, index == 0? 0.5f : -1);
     }
 
     @Override
     public float sanitizeScale(float scale)
     {
-        return super.sanitizeScale(scale) * (isBaby() ? 0.3f : isMale()? 0.8f : 1f);
+        return super.sanitizeScale(scale) * (isBaby() ? 1 : isMale()? 0.8f : 1f);
+    }
+
+    @Override
+    public float getAgeScale() {
+        return isBaby() ? 0.3f : 1;
     }
 
     @Override

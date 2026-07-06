@@ -42,6 +42,7 @@ import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.event.CalculateDetachedCameraDistanceEvent;
 import net.neoforged.neoforge.common.IShearable;
 import net.neoforged.neoforge.common.Tags;
@@ -218,6 +219,10 @@ public class DragonFruitDrakeEntity extends AbstractDragonEntity implements IShe
         EntityDimensions size = getType().getDimensions().scale(getScale());
         if (isInSittingPose() || isSleeping()) size = size.scale(1, 0.7f);
         return size.withEyeHeight(getBbHeight());
+    }
+
+    public Vec3 getPassengerPosOffset(Entity entity, int index) {
+        return new Vec3(0, -0.25, 0);
     }
 
     @Override

@@ -487,7 +487,7 @@ public class ButterflyLeviathanEntity extends AbstractDragonEntity
     @Override
     public Vec3 getPassengerPosOffset(Entity entity, int index)
     {
-        return new Vec3(0, 0, index == 1? -2 : 0);
+        return new Vec3(0, -0.6, index == 1? -2 : 0);
     }
 
     @Override

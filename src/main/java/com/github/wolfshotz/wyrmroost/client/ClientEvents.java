@@ -107,10 +107,11 @@ public class ClientEvents
     public static boolean handleAnimationPacket(int entityID, int animationIndex)
     {
         Level world = ClientEvents.getLevel();
-        IAnimatable entity = (IAnimatable) world.getEntity(entityID);
 
-        if (animationIndex < 0) entity.setAnimation(IAnimatable.NO_ANIMATION);
-        else entity.setAnimation(entity.getAnimations()[animationIndex]);
+        if (world.getEntity(entityID) instanceof IAnimatable entity) {
+            if (animationIndex < 0) entity.setAnimation(IAnimatable.NO_ANIMATION);
+            else entity.setAnimation(entity.getAnimations()[animationIndex]);
+        }
         return true;
     }
 

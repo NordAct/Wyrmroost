@@ -29,6 +29,7 @@ import net.minecraft.world.entity.animal.Bee;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.event.CalculateDetachedCameraDistanceEvent;
 
 import javax.annotation.Nullable;
@@ -141,6 +142,10 @@ public class AlpineEntity extends AbstractDragonEntity
     {
         EntityDimensions size = getType().getDimensions().scale(getScale());
         return size.scale(1, isInSittingPose() || isSleeping()? 0.7f : 1).withEyeHeight(getBbHeight() * (isFlying()? 0.8f : 1.25f));
+    }
+
+    public Vec3 getPassengerPosOffset(Entity entity, int index) {
+        return new Vec3(0, -0.1, 0);
     }
 
     @Override
