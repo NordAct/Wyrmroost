@@ -58,6 +58,7 @@ import net.minecraft.world.item.ShieldItem;
 import net.minecraft.world.item.SpawnEggItem;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.AABB;
@@ -1265,7 +1266,7 @@ public abstract class AbstractDragonEntity extends TamableAnimal implements IAni
     public abstract boolean hasVariants();
 
     @Override
-    public void setDeltaMovement(Vec3 deltaMovement) {
-        super.setDeltaMovement(deltaMovement);
+    public float getWalkTargetValue(BlockPos pos, LevelReader level) {
+        return 0;
     }
 }

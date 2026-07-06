@@ -95,7 +95,7 @@ public class WREntities {
 
     public static final Holder<EntityType<?>> BUTTERFLY_LEVIATHAN = Builder.withClassification("butterfly_leviathan", ButterflyLeviathanEntity::new, MobCategory.WATER_CREATURE)
             .attributes(ButterflyLeviathanEntity::createAttributes)
-            .spawnPlacement(SpawnPlacementTypes.NO_RESTRICTIONS, Heightmap.Types.OCEAN_FLOOR_WG, ButterflyLeviathanEntity::getSpawnPlacement)
+            .spawnPlacement(SpawnPlacementTypes.IN_WATER, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, ButterflyLeviathanEntity::getSpawnPlacement)
             .spawnEgg(0x17283C, 0x7A6F5A)
             .dragonEgg(new DragonEggProperties(0.75f, 1.25f, 40000).setConditions(Entity::isInWater))
             .renderer(ButterflyLeviathanRenderer::new)

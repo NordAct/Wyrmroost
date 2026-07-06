@@ -51,9 +51,11 @@ public class ButterflyLeviathanRenderer extends AbstractDragonRenderer<Butterfly
 
     @Override
     public void render(ButterflyLeviathanEntity entity, float entityYaw, float partialTicks, PoseStack ms, MultiBufferSource buffer, int packedLightIn) {
+        ms.pushPose();
         float scale = 3;
         ms.scale(scale, scale, scale);
         super.render(entity, entityYaw, partialTicks, ms, buffer, packedLightIn);
+        ms.popPose();
     }
 
     @Nullable

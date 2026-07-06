@@ -1,6 +1,6 @@
 {
   "type": "neoforge:add_spawns",
-  "biomes": "#c:is_ocean",
+  "biomes": "#wyrmroost:butterfly_leviathan_can_spawn",
   "spawners": {
     "type": "wyrmroost:butterfly_leviathan",
     "maxCount": 1,

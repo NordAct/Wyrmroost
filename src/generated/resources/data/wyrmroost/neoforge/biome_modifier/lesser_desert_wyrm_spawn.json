@@ -1,6 +1,6 @@
 {
   "type": "neoforge:add_spawns",
-  "biomes": "#c:is_desert",
+  "biomes": "#wyrmroost:lesser_desert_wyrm_can_spawn",
   "spawners": {
     "type": "wyrmroost:lesser_desertwyrm",
     "maxCount": 3,

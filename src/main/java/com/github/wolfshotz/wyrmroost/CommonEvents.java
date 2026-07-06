@@ -43,6 +43,7 @@ public class CommonEvents
         bus.addListener(DataGatherer::gather);
         bus.addListener(CommonEvents::entityAttributes);
         bus.addListener(Wyrmroost::registerPayloads);
+        bus.addListener(CommonEvents::spawnPlacements);
     }
 
     // ====================
@@ -115,8 +116,7 @@ public class CommonEvents
         WREntities.ATTRIBUTES.forEach(pair -> event.put((EntityType<? extends LivingEntity>) EntityType.byString(pair.getFirst().toString()).orElseThrow(), pair.getSecond().get().build()));
     }
 
-    @SubscribeEvent
     public static void spawnPlacements (RegisterSpawnPlacementsEvent event) {
-        WREntities.SPAWN_PREDICATES.forEach(pair -> event.register(EntityType.byString(pair.getFirst().toString()).orElseThrow(), pair.getSecond().build()));
+        WREntities.SPAWN_PREDICATES.forEach(pair -> event.register(EntityType.byString(pair.getFirst().toString()).orElseThrow(), pair.getSecond().getSpawnType(), pair.getSecond().getHeightmapType(), pair.getSecond().build(), RegisterSpawnPlacementsEvent.Operation.OR));
     }
 }

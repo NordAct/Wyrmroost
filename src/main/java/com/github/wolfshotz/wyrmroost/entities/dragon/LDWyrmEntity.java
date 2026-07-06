@@ -1,5 +1,6 @@
 package com.github.wolfshotz.wyrmroost.entities.dragon;
 
+import com.github.wolfshotz.wyrmroost.registry.WRBlocks;
 import com.github.wolfshotz.wyrmroost.registry.WRDataComponentTypes;
 import com.github.wolfshotz.wyrmroost.registry.WRItems;
 import com.github.wolfshotz.wyrmroost.registry.WRSounds;
@@ -35,11 +36,13 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.HitResult;
-import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.event.EventHooks;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.Comparator;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Optional;
 import java.util.function.Predicate;
 
 /**
@@ -122,7 +125,7 @@ public class LDWyrmEntity extends PathfinderMob implements IAnimatable
         super.aiStep();
 
         if (isBurrowed()) {
-            if (!level().getBlockState(blockPosition().below(1)).is(Tags.Blocks.SANDS)) setBurrowed(false);
+            if (!level().getBlockState(blockPosition().below(1)).is(WRBlocks.Tags.LESSER_DESERT_WYRM_CAN_BURROW_IN)) setBurrowed(false);
             attackAbove();
         }
     }
@@ -192,21 +195,14 @@ public class LDWyrmEntity extends PathfinderMob implements IAnimatable
     @Override
     public float getWalkTargetValue(BlockPos pos, LevelReader world) // Attracted to sand
     {
-        if (world.getBlockState(pos).is(Tags.Blocks.SANDS)) return 10f;
+        if (world.getBlockState(pos).is(WRBlocks.Tags.LESSER_DESERT_WYRM_CAN_BURROW_IN)) return 10f;
         return super.getWalkTargetValue(pos, world);
-    }
-
-    @Override
-    public boolean removeWhenFarAway(double distanceToClosestPlayer)
-    {
-        return true;
     }
 
     @Override
     public void checkDespawn()
     {
-        if (isPersistenceRequired())
-        {
+        if (isPersistenceRequired()) {
             noActionTime = 0;
             return;
         }
@@ -349,7 +345,7 @@ public class LDWyrmEntity extends PathfinderMob implements IAnimatable
         }
 
         private boolean belowIsSand() {
-            return level().getBlockState(blockPosition().below(1)).is(Tags.Blocks.SANDS);
+            return level().getBlockState(blockPosition().below(1)).is(WRBlocks.Tags.LESSER_DESERT_WYRM_CAN_BURROW_IN);
         }
     }
 }

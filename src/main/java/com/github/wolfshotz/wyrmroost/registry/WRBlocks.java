@@ -55,15 +55,8 @@ public class WRBlocks
         public static final TagKey<Block> STORAGE_BLOCKS_GEODE = blockItemTag("storage_blocks/geode");
         public static final TagKey<Block> STORAGE_BLOCKS_PLATINUM = blockItemTag("storage_blocks/platinum");
 
-        public static final TagKey<Block> ALPINE_CAN_SPAWN_ON = tag("alpine_can_spawn_on");
-        public static final TagKey<Block> BUTTERFLY_LEVIATHAN_CAN_SPAWN_ON = tag("butterfly_leviathan_can_spawn_on");
-        public static final TagKey<Block> CANARI_WYVERN_CAN_SPAWN_ON = tag("canari_wyvern_can_spawn_on");
         public static final TagKey<Block> DRAGON_FRUIT_DRAKE_CAN_SPAWN_ON = tag("dragon_fruit_drake_can_spawn_on");
-        public static final TagKey<Block> LESSER_DESERT_WYRM_CAN_SPAWN_ON = tag("lesser_desert_wyrm_can_spawn_on");
-        public static final TagKey<Block> OVERWORLD_DRAKE_CAN_SPAWN_ON = tag("overworld_drake_can_spawn_on");
-        public static final TagKey<Block> ROOST_STALKER_CAN_SPAWN_ON = tag("roost_stalker_can_spawn_on");
-        public static final TagKey<Block> ROYAL_RED_CAN_SPAWN_ON = tag("roost_stalker_can_spawn_on");
-        public static final TagKey<Block> SILVER_GLIDER_CAN_SPAWN_ON = tag("roost_stalker_can_spawn_on");
+        public static final TagKey<Block> LESSER_DESERT_WYRM_CAN_BURROW_IN = tag("lesser_desert_wyrm_can_burrow_in");
 
         public static TagKey<Block> blockItemTag(String path) {
             return getFor(Wyrmroost.MOD_ID + ":" + path);

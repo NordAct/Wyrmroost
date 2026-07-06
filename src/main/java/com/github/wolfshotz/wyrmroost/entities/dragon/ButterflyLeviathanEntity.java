@@ -546,13 +546,7 @@ public class ButterflyLeviathanEntity extends AbstractDragonEntity
     public static <F extends Mob> boolean getSpawnPlacement(EntityType<F> fEntityType, ServerLevelAccessor world, MobSpawnType reason, BlockPos pos, RandomSource random)
     {
         if (reason == MobSpawnType.SPAWNER) return true;
-        if (world.getFluidState(pos).getTags().anyMatch(f -> f == FluidTags.WATER))
-        {
-            final double chance = random.nextDouble();
-            if (reason == MobSpawnType.CHUNK_GENERATION) return chance < 0.325;
-            else if (reason == MobSpawnType.NATURAL) return chance < 0.001;
-        }
-        return false;
+        return world.getFluidState(pos).is(FluidTags.WATER) && random.nextFloat() < 0.35f;
     }
 
     public static AttributeSupplier.Builder createAttributes()

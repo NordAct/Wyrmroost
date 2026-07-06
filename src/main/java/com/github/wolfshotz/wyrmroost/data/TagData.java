@@ -1,13 +1,11 @@
 package com.github.wolfshotz.wyrmroost.data;
 
 import com.github.wolfshotz.wyrmroost.Wyrmroost;
-import com.github.wolfshotz.wyrmroost.registry.WRBlocks;
-import com.github.wolfshotz.wyrmroost.registry.WRDamageTypes;
-import com.github.wolfshotz.wyrmroost.registry.WREntities;
-import com.github.wolfshotz.wyrmroost.registry.WRItems;
+import com.github.wolfshotz.wyrmroost.registry.*;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.PackOutput;
+import net.minecraft.data.tags.BiomeTagsProvider;
 import net.minecraft.data.tags.DamageTypeTagsProvider;
 import net.minecraft.data.tags.EntityTypeTagsProvider;
 import net.minecraft.data.tags.ItemTagsProvider;
@@ -16,6 +14,7 @@ import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.neoforged.neoforge.common.Tags;
@@ -148,6 +147,8 @@ public class TagData
             tag(BlockTags.DRAGON_IMMUNE).add(WRBlocks.PURPLE_GEODE_ORE.value());
 
             tag(WRBlocks.Tags.DRAGON_FRUIT_DRAKE_CAN_SPAWN_ON).add(Blocks.JUNGLE_LEAVES);
+
+            tag(WRBlocks.Tags.LESSER_DESERT_WYRM_CAN_BURROW_IN).addTag(Tags.Blocks.SANDS);
         }
     }
 
@@ -187,6 +188,52 @@ public class TagData
                     .addOptional(WRDamageTypes.FIRE_BREATH_1.location())
                     .addOptional(WRDamageTypes.WIND_GUST.location())
             ;
+        }
+    }
+
+    private static class BiomeData extends BiomeTagsProvider {
+
+        public BiomeData(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider, @Nullable ExistingFileHelper existingFileHelper) {
+            super(output, lookupProvider, Wyrmroost.MOD_ID, existingFileHelper);
+        }
+
+        @Override
+        protected void addTags(HolderLookup.Provider p_270108_) {
+            tag(WRBiomes.Tags.ALPINE_CAN_SPAWN)
+                    .addTag(Tags.Biomes.IS_MOUNTAIN_PEAK)
+                    .add(Biomes.MEADOW)
+            ;
+
+            tag(WRBiomes.Tags.BUTTERFLY_LEVIATHAN_CAN_SPAWN)
+                    .addTag(Tags.Biomes.IS_OCEAN);
+
+            tag(WRBiomes.Tags.CANARI_WYVERN_CAN_SPAWN)
+                    .addTag(Tags.Biomes.IS_SWAMP);
+
+            tag(WRBiomes.Tags.DRAGON_FRUIT_DRAKE_CAN_SPAWN)
+                    .addTag(Tags.Biomes.IS_JUNGLE);
+
+            tag(WRBiomes.Tags.LESSER_DESERT_WYRM_CAN_SPAWN)
+                    .addTag(Tags.Biomes.IS_DESERT);
+
+            tag(WRBiomes.Tags.OVERWORLD_DRAKE_CAN_SPAWN)
+                    .addTag(Tags.Biomes.IS_PLAINS)
+                    .addTag(Tags.Biomes.IS_SAVANNA)
+            ;
+
+            tag(WRBiomes.Tags.ROOST_STALKER_CAN_SPAWN)
+                    .addTag(Tags.Biomes.IS_PLAINS)
+                    .addTag(Tags.Biomes.IS_MOUNTAIN_SLOPE)
+                    .addTag(Tags.Biomes.IS_FOREST)
+            ;
+
+            tag(WRBiomes.Tags.ROYAL_RED_CAN_SPAWN)
+                    .addTag(Tags.Biomes.IS_MOUNTAIN_PEAK);
+
+            tag(WRBiomes.Tags.SILVER_GLIDER_CAN_SPAWN)
+                    .addTag(Tags.Biomes.IS_OCEAN)
+                    .addTag(Tags.Biomes.IS_BEACH)
+                    .addTag(Tags.Biomes.IS_STONY_SHORES);
         }
     }
 }

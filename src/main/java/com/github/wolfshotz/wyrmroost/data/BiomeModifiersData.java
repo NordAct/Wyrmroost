@@ -1,6 +1,7 @@
 package com.github.wolfshotz.wyrmroost.data;
 
 import com.github.wolfshotz.wyrmroost.Wyrmroost;
+import com.github.wolfshotz.wyrmroost.registry.WRBiomes;
 import com.github.wolfshotz.wyrmroost.registry.WREntities;
 import com.github.wolfshotz.wyrmroost.registry.WRWorld;
 import net.minecraft.core.HolderGetter;
@@ -42,7 +43,7 @@ public class BiomeModifiersData extends DatapackBuiltinEntriesProvider {
         context.register(
                 ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, Wyrmroost.rl("alpine_spawn")),
                 BiomeModifiers.AddSpawnsBiomeModifier.singleSpawn(
-                        biomes.getOrThrow(Tags.Biomes.IS_MOUNTAIN_PEAK),
+                        biomes.getOrThrow(WRBiomes.Tags.ALPINE_CAN_SPAWN),
                         new MobSpawnSettings.SpawnerData(
                                 WREntities.ALPINE.value(),
                                 2, 1, 4
@@ -53,7 +54,7 @@ public class BiomeModifiersData extends DatapackBuiltinEntriesProvider {
         context.register(
                 ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, Wyrmroost.rl("butterfly_leviathan_spawn")),
                 BiomeModifiers.AddSpawnsBiomeModifier.singleSpawn(
-                        biomes.getOrThrow(Tags.Biomes.IS_OCEAN),
+                        biomes.getOrThrow(WRBiomes.Tags.BUTTERFLY_LEVIATHAN_CAN_SPAWN),
                         new MobSpawnSettings.SpawnerData(
                                 WREntities.BUTTERFLY_LEVIATHAN.value(),
                                 1, 1, 1
@@ -64,7 +65,7 @@ public class BiomeModifiersData extends DatapackBuiltinEntriesProvider {
         context.register(
                 ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, Wyrmroost.rl("canari_wyvern_spawn")),
                 BiomeModifiers.AddSpawnsBiomeModifier.singleSpawn(
-                        biomes.getOrThrow(Tags.Biomes.IS_SWAMP),
+                        biomes.getOrThrow(WRBiomes.Tags.CANARI_WYVERN_CAN_SPAWN),
                         new MobSpawnSettings.SpawnerData(
                                 WREntities.CANARI_WYVERN.value(),
                                 9, 2, 5
@@ -75,7 +76,7 @@ public class BiomeModifiersData extends DatapackBuiltinEntriesProvider {
         context.register(
                 ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, Wyrmroost.rl("dragon_fruit_drake_spawn")),
                 BiomeModifiers.AddSpawnsBiomeModifier.singleSpawn(
-                        biomes.getOrThrow(Tags.Biomes.IS_JUNGLE),
+                        biomes.getOrThrow(WRBiomes.Tags.DRAGON_FRUIT_DRAKE_CAN_SPAWN),
                         new MobSpawnSettings.SpawnerData(
                                 WREntities.DRAGON_FRUIT_DRAKE.value(),
                                 23, 4, 5
@@ -86,7 +87,7 @@ public class BiomeModifiersData extends DatapackBuiltinEntriesProvider {
         context.register(
                 ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, Wyrmroost.rl("lesser_desert_wyrm_spawn")),
                 BiomeModifiers.AddSpawnsBiomeModifier.singleSpawn(
-                        biomes.getOrThrow(Tags.Biomes.IS_DESERT),
+                        biomes.getOrThrow(WRBiomes.Tags.LESSER_DESERT_WYRM_CAN_SPAWN),
                         new MobSpawnSettings.SpawnerData(
                                 WREntities.LESSER_DESERTWYRM.value(),
                                 13, 1, 3
@@ -95,9 +96,9 @@ public class BiomeModifiersData extends DatapackBuiltinEntriesProvider {
         );
 
         context.register(
-                ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, Wyrmroost.rl("overworld_drake_savanna_spawn")),
+                ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, Wyrmroost.rl("overworld_drake_spawn")),
                 BiomeModifiers.AddSpawnsBiomeModifier.singleSpawn(
-                        biomes.getOrThrow(Tags.Biomes.IS_SAVANNA),
+                        biomes.getOrThrow(WRBiomes.Tags.OVERWORLD_DRAKE_CAN_SPAWN),
                         new MobSpawnSettings.SpawnerData(
                                 WREntities.OVERWORLD_DRAKE.value(),
                                 8, 1, 3
@@ -106,42 +107,9 @@ public class BiomeModifiersData extends DatapackBuiltinEntriesProvider {
         );
 
         context.register(
-                ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, Wyrmroost.rl("overworld_drake_plains_spawn")),
+                ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, Wyrmroost.rl("roost_stalker_spawn")),
                 BiomeModifiers.AddSpawnsBiomeModifier.singleSpawn(
-                        biomes.getOrThrow(Tags.Biomes.IS_PLAINS),
-                        new MobSpawnSettings.SpawnerData(
-                                WREntities.OVERWORLD_DRAKE.value(),
-                                8, 1, 3
-                        )
-                )
-        );
-
-        context.register(
-                ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, Wyrmroost.rl("roost_stalker_plains_spawn")),
-                BiomeModifiers.AddSpawnsBiomeModifier.singleSpawn(
-                        biomes.getOrThrow(Tags.Biomes.IS_PLAINS),
-                        new MobSpawnSettings.SpawnerData(
-                                WREntities.ROOSTSTALKER.value(),
-                                7, 2, 9
-                        )
-                )
-        );
-
-        context.register(
-                ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, Wyrmroost.rl("roost_stalker_forest_spawn")),
-                BiomeModifiers.AddSpawnsBiomeModifier.singleSpawn(
-                        biomes.getOrThrow(Tags.Biomes.IS_FOREST),
-                        new MobSpawnSettings.SpawnerData(
-                                WREntities.ROOSTSTALKER.value(),
-                                7, 2, 9
-                        )
-                )
-        );
-
-        context.register(
-                ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, Wyrmroost.rl("roost_stalker_mountain_slope_spawn")),
-                BiomeModifiers.AddSpawnsBiomeModifier.singleSpawn(
-                        biomes.getOrThrow(Tags.Biomes.IS_MOUNTAIN_SLOPE),
+                        biomes.getOrThrow(WRBiomes.Tags.ROOST_STALKER_CAN_SPAWN),
                         new MobSpawnSettings.SpawnerData(
                                 WREntities.ROOSTSTALKER.value(),
                                 7, 2, 9
@@ -152,7 +120,7 @@ public class BiomeModifiersData extends DatapackBuiltinEntriesProvider {
         context.register(
                 ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, Wyrmroost.rl("royal_red_spawn")),
                 BiomeModifiers.AddSpawnsBiomeModifier.singleSpawn(
-                        biomes.getOrThrow(Tags.Biomes.IS_MOUNTAIN_PEAK),
+                        biomes.getOrThrow(WRBiomes.Tags.ROYAL_RED_CAN_SPAWN),
                         new MobSpawnSettings.SpawnerData(
                                 WREntities.ROYAL_RED.value(),
                                 1, 1, 1
@@ -160,21 +128,11 @@ public class BiomeModifiersData extends DatapackBuiltinEntriesProvider {
                 )
         );
 
-        context.register(
-                ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, Wyrmroost.rl("silver_glider_ocean_spawn")),
-                BiomeModifiers.AddSpawnsBiomeModifier.singleSpawn(
-                        biomes.getOrThrow(Tags.Biomes.IS_OCEAN),
-                        new MobSpawnSettings.SpawnerData(
-                                WREntities.SILVER_GLIDER.value(),
-                                10, 1, 4
-                        )
-                )
-        );
 
         context.register(
-                ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, Wyrmroost.rl("silver_glider_beach_spawn")),
+                ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, Wyrmroost.rl("silver_glider_spawn")),
                 BiomeModifiers.AddSpawnsBiomeModifier.singleSpawn(
-                        biomes.getOrThrow(Tags.Biomes.IS_BEACH),
+                        biomes.getOrThrow(WRBiomes.Tags.SILVER_GLIDER_CAN_SPAWN),
                         new MobSpawnSettings.SpawnerData(
                                 WREntities.SILVER_GLIDER.value(),
                                 10, 1, 4

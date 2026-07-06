@@ -13,20 +13,20 @@
   - Some dragon armor attribute values differ from original since they're now tied to armor material, and some of them are tied to vanilla materials
 
 - Spawns are no longer hardcoded, instead they use Neoforge's Biome Modifiers, which are data driven (tl;dr you can edit spawns via datapack now)
-  - Alpine Dragon now uses `#c:is_mountain/peak` tag for valid spawn biomes by default
-  - Butterfly Leviathan now uses `#c:is_ocean` tag for valid spawn biomes by default
-  - Canari Wyvern now uses `#c:is_swamp` tag for valid spawn biomes by default
-  - Dragon Fruit Drake now uses `#c:is_jungle` tag for valid spawn biomes by default
-  - Lesser Desert Wyrm now uses `#c:is_desert` tag for valid spawn biomes by default
-  - Overworld Drake now uses `#c:is_plains` and `#c:is_savanna` tags for valid spawn biomes by default
-  - Roost Stalker now uses `#c:is_plains`, `#c:is_forest` and `#c:is_mountain/slope` tags for valid spawn biomes by default
-  - Royal Red Dragon now uses `#c:is_mountain/peak` tag for valid spawn biomes by default
-  - Silver Glider now uses `#c:is_ocean` and `#c:is_beach` tag for valid spawn biomes by default
+  - Alpine Dragon now uses `#wyrmroost:alpine_can_spawn` tag for valid spawn biomes by default with default entries `#c:is_mountain/peak` and `minecraft:meadow`
+  - Butterfly Leviathan now uses `#wyrmroost:butterflu_leviathan_can_spawn` tag for valid spawn biomes by default with default entries `#c:is_ocean`
+  - Canari Wyvern now uses `#wyrmroost:canari_wyvern_can_spawn` tag for valid spawn biomes by default with default entries `#c:is_swamp` 
+  - Dragon Fruit Drake now uses `#wyrmroost:dragon_fruit_drake_can_spawn` tag for valid spawn biomes by default with default entries `#c:is_jungle`
+  - Lesser Desert Wyrm now uses `#wyrmroost:lesser_desert_wyrm_can_spawn` tag for valid spawn biomes by default with default entries `#c:is_desert`
+  - Overworld Drake now uses `#wyrmroost:overworld_drake_can_spawn` tag for valid spawn biomes by default with default entries `#c:is_plains` and `#c:is_savanna` 
+  - Roost Stalker now uses `#wyrmroost:roost_stalker_can_spawn` tag for valid spawn biomes by default with default entries `#c:is_plains`, `#c:is_forest` and `#c:is_mountain/slope` 
+  - Royal Red Dragon now uses `#wyrmroost:royal_red_can_spawn` tag for valid spawn biomes by default with default entries `#c:is_mountain/peak`
+  - Silver Glider now uses `#wyrmroost:silver_glider_can_spawn` tag for valid spawn biomes by default with default entries `#c:is_ocean` and `#c:is_beach`
 
 - Ore features spawns are no longer hardcoded as well and configurable via datapacks
-  - They still spawn in similar manner to original mod, despite 1.18 worldgen changes
+  - They still spawn in similar manner to original mod, despite 1.18 worldgen changes, meaning Blue Geode spawns between y=0 and y=16, while Platinum spawns between y=0 and y=64
   - No Overworld ore currently got deepslate variant
-  - Platinum Ore still drops as block instead of dropping its raw counterpart
+  - Platinum Ore still drops as block instead of dropping its raw counterpart because there's no item for it
 
 - Un-hardcoded bunch of text and added localization keys for it (TODO)
   - As bilingual myself, I really want to hit with a pan anyone who does that. *Really, really hard*
@@ -61,5 +61,6 @@
 - Removed home position highlight because it was buggy and I couldn't find way to fix it
 - Replaced old staff selection glow with vanilla one as it was buggy too. And also now it's for sure shader friendly
 - Downscaled Royal Red and Butterfly Leviathan hitboxes to have 2.95 block height and width to mitigate some performance issues
+- Lesser Desert Wyrm now burrows in blocks from `#wymroost:lesser_desert_wyrm_can_burrow_in` that by default contains `#c:sands` tag
 
 - Other possible changes in mod behavior that came up as result of porting process. Mostly unintentional, because I had to remap entire mob from MCP mappings to Mojmaps by hand (shoutout to shedaniel for making mappings translator tool, it wouldn't be possible to make this port otherwise) or because of differences between game versions

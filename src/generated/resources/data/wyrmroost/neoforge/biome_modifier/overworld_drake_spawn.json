@@ -1,6 +1,6 @@
 {
   "type": "neoforge:add_spawns",
-  "biomes": "#c:is_savanna",
+  "biomes": "#wyrmroost:overworld_drake_can_spawn",
   "spawners": {
     "type": "wyrmroost:overworld_drake",
     "maxCount": 3,
