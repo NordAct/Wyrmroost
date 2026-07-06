@@ -358,7 +358,7 @@ public class RoyalRedEntity extends AbstractDragonEntity
             if (b)
             {
                 yHeadRot = getYRot();
-                clearAI();
+                stopInPlace();
                 setFlying(false);
             }
         }

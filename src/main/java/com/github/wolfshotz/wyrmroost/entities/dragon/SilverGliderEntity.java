@@ -137,7 +137,7 @@ public class SilverGliderEntity extends AbstractDragonEntity
         {
             startRiding(player, true);
             setSit(false);
-            clearAI();
+            stopInPlace();
             return InteractionResult.sidedSuccess(level().isClientSide());
         }
 

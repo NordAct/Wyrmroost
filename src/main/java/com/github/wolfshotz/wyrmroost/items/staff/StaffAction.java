@@ -116,7 +116,7 @@ public enum StaffAction
                 @Override
                 public void onSelected(AbstractDragonEntity dragon, Player player, ItemStack stack)
                 {
-                    dragon.clearAI();
+                    dragon.stopInPlace();
                     dragon.clearHome();
                     dragon.setSit(false);
                 }

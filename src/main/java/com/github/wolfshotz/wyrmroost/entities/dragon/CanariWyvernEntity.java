@@ -124,7 +124,7 @@ public class CanariWyvernEntity extends AbstractDragonEntity
         {
             setSit(true);
             setFlying(false);
-            clearAI();
+            stopInPlace();
             startRiding(player, true);
             return InteractionResult.sidedSuccess(level().isClientSide());
         }
@@ -301,7 +301,7 @@ public class CanariWyvernEntity extends AbstractDragonEntity
                 {
                     pissedOffTarget = target;
                     AnimationPacket.send(CanariWyvernEntity.this, THREAT_ANIMATION);
-                    clearAI();
+                    stopInPlace();
                 }
 
                 if (distFromTarget < 6) setTarget(target);

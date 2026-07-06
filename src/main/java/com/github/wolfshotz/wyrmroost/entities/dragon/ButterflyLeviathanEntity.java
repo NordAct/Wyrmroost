@@ -255,8 +255,7 @@ public class ButterflyLeviathanEntity extends AbstractDragonEntity
     {
         if (isInWater())
         {
-            if (isControlledByLocalInstance())
-            {
+            if (hasControllingPassenger()) {
                 float speed = getTravelSpeed() * 0.225f;
                 LivingEntity entity = getControllingPassenger();
                 double moveY = vec3d.y;
@@ -603,16 +602,14 @@ public class ButterflyLeviathanEntity extends AbstractDragonEntity
 
         public void tick()
         {
-            if (operation == Operation.MOVE_TO && !isControlledByLocalInstance())
-            {
+            if (operation == Operation.MOVE_TO && !hasControllingPassenger()) {
                 operation = Operation.WAIT;
                 double x = wantedX - getX();
                 double y = wantedY - getY();
                 double z = wantedZ - getZ();
                 double distSq = x * x + y * y + z * z;
                 if (distSq < 2.5000003E-7) setZza(0f); // why move...
-                else
-                {
+                else {
                     float yaw = (float) Math.toDegrees(Math.atan2(z, x)) - 90f;
                     float pitch = -((float) (Math.atan2(y, Math.sqrt(x * x + z * z)) * 180 / Math.PI));
                     pitch = Mth.clamp(Mth.wrapDegrees(pitch), -85f, 85f);
@@ -630,8 +627,7 @@ public class ButterflyLeviathanEntity extends AbstractDragonEntity
                     }
                 }
             }
-            else
-            {
+            else {
                 setSpeed(0);
                 setXxa(0);
                 setYya(0);
@@ -640,17 +636,15 @@ public class ButterflyLeviathanEntity extends AbstractDragonEntity
         }
     }
 
-    private class AttackGoal extends Goal
-    {
+    private class AttackGoal extends Goal {
         public AttackGoal()
         {
             setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK));
         }
 
         @Override
-        public boolean canUse()
-        {
-            return !isControlledByLocalInstance() && getTarget() != null;
+        public boolean canUse() {
+            return !hasControllingPassenger() && getTarget() != null;
         }
 
         @Override
@@ -692,7 +686,7 @@ public class ButterflyLeviathanEntity extends AbstractDragonEntity
         public boolean canUse()
         {
             if (isInSittingPose()) return false;
-            if (isControlledByLocalInstance()) return false;
+            if (hasControllingPassenger()) return false;
             if (!isUnderWater()) return false;
             if (level().getFluidState(this.pos = level().getHeightmapPos(Heightmap.Types.WORLD_SURFACE, blockPosition()).below()).isEmpty())
                 return false;
@@ -701,14 +695,12 @@ public class ButterflyLeviathanEntity extends AbstractDragonEntity
         }
 
         @Override
-        public boolean canContinueToUse()
-        {
-            return !isControlledByLocalInstance() && isUnderWater();
+        public boolean canContinueToUse() {
+            return !hasControllingPassenger() && isUnderWater();
         }
 
         @Override
-        public void start()
-        {
+        public void start() {
             getNavigation().stop();
             this.pos = pos.relative(getDirection(), (int) ((pos.getY() - getY()) * 0.5d));
         }
@@ -720,10 +712,9 @@ public class ButterflyLeviathanEntity extends AbstractDragonEntity
         }
 
         @Override
-        public void stop()
-        {
+        public void stop() {
             pos = null;
-            clearAI();
+            stopInPlace();
         }
     }
 }

@@ -29,7 +29,7 @@ public class MoveToHomeGoal extends Goal
     @Override
     public void start()
     {
-        dragon.clearAI();
+        dragon.stopInPlace();
     }
 
     @Override

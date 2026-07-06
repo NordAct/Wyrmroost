@@ -29,7 +29,7 @@ public class FlyerWanderGoal extends WaterAvoidingRandomStrollGoal
     public boolean canUse()
     {
         if (dragon.isInSittingPose()) return false;
-        if (dragon.isControlledByLocalInstance()) return false;
+        if (dragon.hasControllingPassenger()) return false;
         Vec3 vec3d;
         if (dragon.isFlying() && (vec3d = getPosition()) != null)
         {

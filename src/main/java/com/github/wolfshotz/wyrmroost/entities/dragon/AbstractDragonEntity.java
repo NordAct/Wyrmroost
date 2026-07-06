@@ -207,7 +207,7 @@ public abstract class AbstractDragonEntity extends TamableAnimal implements IAni
         entityData.set(SLEEPING, sleep);
         if (!level().isClientSide())
         {
-            if (sleep) clearAI();
+            if (sleep) stopInPlace();
             else sleepCooldown = 350;
         }
     }
@@ -272,7 +272,7 @@ public abstract class AbstractDragonEntity extends TamableAnimal implements IAni
     public void setInSittingPose(boolean sitting)
     {
         super.setInSittingPose(sitting);
-        if (sitting) clearAI();
+        if (sitting) stopInPlace();
     }
 
     public DragonInvHandler getInvHandler()
@@ -298,60 +298,45 @@ public abstract class AbstractDragonEntity extends TamableAnimal implements IAni
     {
         super.aiStep();
 
-        if (isEffectiveAi())
-        {
+        if (isEffectiveAi()) {
             // uhh so were falling, we should probably start flying
             boolean flying = shouldFly();
             if (flying != isFlying()) setFlying(flying);
 
             if (sleepCooldown > 0) --sleepCooldown;
-            if (isSleeping())
-            {
+            if (isSleeping()) {
                 ((LessShitLookController) getLookControl()).restore();
                 if (getHealth() < getMaxHealth() && random.nextDouble() < 0.005) heal(1);
+                if (shouldWakeUp()) setSleeping(false);
+            } else if (shouldSleep()) setSleeping(true);
 
-                if (shouldWakeUp())
-                {
-                    setSleeping(false);
-                }
-            }
-            else if (shouldSleep())
-            {
-                setSleeping(true);
-            }
 
             // todo figure out a better target system?
             LivingEntity target = getTarget();
             if (target != null && (!target.isAlive() || !canAttack(target) || !wantsToAttack(target, getOwner())))
                 setTarget(null);
         }
-        else
-        {
-            doSpecialEffects();
-        }
+        else doSpecialEffects();
     }
 
     /**
      * Not to be confused with {@link #positionRider(Entity)}, as this is called when were riding something
      */
     @Override
-    public void rideTick()
-    {
+    public void rideTick() {
         super.rideTick();
 
         Entity entity = getVehicle();
 
-        if (entity == null || !entity.isAlive())
-        {
+        if (entity == null || !entity.isAlive()) {
             stopRiding();
             return;
         }
 
         setDeltaMovement(Vec3.ZERO);
-        clearAI();
+        stopInPlace();
 
-        if (entity instanceof Player)
-        {
+        if (entity instanceof Player) {
             Player player = (Player) entity;
 
             int index = player.getPassengers().indexOf(this);
@@ -464,7 +449,7 @@ public abstract class AbstractDragonEntity extends TamableAnimal implements IAni
             if (!level().isClientSide())
             {
                 player.startRiding(this);
-                clearAI();
+                stopInPlace();
             }
             return COMMON_SUCCESS;
         }
@@ -484,12 +469,10 @@ public abstract class AbstractDragonEntity extends TamableAnimal implements IAni
 
     @Override
     @SuppressWarnings("ConstantConditions")
-    public void travel(Vec3 vec3d)
-    {
+    public void travel(Vec3 vec3d) {
         float speed = getTravelSpeed();
 
-        if (isControlledByLocalInstance()) // Were being controlled; override ai movement
-        {
+        if (hasControllingPassenger()) { // Were being controlled; override ai movement
             LivingEntity entity = getControllingPassenger();
             double moveY = vec3d.y;
             double moveX = entity.xxa * 0.5;
@@ -517,8 +500,7 @@ public abstract class AbstractDragonEntity extends TamableAnimal implements IAni
             vec3d = new Vec3(moveX, moveY, moveZ);
         }
 
-        if (isFlying())
-        {
+        if (isFlying()) {
             // Move relative to rotationYaw - handled in the move controller or by the passenger
             moveRelative(speed, vec3d);
             move(MoverType.SELF, getDeltaMovement());
@@ -541,7 +523,7 @@ public abstract class AbstractDragonEntity extends TamableAnimal implements IAni
             return;
         }
 
-        super.travel(vec3d);
+        super.travel(vec3d.add(0, -0.001, 0));
     }
 
     public float getTravelSpeed()
@@ -564,7 +546,7 @@ public abstract class AbstractDragonEntity extends TamableAnimal implements IAni
         if (key.equals(SLEEPING) || key.equals(FLYING) || key.equals(DATA_FLAGS_ID))
         {
             refreshDimensions();
-            if (level().isClientSide() && key == FLYING && isFlying() && isControlledByLocalInstance())
+            if (level().isClientSide() && key == FLYING && isFlying() && hasControllingPassenger())
                 FlyingSound.play(this);
         }
         if (key.equals(FLYING)) {
@@ -651,7 +633,7 @@ public abstract class AbstractDragonEntity extends TamableAnimal implements IAni
     @Override
     public boolean canAttack(LivingEntity target)
     {
-        return !isBaby() && !isControlledByLocalInstance() && super.canAttack(target);
+        return !isBaby() && !hasControllingPassenger() && super.canAttack(target);
     }
 
     @Override
@@ -830,7 +812,7 @@ public abstract class AbstractDragonEntity extends TamableAnimal implements IAni
         {
             tame(tamer);
             setHealth(getMaxHealth());
-            clearAI();
+            stopInPlace();
             level().broadcastEntityEvent(this, (byte) 7); // heart particles
             return true;
         }
@@ -929,7 +911,7 @@ public abstract class AbstractDragonEntity extends TamableAnimal implements IAni
         super.addPassenger(passenger);
         if (getControllingPassenger() == passenger && isOwnedBy((LivingEntity) passenger))
         {
-            clearAI();
+            stopInPlace();
             setSit(false);
             clearHome();
         }
@@ -947,8 +929,8 @@ public abstract class AbstractDragonEntity extends TamableAnimal implements IAni
         return null;
     }
 
-    public void clearAI()
-    {
+    @Override
+    public void stopInPlace() {
         jumping = false;
         navigation.stop();
         setTarget(null);
@@ -1064,16 +1046,13 @@ public abstract class AbstractDragonEntity extends TamableAnimal implements IAni
         return super.canBeCollidedWith() && !isRiding();
     }
 
+    //every single time I have to deal with someone's else mod I have to copypaste something from one of mines, bruh
+    //original was replaced because it was broken - Nord
     @Override
-    public boolean isControlledByLocalInstance() // Only OWNERS can control their pets
-    {
-        Entity entity = getControllingPassenger();
-        if (entity instanceof Player)
-        {
-            Player player = (Player) entity;
-            return isOwnedBy(player) && (!level().isClientSide() || player.isLocalPlayer()); // fix vehicle-desync
-        }
-        return false;
+    public boolean isControlledByLocalInstance() {
+        if (hasControllingPassenger()
+                && (getControllingPassenger() instanceof Player player && player.isLocalPlayer() || !level().isClientSide())) return true;
+        return super.isControlledByLocalInstance();
     }
 
     @Nullable
@@ -1279,4 +1258,9 @@ public abstract class AbstractDragonEntity extends TamableAnimal implements IAni
     public abstract boolean mayFly();
     public abstract boolean maySleep();
     public abstract boolean hasVariants();
+
+    @Override
+    public void setDeltaMovement(Vec3 deltaMovement) {
+        super.setDeltaMovement(deltaMovement);
+    }
 }

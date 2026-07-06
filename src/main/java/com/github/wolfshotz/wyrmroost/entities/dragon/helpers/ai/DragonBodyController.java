@@ -33,8 +33,7 @@ public class DragonBodyController extends BodyRotationControl
         }
 
         // clamp head to 120 degrees, rotate body according to head
-        if (dragon.isControlledByLocalInstance() || dragon.isFlying())
-        {
+        if (dragon.hasControllingPassenger() || dragon.isFlying()) {
             clampHeadRotation(120f);
             dragon.setYRot(dragon.yBodyRot = Mth.wrapDegrees(Mth.rotateIfNecessary(dragon.getYHeadRot(), dragon.yBodyRot, dragon.getYawRotationSpeed())));
             return;

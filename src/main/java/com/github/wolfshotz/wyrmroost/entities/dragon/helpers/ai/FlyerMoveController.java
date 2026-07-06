@@ -21,16 +21,10 @@ public class FlyerMoveController extends MoveControl
         this.dragon = mob;
     }
 
-    public void tick()
-    {
-        if (dragon.isControlledByLocalInstance())
-        {
-            operation = Operation.WAIT;
-            return;
-        }
+    public void tick() {
+        if (dragon.hasControllingPassenger()) return;
 
-        if (operation == Operation.MOVE_TO)
-        {
+        if (operation == Operation.MOVE_TO) {
             double x = wantedX - dragon.getX();
             double y = wantedY - dragon.getY();
             double z = wantedZ - dragon.getZ();
@@ -66,13 +60,10 @@ public class FlyerMoveController extends MoveControl
             dragon.setYRot(rotlerp(dragon.getYRot(), (float) (Mth.atan2(z, x) * (180f / Mafs.PI)) - 90f, dragon.getYawRotationSpeed()));
             dragon.setSpeed(speed);
             operation = Operation.WAIT;
-        }
-        else
-        {
+        } else {
             dragon.setSpeed(0);
             dragon.setXxa(0);
-            dragon.setYya(0);
-            dragon.setZza(0);
+            if (dragon.isFlying()) dragon.setYya(0);
         }
     }
 }

@@ -360,7 +360,7 @@ public class OWDrakeEntity extends AbstractDragonEntity
     public float getTravelSpeed()
     {
         float speed = (float) getAttributeValue(Attributes.MOVEMENT_SPEED);
-        if (isControlledByLocalInstance()) speed += 0.45f;
+        if (hasControllingPassenger()) speed += 0.45f;
         return speed;
     }
 

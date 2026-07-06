@@ -16,25 +16,23 @@ public class LessShitLookController extends LookControl
 
     public void tick()
     {
-        if (restore)
-        {
+        if (restore) {
             this.restore = false;
             mob.yHeadRot = rotateTowards(mob.yHeadRot, mob.yBodyRot, mob.getMaxHeadYRot());
             mob.setXRot(rotateTowards(mob.getXRot(), 0, mob.getMaxHeadXRot()));
             return;
         }
 
-        if (frozen)
-        {
+        if (frozen) {
             frozen = false;
             return;
         }
 
         mob.setXRot(0);
         if (isLookingAtTarget()) {
-            lookAtCooldown = 0;
+            lookAtCooldown--;
             mob.yHeadRot = rotateTowards(mob.yHeadRot, getYRotD().orElse(0f), yMaxRotSpeed);
-            mob.setXRot(rotateTowards(mob.getXRot(), getXRotD().orElse(0f), yMaxRotSpeed));
+            mob.setXRot(rotateTowards(mob.getXRot(), getXRotD().orElse(0f), xMaxRotAngle));
         }
         else mob.yHeadRot = rotateTowards(mob.yHeadRot, mob.yBodyRot, yMaxRotSpeed);
 

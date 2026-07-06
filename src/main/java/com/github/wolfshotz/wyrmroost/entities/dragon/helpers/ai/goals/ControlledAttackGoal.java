@@ -19,14 +19,12 @@ public class ControlledAttackGoal extends MeleeAttackGoal
     }
 
     @Override
-    public boolean canUse()
-    {
+    public boolean canUse() {
         return super.canUse() && !dragon.hasControllingPassenger();
     }
 
     @Override
-    public boolean canContinueToUse()
-    {
+    public boolean canContinueToUse() {
         LivingEntity target = dragon.getTarget();
         if (target == null) return false;
         return !dragon.hasControllingPassenger() && dragon.wantsToAttack(target, dragon.getOwner()) && super.canContinueToUse();
@@ -39,8 +37,7 @@ public class ControlledAttackGoal extends MeleeAttackGoal
 
     @Override
     protected void checkAndPerformAttack(LivingEntity enemy) {
-        if (canPerformAttack(enemy) && enemy.getVehicle() != dragon && dragon.noActiveAnimation())
-        {
+        if (canPerformAttack(enemy) && enemy.getVehicle() != dragon && dragon.noActiveAnimation()) {
             attack.accept(dragon);
             resetAttackCooldown();
         }

@@ -121,8 +121,7 @@ public class DragonFruitDrakeEntity extends AbstractDragonEntity implements IShe
         if (stack.is(Tags.Items.TOOLS_SHEAR) && hasControllingPassenger())
             return InteractionResult.sidedSuccess(level().isClientSide());
 
-        if (!isTame() && isBaby() && isFoodItem(stack))
-        {
+        if (!isTame() && isBaby() && isFoodItem(stack)) {
             if (!level().isClientSide() && temptGoal.isRunning())
             {
                 tame(random.nextDouble() <= 0.2d, player);
@@ -132,8 +131,7 @@ public class DragonFruitDrakeEntity extends AbstractDragonEntity implements IShe
             return InteractionResult.CONSUME;
         }
 
-        if (isTame() && stack.is(WRItems.Tags.ACTIVATES_DRAGON_FRUIT_DRAKE_CROPS_GROWTH) && growCropsTime <= 0)
-        {
+        if (isTame() && stack.is(WRItems.Tags.ACTIVATES_DRAGON_FRUIT_DRAKE_CROPS_GROWTH) && growCropsTime <= 0) {
             eat(stack);
             growCropsTime = CROP_GROWTH_TIME;
             return InteractionResult.sidedSuccess(level().isClientSide());
@@ -187,12 +185,10 @@ public class DragonFruitDrakeEntity extends AbstractDragonEntity implements IShe
             }
         }
 
-        if (getAnimation() == BITE_ANIMATION && getAnimationTick() == 7 && isControlledByLocalInstance())
-        {
+        if (getAnimation() == BITE_ANIMATION && getAnimationTick() == 7 && hasControllingPassenger()) {
             attackInBox(getOffsetBox(getBbWidth()));
             AABB aabb = getBoundingBox().inflate(2).move(Mafs.getYawVec(yHeadRot, 0, 2));
-            for (BlockPos pos : ModUtils.getBlockPosesInAABB(aabb))
-            {
+            for (BlockPos pos : ModUtils.getBlockPosesInAABB(aabb)) {
                 if (level().getBlockState(pos).getBlock() instanceof BushBlock)
                     level().destroyBlock(pos, true, this);
             }
