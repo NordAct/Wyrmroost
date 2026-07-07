@@ -85,7 +85,7 @@ public class ButterflyLeviathanEntity extends AbstractDragonEntity
         moveControl = new MoveController();
         setPathfindingMalus(PathType.WATER, 0);
 
-        registerDataEntry("Variant", EntityDataEntry.INTEGER, VARIANT, 0);
+        registerDataEntry("Variant", EntityDataEntry.INTEGER, VARIANT);
     }
 
     @Override

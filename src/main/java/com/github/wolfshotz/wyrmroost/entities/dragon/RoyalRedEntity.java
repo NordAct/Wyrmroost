@@ -53,8 +53,7 @@ import org.lwjgl.glfw.GLFW;
 import javax.annotation.Nullable;
 import java.util.EnumSet;
 
-public class RoyalRedEntity extends AbstractDragonEntity
-{
+public class RoyalRedEntity extends AbstractDragonEntity {
     public static final int ARMOR_SLOT = 0;
 
     public static final Animation ROAR_ANIMATION = new Animation(70);
@@ -72,17 +71,16 @@ public class RoyalRedEntity extends AbstractDragonEntity
     public final TickFloat knockOutTimer = new TickFloat().setLimit(0, 1);
     private int knockOutTime = 0;
 
-    public RoyalRedEntity(EntityType<? extends AbstractDragonEntity> dragon, Level world)
-    {
+    public RoyalRedEntity(EntityType<? extends AbstractDragonEntity> dragon, Level world) {
         super(dragon, world);
         noCulling = WRConfig.disableFrustumCheck;
 
         setPathfindingMalus(PathType.DANGER_FIRE, 0);
         setPathfindingMalus(PathType.DAMAGE_FIRE, 0);
 
-        registerDataEntry("Gender", EntityDataEntry.BOOLEAN, GENDER, random.nextBoolean());
-        registerDataEntry("Sleeping", EntityDataEntry.BOOLEAN, SLEEPING, false);
-        registerDataEntry("Variant", EntityDataEntry.INTEGER, VARIANT, 0);
+        registerDataEntry("Gender", EntityDataEntry.BOOLEAN, GENDER);
+        registerDataEntry("Sleeping", EntityDataEntry.BOOLEAN, SLEEPING);
+        registerDataEntry("Variant", EntityDataEntry.INTEGER, VARIANT);
         registerDataEntry("KnockOutTime", EntityDataEntry.INTEGER, () -> knockOutTime, this::setKnockoutTime);
     }
 
@@ -95,8 +93,7 @@ public class RoyalRedEntity extends AbstractDragonEntity
     }
 
     @Override
-    protected void registerGoals()
-    {
+    protected void registerGoals() {
         super.registerGoals();
 
         goalSelector.addGoal(4, new MoveToHomeGoal(this));
@@ -115,14 +112,12 @@ public class RoyalRedEntity extends AbstractDragonEntity
     }
 
     @Override
-    public DragonInvHandler createInv()
-    {
+    public DragonInvHandler createInv() {
         return new DragonInvHandler(this, 1);
     }
 
     @Override
-    public void aiStep()
-    {
+    public void aiStep() {
         super.aiStep();
         flightTimer.add(isFlying()? 0.1f : -0.05f);
         sitTimer.add(isInSittingPose()? 0.1f : -0.1f);
@@ -130,8 +125,7 @@ public class RoyalRedEntity extends AbstractDragonEntity
         breathTimer.add(isBreathingFire()? 0.15f : -0.2f);
         knockOutTimer.add(isKnockedOut()? 0.05f : -0.1f);
 
-        if (!level().isClientSide())
-        {
+        if (!level().isClientSide()) {
             if (isBreathingFire() && getControllingPlayer() == null && getTarget() == null)
                 setBreathingFire(false);
 
@@ -146,8 +140,7 @@ public class RoyalRedEntity extends AbstractDragonEntity
         Animation anim = getAnimation();
         int animTime = getAnimationTick();
 
-        if (anim == ROAR_ANIMATION)
-        {
+        if (anim == ROAR_ANIMATION) {
             if (animTime == 0) playSound(WRSounds.ENTITY_ROYALRED_ROAR.value(), 6, 1, true);
             ((LessShitLookController) getLookControl()).restore();
             for (LivingEntity entity : getEntitiesNearby(10, this::isAlliedTo))
@@ -167,8 +160,7 @@ public class RoyalRedEntity extends AbstractDragonEntity
     }
 
     @Override
-    public InteractionResult actuallyInteractWithMob(Player player, InteractionHand hand)
-    {
+    public InteractionResult actuallyInteractWithMob(Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
         if (!isTame() && isFoodItem(stack))
         {
@@ -203,8 +195,7 @@ public class RoyalRedEntity extends AbstractDragonEntity
     }
 
     @Override
-    public void die(DamageSource cause)
-    {
+    public void die(DamageSource cause) {
         if (isTame() || isKnockedOut() || cause.is(DamageTypeTags.BYPASSES_INVULNERABILITY))
             super.die(cause);
         else // knockout RR's instead of killing them
@@ -215,29 +206,25 @@ public class RoyalRedEntity extends AbstractDragonEntity
     }
 
     @Override
-    public void onSyncedDataUpdated(EntityDataAccessor<?> key)
-    {
+    public void onSyncedDataUpdated(EntityDataAccessor<?> key) {
         if (level().isClientSide() && key.equals(BREATHING_FIRE) && isBreathingFire())
             BreathSound.play(this);
         else super.onSyncedDataUpdated(key);
     }
 
     @Override
-    public void onInvContentsChanged(int slot, ItemStack stack, boolean onLoad)
-    {
+    public void onInvContentsChanged(int slot, ItemStack stack, boolean onLoad) {
         if (slot == ARMOR_SLOT) setArmor(stack);
     }
 
     @Override
-    public void addContainerInfo(DragonInvContainer container)
-    {
+    public void addContainerInfo(DragonInvContainer container) {
         super.addContainerInfo(container);
         container.addSlot(new SlotBuilder(container.inventory, ARMOR_SLOT).only(DragonArmorItem.class));
     }
 
     @Override
-    public void recievePassengerKeybind(int key, int mods, boolean pressed)
-    {
+    public void recievePassengerKeybind(int key, int mods, boolean pressed) {
         if (!noActiveAnimation()) return;
 
         if (key == KeybindPacket.MOUNT_KEY1 && pressed && !isBreathingFire())
@@ -249,77 +236,66 @@ public class RoyalRedEntity extends AbstractDragonEntity
         if (key == KeybindPacket.MOUNT_KEY2) setBreathingFire(pressed);
     }
 
-    public void meleeAttack()
-    {
+    public void meleeAttack() {
         if (!level().isClientSide())
             AnimationPacket.send(this, isFlying() || random.nextBoolean()? BITE_ATTACK_ANIMATION : SLAP_ATTACK_ANIMATION);
     }
 
     @Override
-    public Vec3 getApproximateMouthPos()
-    {
-        Vec3 position = getEyePosition(1).subtract(0, 1.3d, 0);
+    public Vec3 getApproximateMouthPos() {
+        Vec3 position = getEyePosition(1).subtract(0, isMale() ? 2 : 1, 0);
         position = position.add(calculateViewVector(getXRot(), yBodyRot).scale(getBbWidth() / 2)); // base of neck
         return position.add(calculateViewVector(getXRot(), yHeadRot).scale(2.75));
     }
 
     @Override
-    public EntityDimensions getDimensions(Pose poseIn)
-    {
+    public EntityDimensions getDimensions(Pose poseIn) {
         EntityDimensions size = getType().getDimensions().scale(getScale());
         float heightFactor = isSleeping()? 0.5f : isInSittingPose()? 0.9f : 1;
         return size.scale(1, heightFactor).withEyeHeight(getBbHeight() * (isFlying()? 0.95f : 1.13f));
     }
 
     @Override
-    public void addScreenInfo(StaffScreen screen)
-    {
+    public void addScreenInfo(StaffScreen screen) {
         screen.addAction(StaffAction.INVENTORY);
         screen.addAction(StaffAction.TARGET);
         super.addScreenInfo(screen);
     }
 
     @Override
-    public void setMountCameraAngles(boolean backView, CalculateDetachedCameraDistanceEvent event)
-    {
+    public void setMountCameraAngles(boolean backView, CalculateDetachedCameraDistanceEvent event) {
         if (backView) event.getCamera().move(-8.5f, 3f, 0);
         else event.getCamera().move(-5, -0.75f, 0);
     }
 
     @Override
-    public boolean isInvulnerableTo(DamageSource source)
-    {
+    public boolean isInvulnerableTo(DamageSource source) {
         return source == damageSources().inWall()|| super.isInvulnerableTo(source);
     }
 
     @Override
-    public int determineVariant()
-    {
+    public int determineVariant() {
         return random.nextDouble() < 0.03? -1 : 0;
     }
 
     @Override
-    protected boolean isImmobile()
-    {
+    protected boolean isImmobile() {
         return super.isImmobile() || isKnockedOut();
     }
 
     @Override
-    protected boolean canRide(Entity entity)
-    {
+    protected boolean canRide(Entity entity) {
         return !isBaby() && !isKnockedOut() && isTame();
     }
 
     @Override
-    protected boolean canAddPassenger(Entity passenger)
-    {
+    protected boolean canAddPassenger(Entity passenger) {
         return getPassengers().size() < 3;
     }
 
     @Override
-    public Vec3 getPassengerPosOffset(Entity entity, int index)
-    {
-        return new Vec3(0, -0.1, index == 0? 0.5f : -1);
+    public Vec3 getPassengerPosOffset(Entity entity, int index) {
+        return new Vec3(0, isMale() ? -0.2 : 0.5, index == 0? 0.5f : -1);
     }
 
     @Override

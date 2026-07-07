@@ -52,9 +52,9 @@ public class CanariWyvernEntity extends AbstractDragonEntity
     {
         super(dragon, world);
 
-        registerDataEntry("Gender", EntityDataEntry.BOOLEAN, GENDER, true);
-        registerDataEntry("Sleeping", EntityDataEntry.BOOLEAN, SLEEPING, false);
-        registerDataEntry("Variant", EntityDataEntry.INTEGER, VARIANT, 0);
+        registerDataEntry("Gender", EntityDataEntry.BOOLEAN, GENDER);
+        registerDataEntry("Sleeping", EntityDataEntry.BOOLEAN, SLEEPING);
+        registerDataEntry("Variant", EntityDataEntry.INTEGER, VARIANT);
     }
 
     @Override

@@ -60,8 +60,8 @@ public class RoostStalkerEntity extends AbstractDragonEntity
     {
         super(stalker, world);
 
-        registerDataEntry("Sleeping", EntityDataEntry.BOOLEAN, SLEEPING, false);
-        registerDataEntry("Variant", EntityDataEntry.INTEGER, VARIANT, 0);
+        registerDataEntry("Sleeping", EntityDataEntry.BOOLEAN, SLEEPING);
+        registerDataEntry("Variant", EntityDataEntry.INTEGER, VARIANT);
     }
 
     @Override

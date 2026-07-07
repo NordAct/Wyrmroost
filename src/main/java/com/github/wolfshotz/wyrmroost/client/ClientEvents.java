@@ -1,7 +1,6 @@
 package com.github.wolfshotz.wyrmroost.client;
 
 import com.github.wolfshotz.wyrmroost.client.render.DragonEggStackRenderer;
-import com.github.wolfshotz.wyrmroost.client.render.entity.projectile.BreathWeaponRenderer;
 import com.github.wolfshotz.wyrmroost.client.screen.DragonInvScreen;
 import com.github.wolfshotz.wyrmroost.entities.dragon.AbstractDragonEntity;
 import com.github.wolfshotz.wyrmroost.registry.WREntities;
@@ -21,7 +20,9 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
-import net.neoforged.neoforge.client.event.*;
+import net.neoforged.neoforge.client.event.CalculateDetachedCameraDistanceEvent;
+import net.neoforged.neoforge.client.event.EntityRenderersEvent;
+import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 
@@ -41,7 +42,6 @@ public class ClientEvents
     public static void load(IEventBus bus) {
 
         bus.addListener(ClientEvents::clientSetup);
-        bus.addListener(ClientEvents::addAtlas);
         bus.addListener(ClientEvents::registerEntityRenderers);
         bus.addListener(ClientEvents::registerMenuScreens);
     }
@@ -54,10 +54,6 @@ public class ClientEvents
     {
         CALLBACKS.forEach(Runnable::run);
         CALLBACKS.clear();
-    }
-
-    public static void addAtlas(RegisterMaterialAtlasesEvent evt) {
-        evt.register(BreathWeaponRenderer.BLUE_FIRE_MATERIAL.atlasLocation(), BreathWeaponRenderer.BLUE_FIRE_MATERIAL.texture());
     }
 
     // =====================

@@ -107,7 +107,7 @@ public abstract class AbstractDragonEntity extends TamableAnimal implements IAni
         lookControl = new LessShitLookController(this);
         if (mayFly()) moveControl = new FlyerMoveController(this);
 
-        registerDataEntry("HomePos", EntityDataEntry.BLOCK_POS.optional(), HOME_POS, Optional.empty());
+        registerDataEntry("HomePos", EntityDataEntry.BLOCK_POS.optional(), HOME_POS);
         registerDataEntry("BreedCount", EntityDataEntry.INTEGER, () -> breedCount, i -> breedCount = i);
         if (invHandler != null) {
             registerDataEntry(
@@ -167,9 +167,7 @@ public abstract class AbstractDragonEntity extends TamableAnimal implements IAni
         if (!level().isClientSide()) dataEntries.add(new EntityDataEntry<>(key, type, write, read));
     }
 
-    public <T> void registerDataEntry(String key, EntityDataEntry.SerializerType<T> type, EntityDataAccessor<T> param, T value)
-    {
-        entityData.set(param, value);
+    public <T> void registerDataEntry(String key, EntityDataEntry.SerializerType<T> type, EntityDataAccessor<T> param) {
         registerDataEntry(key, type, () -> entityData.get(param), v -> entityData.set(param, v));
     }
 

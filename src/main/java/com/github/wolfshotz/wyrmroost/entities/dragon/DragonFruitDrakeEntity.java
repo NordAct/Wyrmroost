@@ -68,9 +68,9 @@ public class DragonFruitDrakeEntity extends AbstractDragonEntity implements IShe
         super(dragon, world);
 
         registerDataEntry("ShearTimer", EntityDataEntry.INTEGER, () -> shearCooldownTime, v -> shearCooldownTime = v);
-        registerDataEntry("Gender", EntityDataEntry.BOOLEAN, GENDER, random.nextBoolean());
-        registerDataEntry("Sleeping", EntityDataEntry.BOOLEAN, SLEEPING, false);
-        registerDataEntry("Variant", EntityDataEntry.INTEGER, VARIANT, 0);
+        registerDataEntry("Gender", EntityDataEntry.BOOLEAN, GENDER);
+        registerDataEntry("Sleeping", EntityDataEntry.BOOLEAN, SLEEPING);
+        registerDataEntry("Variant", EntityDataEntry.INTEGER, VARIANT);
     }
 
     @Override

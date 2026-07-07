@@ -82,9 +82,9 @@ public class OWDrakeEntity extends AbstractDragonEntity
     {
         super(drake, world);
 
-        registerDataEntry("Sleeping", EntityDataEntry.BOOLEAN, SLEEPING, false);
-        registerDataEntry("Gender", EntityDataEntry.BOOLEAN, GENDER, true);
-        registerDataEntry("Variant", EntityDataEntry.INTEGER, VARIANT, 0);
+        registerDataEntry("Sleeping", EntityDataEntry.BOOLEAN, SLEEPING);
+        registerDataEntry("Gender", EntityDataEntry.BOOLEAN, GENDER);
+        registerDataEntry("Variant", EntityDataEntry.INTEGER, VARIANT);
     }
 
     @Override

@@ -50,9 +50,9 @@ public class SilverGliderEntity extends AbstractDragonEntity
     {
         super(dragon, world);
 
-        registerDataEntry("Gender", EntityDataEntry.BOOLEAN, GENDER, random.nextBoolean());
-        registerDataEntry("Variant", EntityDataEntry.INTEGER, VARIANT, 0);
-        registerDataEntry("Sleeping", EntityDataEntry.BOOLEAN, SLEEPING, false);
+        registerDataEntry("Gender", EntityDataEntry.BOOLEAN, GENDER);
+        registerDataEntry("Variant", EntityDataEntry.INTEGER, VARIANT);
+        registerDataEntry("Sleeping", EntityDataEntry.BOOLEAN, SLEEPING);
     }
 
     @Override
