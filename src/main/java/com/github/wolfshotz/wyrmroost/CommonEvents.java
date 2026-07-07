@@ -17,6 +17,7 @@ import net.minecraft.world.level.storage.loot.BuiltInLootTables;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.event.LootTableLoadEvent;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
@@ -33,6 +34,7 @@ import java.util.List;
  * <p>
  * Manually add listeners
  */
+@EventBusSubscriber
 public class CommonEvents
 {
     public static final List<Runnable> CALLBACKS = new ArrayList<>();
@@ -103,9 +105,8 @@ public class CommonEvents
     }
 
     @SubscribeEvent
-    public static void loadLoot(LootTableLoadEvent evt)
-    {
-        if (evt.getName().equals(BuiltInLootTables.ABANDONED_MINESHAFT))
+    public static void loadLoot(LootTableLoadEvent evt) {
+        if (evt.getName().equals(BuiltInLootTables.ABANDONED_MINESHAFT.location()))
             evt.getTable().addPool(LootPool.lootPool()
                     .name("coin_dragon_inject")
                     .add(CoinDragonItem.getLootEntry())

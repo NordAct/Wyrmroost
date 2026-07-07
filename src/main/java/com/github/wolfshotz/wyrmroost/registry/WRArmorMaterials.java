@@ -32,8 +32,8 @@ public class WRArmorMaterials {
             SoundEvents.ARMOR_EQUIP_DIAMOND,
             () -> Ingredient.of(WRItems.BLUE_GEODE.value()),
             List.of(
-                    new ArmorMaterial.Layer(Wyrmroost.rl("blue_geode"), "1", false),
-                    new ArmorMaterial.Layer(Wyrmroost.rl("blue_geode"), "2", false)
+                    new ArmorMaterial.Layer(Wyrmroost.rl("blue_geode"), "", false),
+                    new ArmorMaterial.Layer(Wyrmroost.rl("blue_geode"), "", false)
             ),
             1, 0
     ));
@@ -49,8 +49,8 @@ public class WRArmorMaterials {
             SoundEvents.ARMOR_EQUIP_DIAMOND,
             () -> Ingredient.of(WRItems.RED_GEODE.value()),
             List.of(
-                    new ArmorMaterial.Layer(Wyrmroost.rl("red_geode"), "1", false),
-                    new ArmorMaterial.Layer(Wyrmroost.rl("red_geode"), "2", false)
+                    new ArmorMaterial.Layer(Wyrmroost.rl("red_geode"), "", false),
+                    new ArmorMaterial.Layer(Wyrmroost.rl("red_geode"), "", false)
             ),
             2.5f, 0
     ));
@@ -66,8 +66,8 @@ public class WRArmorMaterials {
                     SoundEvents.ARMOR_EQUIP_DIAMOND,
                     () -> Ingredient.of(WRItems.PURPLE_GEODE.value()),
                     List.of(
-                            new ArmorMaterial.Layer(Wyrmroost.rl("purple_geode"), "1", false),
-                            new ArmorMaterial.Layer(Wyrmroost.rl("purple_geode"), "2", false)
+                            new ArmorMaterial.Layer(Wyrmroost.rl("purple_geode"), "", false),
+                            new ArmorMaterial.Layer(Wyrmroost.rl("purple_geode"), "", false)
                     ),
                     4, 0
             ));
@@ -83,8 +83,8 @@ public class WRArmorMaterials {
                     SoundEvents.ARMOR_EQUIP_IRON,
                     () -> Ingredient.of(WRItems.PLATINUM_INGOT.value()),
                     List.of(
-                            new ArmorMaterial.Layer(Wyrmroost.rl("platinum"), "1", false),
-                            new ArmorMaterial.Layer(Wyrmroost.rl("platinum"), "2", false)
+                            new ArmorMaterial.Layer(Wyrmroost.rl("platinum"), "", false),
+                            new ArmorMaterial.Layer(Wyrmroost.rl("platinum"), "", false)
                     ),
                     0.1f, 0
             ));
@@ -100,8 +100,8 @@ public class WRArmorMaterials {
             SoundEvents.ARMOR_EQUIP_LEATHER,
             () -> Ingredient.of(WRItems.DRAKE_BACKPLATE.value()),
             List.of(
-                    new ArmorMaterial.Layer(Wyrmroost.rl("drake"), "1", false),
-                    new ArmorMaterial.Layer(Wyrmroost.rl("drake"), "2", false)
+                    new ArmorMaterial.Layer(Wyrmroost.rl("drake"), "", false),
+                    new ArmorMaterial.Layer(Wyrmroost.rl("drake"), "", false)
             ),
             1.2f, 0
     ));

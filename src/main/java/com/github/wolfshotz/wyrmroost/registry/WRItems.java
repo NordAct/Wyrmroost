@@ -45,7 +45,7 @@ public class WRItems
     public static final Holder<Item> BLUE_GEODE_SHOVEL = register("blue_geode_shovel", () -> new ShovelItem(ToolMaterials.BLUE_GEODE, builder().attributes(ShovelItem.createAttributes(ToolMaterials.BLUE_GEODE, 3.5f, -3f))));
     public static final Holder<Item> BLUE_GEODE_HOE = register("blue_geode_hoe", () -> new HoeItem(ToolMaterials.BLUE_GEODE, builder().attributes(HoeItem.createAttributes(ToolMaterials.BLUE_GEODE, 1, 2.5f))));
     public static final Holder<Item> BLUE_GEODE_HELMET = register("blue_geode_helmet", () -> new ArmorBase(WRArmorMaterials.BLUE_GEODE, ArmorItem.Type.HELMET, builder()));
-    public static final Holder<Item> BLUE_GEODE_CHESTPLATE = register("blue_geode_chestplate", () -> new ArmorBase(WRArmorMaterials.BLUE_GEODE, ArmorItem.Type.BODY, builder()));
+    public static final Holder<Item> BLUE_GEODE_CHESTPLATE = register("blue_geode_chestplate", () -> new ArmorBase(WRArmorMaterials.BLUE_GEODE, ArmorItem.Type.CHESTPLATE, builder()));
     public static final Holder<Item> BLUE_GEODE_LEGGINGS = register("blue_geode_leggings", () -> new ArmorBase(WRArmorMaterials.BLUE_GEODE, ArmorItem.Type.LEGGINGS, builder()));
     public static final Holder<Item> BLUE_GEODE_BOOTS = register("blue_geode_boots", () -> new ArmorBase(WRArmorMaterials.BLUE_GEODE, ArmorItem.Type.BOOTS, builder()));
     public static final Holder<Item> BLUE_GEODE_ARROW = register("blue_geode_tipped_arrow", () -> new BlueGeodeTippedArrowItem(3));
@@ -56,7 +56,7 @@ public class WRItems
     public static final Holder<Item> RED_GEODE_SHOVEL = register("red_geode_shovel", () -> new ShovelItem(ToolMaterials.RED_GEODE, builder().attributes(ShovelItem.createAttributes(ToolMaterials.RED_GEODE, 4f, -3f))));
     public static final Holder<Item> RED_GEODE_HOE = register("red_geode_hoe", () -> new HoeItem(ToolMaterials.RED_GEODE, builder().attributes(HoeItem.createAttributes(ToolMaterials.RED_GEODE, 2, 0))));
     public static final Holder<Item> RED_GEODE_HELMET = register("red_geode_helmet", () -> new ArmorBase(WRArmorMaterials.RED_GEODE, ArmorItem.Type.HELMET, builder()));
-    public static final Holder<Item> RED_GEODE_CHESTPLATE = register("red_geode_chestplate", () -> new ArmorBase(WRArmorMaterials.RED_GEODE, ArmorItem.Type.BODY, builder()));
+    public static final Holder<Item> RED_GEODE_CHESTPLATE = register("red_geode_chestplate", () -> new ArmorBase(WRArmorMaterials.RED_GEODE, ArmorItem.Type.CHESTPLATE, builder()));
     public static final Holder<Item> RED_GEODE_LEGGINGS = register("red_geode_leggings", () -> new ArmorBase(WRArmorMaterials.RED_GEODE, ArmorItem.Type.LEGGINGS, builder()));
     public static final Holder<Item> RED_GEODE_BOOTS = register("red_geode_boots", () -> new ArmorBase(WRArmorMaterials.RED_GEODE, ArmorItem.Type.BOOTS, builder()));
     public static final Holder<Item> RED_GEODE_ARROW = register("red_geode_tipped_arrow", () -> new RedGeodeTippedArrowItem(3.5));
@@ -67,7 +67,7 @@ public class WRItems
     public static final Holder<Item> PURPLE_GEODE_SHOVEL = register("purple_geode_shovel", () -> new ShovelItem(ToolMaterials.PURPLE_GEODE, builder().attributes(ShovelItem.createAttributes(ToolMaterials.PURPLE_GEODE, 6.5f, -2.7f)).rarity(Rarity.RARE)));
     public static final Holder<Item> PURPLE_GEODE_HOE = register("purple_geode_hoe", () -> new HoeItem(ToolMaterials.PURPLE_GEODE, builder().attributes(HoeItem.createAttributes(ToolMaterials.PURPLE_GEODE, 0, 4f)).rarity(Rarity.RARE)));
     public static final Holder<Item> PURPLE_GEODE_HELMET = register("purple_geode_helmet", () -> new ArmorBase(WRArmorMaterials.PURPLE_GEODE, ArmorItem.Type.HELMET, builder().rarity(Rarity.RARE)));
-    public static final Holder<Item> PURPLE_GEODE_CHESTPLATE = register("purple_geode_chestplate", () -> new ArmorBase(WRArmorMaterials.PURPLE_GEODE, ArmorItem.Type.BODY, builder().rarity(Rarity.RARE)));
+    public static final Holder<Item> PURPLE_GEODE_CHESTPLATE = register("purple_geode_chestplate", () -> new ArmorBase(WRArmorMaterials.PURPLE_GEODE, ArmorItem.Type.CHESTPLATE, builder().rarity(Rarity.RARE)));
     public static final Holder<Item> PURPLE_GEODE_LEGGINGS = register("purple_geode_leggings", () -> new ArmorBase(WRArmorMaterials.PURPLE_GEODE, ArmorItem.Type.LEGGINGS, builder().rarity(Rarity.RARE)));
     public static final Holder<Item> PURPLE_GEODE_BOOTS = register("purple_geode_boots", () -> new ArmorBase(WRArmorMaterials.PURPLE_GEODE, ArmorItem.Type.BOOTS, builder().rarity(Rarity.RARE)));
     public static final Holder<Item> PURPLE_GEODE_ARROW = register("purple_geode_tipped_arrow", () -> new PurpleGeodeTippedArrowItem(4));
@@ -78,12 +78,12 @@ public class WRItems
     public static final Holder<Item> PLATINUM_SHOVEL = register("platinum_shovel", () -> new ShovelItem(ToolMaterials.PLATINUM, builder().attributes(ShovelItem.createAttributes(ToolMaterials.PLATINUM, 3f, -3f))));
     public static final Holder<Item> PLATINUM_HOE = register("platinum_hoe", () -> new HoeItem(ToolMaterials.PLATINUM, builder().attributes(HoeItem.createAttributes(ToolMaterials.PLATINUM, 0, -1))));
     public static final Holder<Item> PLATINUM_HELMET = register("platinum_helmet", () -> new ArmorBase(WRArmorMaterials.PLATINUM, ArmorItem.Type.HELMET, builder()));
-    public static final Holder<Item> PLATINUM_CHESTPLATE = register("platinum_chestplate", () -> new ArmorBase(WRArmorMaterials.PLATINUM, ArmorItem.Type.BODY, builder()));
+    public static final Holder<Item> PLATINUM_CHESTPLATE = register("platinum_chestplate", () -> new ArmorBase(WRArmorMaterials.PLATINUM, ArmorItem.Type.CHESTPLATE, builder()));
     public static final Holder<Item> PLATINUM_LEGGINGS = register("platinum_leggings", () -> new ArmorBase(WRArmorMaterials.PLATINUM, ArmorItem.Type.LEGGINGS, builder()));
     public static final Holder<Item> PLATINUM_BOOTS = register("platinum_boots", () -> new ArmorBase(WRArmorMaterials.PLATINUM, ArmorItem.Type.BOOTS, builder()));
 
     public static final Holder<Item> DRAKE_HELMET = register("drake_helmet", () -> new DrakeArmorItem(ArmorItem.Type.HELMET, builder().rarity(Rarity.RARE)));
-    public static final Holder<Item> DRAKE_CHESTPLATE = register("drake_chestplate", () -> new DrakeArmorItem(ArmorItem.Type.BODY, builder().rarity(Rarity.RARE)));
+    public static final Holder<Item> DRAKE_CHESTPLATE = register("drake_chestplate", () -> new DrakeArmorItem(ArmorItem.Type.CHESTPLATE, builder().rarity(Rarity.RARE)));
     public static final Holder<Item> DRAKE_LEGGINGS = register("drake_leggings", () -> new DrakeArmorItem(ArmorItem.Type.LEGGINGS, builder().rarity(Rarity.RARE)));
     public static final Holder<Item> DRAKE_BOOTS = register("drake_boots", () -> new DrakeArmorItem(ArmorItem.Type.BOOTS, builder().rarity(Rarity.RARE)));
 
