@@ -1,6 +1,6 @@
-package com.github.wolfshotz.wyrmroost.items;
+package com.github.wolfshotz.wyrmroost.items.arrow;
 
-import com.github.wolfshotz.wyrmroost.entities.projectile.GeodeTippedArrowEntity;
+import com.github.wolfshotz.wyrmroost.entities.projectile.arrow.GeodeTippedArrowEntity;
 import com.github.wolfshotz.wyrmroost.registry.WRItems;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.AbstractArrow;
@@ -10,7 +10,7 @@ import net.minecraft.world.level.Level;
 
 import javax.annotation.Nullable;
 
-public class GeodeTippedArrowItem extends ArrowItem
+public abstract class GeodeTippedArrowItem extends ArrowItem
 {
     private final double damage;
 
@@ -22,9 +22,11 @@ public class GeodeTippedArrowItem extends ArrowItem
 
     @Override
     public AbstractArrow createArrow(Level level, ItemStack ammo, LivingEntity shooter, @Nullable ItemStack weapon) {
-        GeodeTippedArrowEntity arrow = new GeodeTippedArrowEntity(level, this);
+        GeodeTippedArrowEntity arrow = createGeodeArrow(level, ammo, shooter, weapon);
         arrow.setOwner(shooter);
         arrow.setBaseDamage(damage);
         return arrow;
     }
+
+    protected abstract GeodeTippedArrowEntity createGeodeArrow(Level level, ItemStack ammo, LivingEntity shooter, @Nullable ItemStack weapon);
 }

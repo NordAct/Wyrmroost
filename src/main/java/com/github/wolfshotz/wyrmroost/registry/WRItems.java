@@ -2,6 +2,9 @@ package com.github.wolfshotz.wyrmroost.registry;
 
 import com.github.wolfshotz.wyrmroost.Wyrmroost;
 import com.github.wolfshotz.wyrmroost.items.*;
+import com.github.wolfshotz.wyrmroost.items.arrow.BlueGeodeTippedArrowItem;
+import com.github.wolfshotz.wyrmroost.items.arrow.PurpleGeodeTippedArrowItem;
+import com.github.wolfshotz.wyrmroost.items.arrow.RedGeodeTippedArrowItem;
 import com.github.wolfshotz.wyrmroost.items.base.ArmorBase;
 import com.github.wolfshotz.wyrmroost.items.base.ToolMaterials;
 import com.github.wolfshotz.wyrmroost.items.staff.DragonStaffItem;
@@ -45,7 +48,7 @@ public class WRItems
     public static final Holder<Item> BLUE_GEODE_CHESTPLATE = register("blue_geode_chestplate", () -> new ArmorBase(WRArmorMaterials.BLUE_GEODE, ArmorItem.Type.BODY, builder()));
     public static final Holder<Item> BLUE_GEODE_LEGGINGS = register("blue_geode_leggings", () -> new ArmorBase(WRArmorMaterials.BLUE_GEODE, ArmorItem.Type.LEGGINGS, builder()));
     public static final Holder<Item> BLUE_GEODE_BOOTS = register("blue_geode_boots", () -> new ArmorBase(WRArmorMaterials.BLUE_GEODE, ArmorItem.Type.BOOTS, builder()));
-    public static final Holder<Item> BLUE_GEODE_ARROW = register("blue_geode_tipped_arrow", () -> new GeodeTippedArrowItem(3));
+    public static final Holder<Item> BLUE_GEODE_ARROW = register("blue_geode_tipped_arrow", () -> new BlueGeodeTippedArrowItem(3));
 
     public static final Holder<Item> RED_GEODE_SWORD = register("red_geode_sword", () -> new SwordItem(ToolMaterials.RED_GEODE, builder().attributes(SwordItem.createAttributes(ToolMaterials.RED_GEODE, 6, -2.4f))));
     public static final Holder<Item> RED_GEODE_PICKAXE = register("red_geode_pickaxe", () -> new PickaxeItem(ToolMaterials.RED_GEODE, builder().attributes(PickaxeItem.createAttributes(ToolMaterials.RED_GEODE, 4, -2.8f))));
@@ -56,7 +59,7 @@ public class WRItems
     public static final Holder<Item> RED_GEODE_CHESTPLATE = register("red_geode_chestplate", () -> new ArmorBase(WRArmorMaterials.RED_GEODE, ArmorItem.Type.BODY, builder()));
     public static final Holder<Item> RED_GEODE_LEGGINGS = register("red_geode_leggings", () -> new ArmorBase(WRArmorMaterials.RED_GEODE, ArmorItem.Type.LEGGINGS, builder()));
     public static final Holder<Item> RED_GEODE_BOOTS = register("red_geode_boots", () -> new ArmorBase(WRArmorMaterials.RED_GEODE, ArmorItem.Type.BOOTS, builder()));
-    public static final Holder<Item> RED_GEODE_ARROW = register("red_geode_tipped_arrow", () -> new GeodeTippedArrowItem(3.5));
+    public static final Holder<Item> RED_GEODE_ARROW = register("red_geode_tipped_arrow", () -> new RedGeodeTippedArrowItem(3.5));
 
     public static final Holder<Item> PURPLE_GEODE_SWORD = register("purple_geode_sword", () -> new SwordItem(ToolMaterials.PURPLE_GEODE, builder().attributes(SwordItem.createAttributes(ToolMaterials.PURPLE_GEODE, 8, -2.4f)).rarity(Rarity.RARE)));
     public static final Holder<Item> PURPLE_GEODE_PICKAXE = register("purple_geode_pickaxe", () -> new PickaxeItem(ToolMaterials.PURPLE_GEODE, builder().attributes(PickaxeItem.createAttributes(ToolMaterials.PURPLE_GEODE, 6, -3f)).rarity(Rarity.RARE)));
@@ -67,7 +70,7 @@ public class WRItems
     public static final Holder<Item> PURPLE_GEODE_CHESTPLATE = register("purple_geode_chestplate", () -> new ArmorBase(WRArmorMaterials.PURPLE_GEODE, ArmorItem.Type.BODY, builder().rarity(Rarity.RARE)));
     public static final Holder<Item> PURPLE_GEODE_LEGGINGS = register("purple_geode_leggings", () -> new ArmorBase(WRArmorMaterials.PURPLE_GEODE, ArmorItem.Type.LEGGINGS, builder().rarity(Rarity.RARE)));
     public static final Holder<Item> PURPLE_GEODE_BOOTS = register("purple_geode_boots", () -> new ArmorBase(WRArmorMaterials.PURPLE_GEODE, ArmorItem.Type.BOOTS, builder().rarity(Rarity.RARE)));
-    public static final Holder<Item> PURPLE_GEODE_ARROW = register("purple_geode_tipped_arrow", () -> new GeodeTippedArrowItem(4));
+    public static final Holder<Item> PURPLE_GEODE_ARROW = register("purple_geode_tipped_arrow", () -> new PurpleGeodeTippedArrowItem(4));
 
     public static final Holder<Item> PLATINUM_SWORD = register("platinum_sword", () -> new SwordItem(ToolMaterials.PLATINUM, builder().attributes(SwordItem.createAttributes(ToolMaterials.PLATINUM, 5, -2.4f))));
     public static final Holder<Item> PLATINUM_PICKAXE = register("platinum_pickaxe", () -> new PickaxeItem(ToolMaterials.PLATINUM, builder().attributes(PickaxeItem.createAttributes(ToolMaterials.PLATINUM, 3, -2.8f))));
@@ -162,8 +165,9 @@ public class WRItems
         public static final TagKey<Item> ACTIVATES_DRAGON_FRUIT_DRAKE_CROPS_GROWTH = tag("activates_dragon_fruit_drake_crops_growth");
         public static final TagKey<Item> ROOST_STALKER_TAMING_ITEMS = tag("roost_stalker_taming_items");
 
-        private static TagKey<Item> tag(String path)
-        {
+        public static final TagKey<Item> GEODE_TIPPED_ARROWS = tag("geode_tipped_arrows");
+
+        private static TagKey<Item> tag(String path) {
             return ItemTags.create(Wyrmroost.rl(path));
         }
     }

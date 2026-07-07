@@ -18,8 +18,11 @@ import com.github.wolfshotz.wyrmroost.client.render.entity.silverglider.SilverGl
 import com.github.wolfshotz.wyrmroost.entities.dragon.*;
 import com.github.wolfshotz.wyrmroost.entities.dragonegg.DragonEggEntity;
 import com.github.wolfshotz.wyrmroost.entities.dragonegg.DragonEggProperties;
-import com.github.wolfshotz.wyrmroost.entities.projectile.GeodeTippedArrowEntity;
 import com.github.wolfshotz.wyrmroost.entities.projectile.WindGustEntity;
+import com.github.wolfshotz.wyrmroost.entities.projectile.arrow.BlueGeodeTippedArrowEntity;
+import com.github.wolfshotz.wyrmroost.entities.projectile.arrow.GeodeTippedArrowEntity;
+import com.github.wolfshotz.wyrmroost.entities.projectile.arrow.PurpleGeodeTippedArrowEntity;
+import com.github.wolfshotz.wyrmroost.entities.projectile.arrow.RedGeodeTippedArrowEntity;
 import com.github.wolfshotz.wyrmroost.entities.projectile.breath.FireBreathEntity;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.client.renderer.entity.EntityRenderer;
@@ -29,6 +32,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
@@ -151,7 +155,15 @@ public class WREntities {
             .renderer(DragonEggRenderer::new)
             .build(EntityType.Builder::noSummon);
 
-    public static final Holder<EntityType<?>> GEODE_TIPPED_ARROW = Builder.<GeodeTippedArrowEntity>withClassification("geode_tipped_arrow", GeodeTippedArrowEntity::new, MobCategory.MISC)
+    public static final Holder<EntityType<?>> BLUE_GEODE_TIPPED_ARROW = Builder.<GeodeTippedArrowEntity>withClassification("blue_geode_tipped_arrow", BlueGeodeTippedArrowEntity::new, MobCategory.MISC)
+            .renderer(GeodeTippedArrowRenderer::new)
+            .build(b -> b.sized(0.5f, 0.5f));
+
+    public static final Holder<EntityType<?>> RED_GEODE_TIPPED_ARROW = Builder.<GeodeTippedArrowEntity>withClassification("red_geode_tipped_arrow", RedGeodeTippedArrowEntity::new, MobCategory.MISC)
+            .renderer(GeodeTippedArrowRenderer::new)
+            .build(b -> b.sized(0.5f, 0.5f));
+
+    public static final Holder<EntityType<?>> PURPLE_GEODE_TIPPED_ARROW = Builder.<GeodeTippedArrowEntity>withClassification("purple_geode_tipped_arrow", PurpleGeodeTippedArrowEntity::new, MobCategory.MISC)
             .renderer(GeodeTippedArrowRenderer::new)
             .build(b -> b.sized(0.5f, 0.5f));
 
@@ -246,8 +258,7 @@ public class WREntities {
         }
     }
 
-    public static class Attributes
-    {
+    public static class Attributes {
         public static final DeferredRegister<Attribute> REGISTRY = DeferredRegister.create(Registries.ATTRIBUTE, Wyrmroost.MOD_ID);
 
         public static final Holder<Attribute> PROJECTILE_DAMAGE = ranged("generic.projectileDamage", 2d, 0, 2048d);
@@ -260,6 +271,14 @@ public class WREntities {
         private static Holder<Attribute> register(String name, Supplier<Attribute> attribute)
         {
             return REGISTRY.register(name, attribute);
+        }
+    }
+
+    public static class Tags {
+        public static final TagKey<EntityType<?>> GEODE_ARROWS = tag("geode_arrows");
+
+        private static TagKey<EntityType<?>> tag(String path) {
+            return TagKey.create(Registries.ENTITY_TYPE, Wyrmroost.rl(path));
         }
     }
 }

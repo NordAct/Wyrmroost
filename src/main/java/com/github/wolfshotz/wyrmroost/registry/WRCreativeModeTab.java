@@ -21,6 +21,7 @@ public class WRCreativeModeTab {
                 CreativeModeTab.Builder builder = CreativeModeTab.builder();
                 builder.icon(() -> WRItems.BLUE_GEODE.value().getDefaultInstance());
                 builder.displayItems(WRItems.REGISTRY.getEntries());
+                builder.title(Component.translatable("itemGroup.wyrmroost"));
                 if (WRConfig.debugMode) {
                     builder.displayItems((parameters, o) -> {
                         ItemStack stack = new ItemStack(Items.STICK);

@@ -78,7 +78,8 @@ public class TagData
             tag(Tags.Items.INGOTS).addTag(WRItems.Tags.PLATINUM_INGOTS);
             tag(WRItems.Tags.PLATINUM_INGOTS).add(WRItems.PLATINUM_INGOT.value());
 
-            tag(ItemTags.ARROWS).add(WRItems.BLUE_GEODE_ARROW.value(), WRItems.RED_GEODE_ARROW.value(), WRItems.PURPLE_GEODE_ARROW.value());
+            tag(WRItems.Tags.GEODE_TIPPED_ARROWS).add(WRItems.BLUE_GEODE_ARROW.value(), WRItems.RED_GEODE_ARROW.value(), WRItems.PURPLE_GEODE_ARROW.value());
+            tag(ItemTags.ARROWS).addTag(WRItems.Tags.GEODE_TIPPED_ARROWS);
 
             tag(ItemTags.BEACON_PAYMENT_ITEMS).addTag(WRItems.Tags.GEODES);
 
@@ -160,7 +161,12 @@ public class TagData
 
         @Override
         protected void addTags(HolderLookup.Provider var1) {
-            tag(EntityTypeTags.ARROWS).add(WREntities.GEODE_TIPPED_ARROW.value());
+            tag(WREntities.Tags.GEODE_ARROWS)
+                    .add(WREntities.BLUE_GEODE_TIPPED_ARROW.value())
+                    .add(WREntities.RED_GEODE_TIPPED_ARROW.value())
+                    .add(WREntities.PURPLE_GEODE_TIPPED_ARROW.value())
+            ;
+            tag(EntityTypeTags.ARROWS).addTag(WREntities.Tags.GEODE_ARROWS);
             tag(EntityTypeTags.CAN_BREATHE_UNDER_WATER).add(WREntities.BUTTERFLY_LEVIATHAN.value());
             tag(EntityTypeTags.AQUATIC).add(WREntities.BUTTERFLY_LEVIATHAN.value());
             tag(EntityTypeTags.DISMOUNTS_UNDERWATER)

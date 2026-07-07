@@ -1,7 +1,7 @@
 package com.github.wolfshotz.wyrmroost.client.render.entity.projectile;
 
 import com.github.wolfshotz.wyrmroost.Wyrmroost;
-import com.github.wolfshotz.wyrmroost.entities.projectile.GeodeTippedArrowEntity;
+import com.github.wolfshotz.wyrmroost.entities.projectile.arrow.GeodeTippedArrowEntity;
 import com.github.wolfshotz.wyrmroost.registry.WRItems;
 import net.minecraft.client.renderer.entity.ArrowRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
@@ -20,8 +20,7 @@ public class GeodeTippedArrowRenderer extends ArrowRenderer<GeodeTippedArrowEnti
     }
 
     @Override
-    public ResourceLocation getTextureLocation(GeodeTippedArrowEntity entity)
-    {
+    public ResourceLocation getTextureLocation(GeodeTippedArrowEntity entity) {
         Item item = entity.getItem();
         if (item == WRItems.RED_GEODE_ARROW.value()) return RED;
         else if (item == WRItems.PURPLE_GEODE_ARROW.value()) return PURPLE;

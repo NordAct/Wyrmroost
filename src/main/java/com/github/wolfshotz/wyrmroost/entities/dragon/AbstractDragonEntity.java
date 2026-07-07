@@ -642,7 +642,7 @@ public abstract class AbstractDragonEntity extends TamableAnimal implements IAni
         {
             EntityType<?> attackSource = source.getDirectEntity().getType();
             if (attackSource == EntityType.ARROW) return false;
-            else if (attackSource == WREntities.GEODE_TIPPED_ARROW.value()) amount *= 0.5f;
+            else if (attackSource.is(WREntities.Tags.GEODE_ARROWS)) amount *= 0.5f;
         }
 
         setSleeping(false);
