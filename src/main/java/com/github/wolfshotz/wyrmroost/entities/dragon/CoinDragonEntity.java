@@ -49,7 +49,7 @@ public class CoinDragonEntity extends Mob
     protected void defineSynchedData(SynchedEntityData.Builder builder)
     {
         super.defineSynchedData(builder);
-        builder.define(VARIANT, random.nextInt(5));
+        builder.define(VARIANT,0);
     }
 
     @Override

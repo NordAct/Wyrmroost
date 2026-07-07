@@ -3,19 +3,23 @@ package com.github.wolfshotz.wyrmroost.client;
 import com.github.wolfshotz.wyrmroost.client.render.DragonEggStackRenderer;
 import com.github.wolfshotz.wyrmroost.client.screen.DragonInvScreen;
 import com.github.wolfshotz.wyrmroost.entities.dragon.AbstractDragonEntity;
-import com.github.wolfshotz.wyrmroost.registry.WREntities;
 import com.github.wolfshotz.wyrmroost.registry.WRIO;
 import com.github.wolfshotz.wyrmroost.registry.WRItems;
 import com.github.wolfshotz.wyrmroost.util.animation.IAnimatable;
+import com.mojang.datafixers.util.Pair;
 import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
+import net.minecraft.client.renderer.entity.EntityRenderer;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -27,17 +31,20 @@ import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.function.Function;
 
 /**
  * EventBus listeners on CLIENT distribution
  * Also a client helper class because yes.
  */
 @SuppressWarnings("unused")
-@EventBusSubscriber
+@EventBusSubscriber(Dist.CLIENT)
 public class ClientEvents
 {
     public static final List<Runnable> CALLBACKS = new ArrayList<>();
+    public static final Collection<Pair<ResourceLocation, Function<EntityRendererProvider.Context, EntityRenderer>>> RENDERERS = new ArrayList<>();
 
     public static void load(IEventBus bus) {
 
@@ -113,7 +120,7 @@ public class ClientEvents
 
      // on the mod event bus only on the physical client
     public static void registerEntityRenderers(EntityRenderersEvent.RegisterRenderers event) {
-        WREntities.RENDERERS.forEach((pair) -> {
+        RENDERERS.forEach((pair) -> {
             event.registerEntityRenderer(EntityType.byString(pair.getFirst().toString()).orElseThrow(),
                     // Pass the context to an empty (default) constructor call
                     context -> pair.getSecond().apply(context)

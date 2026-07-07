@@ -34,6 +34,7 @@ public class TagData
         gen.addProvider(add, new ItemData(output, provider, blockGen.contentsGetter(), fileHelper));
         gen.addProvider(add, new EntityData(output, provider, fileHelper));
         gen.addProvider(add, new DamageTypeData(output, provider, fileHelper));
+        gen.addProvider(add, new BiomeData(output, provider, fileHelper));
     }
 
     private static class ItemData extends ItemTagsProvider

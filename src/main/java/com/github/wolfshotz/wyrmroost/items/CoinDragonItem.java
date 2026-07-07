@@ -56,8 +56,11 @@ public class CoinDragonItem extends Item
         ItemStack stack = context.getItemInHand();
         Player player = context.getPlayer();
 
-        if (!world.isClientSide() && stack.has(WRDataComponentTypes.DRAGON_TAG_COMPONENT)) // read data first!: setting position before reading will reset that position!
-        {
+        if (!stack.has(WRDataComponentTypes.DRAGON_TAG_COMPONENT)) {
+            entity.setVariant(entity.getRandom().nextInt(5));
+        }
+
+        if (!world.isClientSide() && stack.has(WRDataComponentTypes.DRAGON_TAG_COMPONENT)) {
             CompoundTag tag = stack.get(WRDataComponentTypes.DRAGON_TAG_COMPONENT);
             entity.readAdditionalSaveData(tag);
             if (stack.has(DataComponents.CUSTOM_NAME)) entity.setCustomName(stack.getDisplayName()); // set entity name from stack name

@@ -10,12 +10,14 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.trading.ItemCost;
 import net.minecraft.world.item.trading.MerchantOffer;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.village.WandererTradesEvent;
 
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Optional;
 
+@EventBusSubscriber
 public class VillagerHelper
 {
     @SubscribeEvent

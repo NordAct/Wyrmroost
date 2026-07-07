@@ -2,6 +2,7 @@ package com.github.wolfshotz.wyrmroost.registry;
 
 import com.github.wolfshotz.wyrmroost.CommonEvents;
 import com.github.wolfshotz.wyrmroost.Wyrmroost;
+import com.github.wolfshotz.wyrmroost.client.ClientEvents;
 import com.github.wolfshotz.wyrmroost.client.render.entity.alpine.AlpineRenderer;
 import com.github.wolfshotz.wyrmroost.client.render.entity.butterfly.ButterflyLeviathanRenderer;
 import com.github.wolfshotz.wyrmroost.client.render.entity.canari.CanariWyvernRenderer;
@@ -41,7 +42,6 @@ import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.fml.loading.FMLLoader;
 import net.neoforged.neoforge.common.DeferredSpawnEggItem;
 import net.neoforged.neoforge.event.entity.RegisterSpawnPlacementsEvent;
@@ -62,7 +62,6 @@ import java.util.function.Supplier;
 public class WREntities {
     public static final Collection<Pair<ResourceLocation, RegisterSpawnPlacementsEvent.MergedSpawnPredicate>> SPAWN_PREDICATES = new ArrayList<>();
     public static final Collection<Pair<ResourceLocation, Supplier<AttributeSupplier.Builder>>> ATTRIBUTES = new ArrayList<>();
-    @OnlyIn(Dist.CLIENT) public static final Collection<Pair<ResourceLocation, Function<EntityRendererProvider.Context, EntityRenderer>>> RENDERERS = new ArrayList<>();
 
     public static final DeferredRegister<EntityType<?>> REGISTRY = DeferredRegister.create(Registries.ENTITY_TYPE, Wyrmroost.MOD_ID);
 
@@ -70,7 +69,7 @@ public class WREntities {
             .attributes(LDWyrmEntity::createAttributes)
             .spawnPlacement(SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, LDWyrmEntity::getSpawnPlacement)
             .spawnEgg(0xD6BCBC, 0xDEB6C7)
-            .renderer(LDWyrmRenderer::new)
+            .renderer(() -> LDWyrmRenderer::new)
             .build(b -> b.sized(0.6f, 0.2f));
 
     public static final Holder<EntityType<?>> OVERWORLD_DRAKE = Builder.creature("overworld_drake", OWDrakeEntity::new)
@@ -78,7 +77,7 @@ public class WREntities {
             .spawnPlacement()
             .spawnEgg(0x788716, 0x3E623E)
             .dragonEgg(new DragonEggProperties(0.65f, 1f, 18000))
-            .renderer(OWDrakeRenderer::new)
+            .renderer(() -> OWDrakeRenderer::new)
             .build(b -> b.sized(2.376f, 2.58f));
 
     public static final Holder<EntityType<?>> SILVER_GLIDER = Builder.creature("silver_glider", SilverGliderEntity::new)
@@ -86,7 +85,7 @@ public class WREntities {
             .spawnPlacement(SpawnPlacementTypes.NO_RESTRICTIONS, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, SilverGliderEntity::getSpawnPlacement)
             .spawnEgg(0xC8C8C8, 0xC4C4C4)
             .dragonEgg(new DragonEggProperties(0.4f, 0.65f, 12000))
-            .renderer(SilverGliderRenderer::new)
+            .renderer(() -> SilverGliderRenderer::new)
             .build(b -> b.sized(1.5f, 0.75f));
 
     public static final Holder<EntityType<?>> ROOSTSTALKER = Builder.creature("roost_stalker", RoostStalkerEntity::new)
@@ -94,7 +93,7 @@ public class WREntities {
             .spawnPlacement()
             .spawnEgg(0x52100D, 0x959595)
             .dragonEgg(new DragonEggProperties(0.25f, 0.35f, 6000))
-            .renderer(RoostStalkerRenderer::new)
+            .renderer(() -> RoostStalkerRenderer::new)
             .build(b -> b.sized(0.65f, 0.5f));
 
     public static final Holder<EntityType<?>> BUTTERFLY_LEVIATHAN = Builder.withClassification("butterfly_leviathan", ButterflyLeviathanEntity::new, MobCategory.WATER_CREATURE)
@@ -102,7 +101,7 @@ public class WREntities {
             .spawnPlacement(SpawnPlacementTypes.IN_WATER, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, ButterflyLeviathanEntity::getSpawnPlacement)
             .spawnEgg(0x17283C, 0x7A6F5A)
             .dragonEgg(new DragonEggProperties(0.75f, 1.25f, 40000).setConditions(Entity::isInWater))
-            .renderer(ButterflyLeviathanRenderer::new)
+            .renderer(() -> ButterflyLeviathanRenderer::new)
             .build(b -> b.sized(2.95f, 2.95f));
 
     public static final Holder<EntityType<?>> DRAGON_FRUIT_DRAKE = Builder.creature("dragon_fruit_drake", DragonFruitDrakeEntity::new)
@@ -110,7 +109,7 @@ public class WREntities {
             .spawnPlacement(SpawnPlacementTypes.NO_RESTRICTIONS, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, DragonFruitDrakeEntity::getSpawnPlacement)
             .spawnEgg(0xe05c9a, 0x788716)
             .dragonEgg(new DragonEggProperties(0.45f, 0.75f, 9600))
-            .renderer(DragonFruitDrakeRenderer::new)
+            .renderer(() -> DragonFruitDrakeRenderer::new)
             .build(b -> b.sized(1.5f, 1.9f));
 
     public static final Holder<EntityType<?>> CANARI_WYVERN = Builder.creature("canari_wyvern", CanariWyvernEntity::new)
@@ -118,7 +117,7 @@ public class WREntities {
             .spawnPlacement(SpawnPlacementTypes.NO_RESTRICTIONS, Heightmap.Types.MOTION_BLOCKING, AbstractDragonEntity::canFlyerSpawn)
             .spawnEgg(0x1D1F28, 0x492E0E)
             .dragonEgg(new DragonEggProperties(0.25f, 0.35f, 6000).setConditions(c -> c.level().getBlockState(c.blockPosition().below()).is(WRBlocks.Tags.DRAGON_FRUIT_DRAKE_CAN_SPAWN_ON)))
-            .renderer(CanariWyvernRenderer::new)
+            .renderer(() -> CanariWyvernRenderer::new)
             .build(b -> b.sized(0.65f, 0.85f));
 
     public static final Holder<EntityType<?>> ROYAL_RED = Builder.creature("royal_red", RoyalRedEntity::new)
@@ -126,11 +125,11 @@ public class WREntities {
             .spawnPlacement(SpawnPlacementTypes.NO_RESTRICTIONS, Heightmap.Types.MOTION_BLOCKING, AbstractDragonEntity::canFlyerSpawn)
             .spawnEgg(0x8a0900, 0x0)
             .dragonEgg(new DragonEggProperties(0.6f, 1f, 72000))
-            .renderer(RoyalRedRenderer::new)
+            .renderer(() -> RoyalRedRenderer::new)
             .build(b -> b.sized(2.95f, 2.95f).fireImmune());
 
     public static final Holder<EntityType<?>> COIN_DRAGON = Builder.creature("coin_dragon", CoinDragonEntity::new)
-            .renderer(CoinDragonRenderer::new)
+            .renderer(() -> CoinDragonRenderer::new)
             .attributes(CoinDragonEntity::createAttributes)
             .build(b -> b.sized(0.35f, 0.435f));
 
@@ -139,7 +138,7 @@ public class WREntities {
             .spawnPlacement(SpawnPlacementTypes.NO_RESTRICTIONS, Heightmap.Types.MOTION_BLOCKING, AbstractDragonEntity::canFlyerSpawn)
             .spawnEgg(0xe3f8ff, 0xa8e9ff)
             .dragonEgg(new DragonEggProperties(1, 1, 12000))
-            .renderer(AlpineRenderer::new)
+            .renderer(() -> AlpineRenderer::new)
             .build(b -> b.sized(2f, 2f));
 
 //    public static final Holder<EntityType<OrbwyrmEntity>> ORBWYRM = Builder.creature("orbwyrm", OrbwyrmEntity::new)
@@ -152,27 +151,27 @@ public class WREntities {
 //            .build(b -> b.sized(2.8f, 3.76f));
 
     public static final Holder<EntityType<?>> DRAGON_EGG = Builder.<DragonEggEntity>withClassification("dragon_egg", DragonEggEntity::new, MobCategory.MISC)
-            .renderer(DragonEggRenderer::new)
+            .renderer(() -> DragonEggRenderer::new)
             .build(EntityType.Builder::noSummon);
 
     public static final Holder<EntityType<?>> BLUE_GEODE_TIPPED_ARROW = Builder.<GeodeTippedArrowEntity>withClassification("blue_geode_tipped_arrow", BlueGeodeTippedArrowEntity::new, MobCategory.MISC)
-            .renderer(GeodeTippedArrowRenderer::new)
+            .renderer(() -> GeodeTippedArrowRenderer::new)
             .build(b -> b.sized(0.5f, 0.5f));
 
     public static final Holder<EntityType<?>> RED_GEODE_TIPPED_ARROW = Builder.<GeodeTippedArrowEntity>withClassification("red_geode_tipped_arrow", RedGeodeTippedArrowEntity::new, MobCategory.MISC)
-            .renderer(GeodeTippedArrowRenderer::new)
+            .renderer(() -> GeodeTippedArrowRenderer::new)
             .build(b -> b.sized(0.5f, 0.5f));
 
     public static final Holder<EntityType<?>> PURPLE_GEODE_TIPPED_ARROW = Builder.<GeodeTippedArrowEntity>withClassification("purple_geode_tipped_arrow", PurpleGeodeTippedArrowEntity::new, MobCategory.MISC)
-            .renderer(GeodeTippedArrowRenderer::new)
+            .renderer(() -> GeodeTippedArrowRenderer::new)
             .build(b -> b.sized(0.5f, 0.5f));
 
     public static final Holder<EntityType<?>> FIRE_BREATH = Builder.<FireBreathEntity>withClassification("fire_breath", FireBreathEntity::new, MobCategory.MISC)
-            .renderer(BreathWeaponRenderer::new)
+            .renderer(() -> BreathWeaponRenderer::new)
             .build(b -> b.sized(0.75f, 0.75f).noSave().noSummon());
 
     public static final Holder<EntityType<?>> WIND_GUST = Builder.<WindGustEntity>withClassification("wind_gust", WindGustEntity::new, MobCategory.MISC)
-            .renderer(NoopRenderer::new)
+            .renderer(() -> NoopRenderer::new)
             .build(b -> b.sized(4, 4).noSave().noSummon());
 
 //    public static final Holder<EntityType<SilkProjectileEntity>> SILK = Builder.withClassification("silk", SilkProjectileEntity::new, MobCategory.MISC)
@@ -209,10 +208,10 @@ public class WREntities {
             return this;
         }
 
-        private Builder<T> renderer(Function<EntityRendererProvider.Context, EntityRenderer> renderFactory)
+        private Builder<T> renderer(Supplier<Function<EntityRendererProvider.Context, EntityRenderer>> renderFactory)
         {
             if (FMLLoader.getDist() == Dist.CLIENT) {
-                RENDERERS.add(new Pair<>(Wyrmroost.rl(name), renderFactory));
+                ClientEvents.RENDERERS.add(new Pair<>(Wyrmroost.rl(name), renderFactory.get()));
             }
             return this;
         }
