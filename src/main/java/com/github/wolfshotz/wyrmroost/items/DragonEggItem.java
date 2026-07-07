@@ -31,9 +31,7 @@ public class DragonEggItem extends Item
 {
     public DragonEggItem()
     {
-        super(WRItems.builder().stacksTo(1)
-                //.setISTER(() -> DragonEggStackRenderer::new) //todo custom model renderer - Nord
-        );
+        super(WRItems.builder().stacksTo(1));
     }
 
     @Override

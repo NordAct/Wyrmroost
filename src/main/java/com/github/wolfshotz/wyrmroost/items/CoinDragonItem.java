@@ -1,11 +1,13 @@
 package com.github.wolfshotz.wyrmroost.items;
 
 import com.github.wolfshotz.wyrmroost.Wyrmroost;
+import com.github.wolfshotz.wyrmroost.client.ClientEvents;
 import com.github.wolfshotz.wyrmroost.entities.dragon.CoinDragonEntity;
 import com.github.wolfshotz.wyrmroost.registry.WRDataComponentTypes;
 import com.github.wolfshotz.wyrmroost.registry.WREntities;
 import com.github.wolfshotz.wyrmroost.registry.WRItems;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
@@ -21,6 +23,8 @@ import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer;
 import net.minecraft.world.level.storage.loot.functions.SetComponentsFunction;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.fml.loading.FMLLoader;
 
 import java.util.Random;
 
@@ -32,8 +36,14 @@ public class CoinDragonItem extends Item
     public CoinDragonItem()
     {
         super(WRItems.builder().stacksTo(1));
-        //todo model predicate - Nord
-        //DistExecutor.unsafeCallWhenOn(Dist.CLIENT, () -> () -> ClientEvents.CALLBACKS.add(() -> ItemModelsProperties.func_239418_a_(this, VARIANT_OVERRIDE, (s, w, p) -> s.getOrCreateTag().getCompound(DATA_ENTITY).getInt(CoinDragonEntity.DATA_VARIANT))));
+        if (FMLLoader.getDist() == Dist.CLIENT) {
+            ClientEvents.CALLBACKS.add(() -> {
+                ItemProperties.register(this, VARIANT_OVERRIDE, (s, w, p, seed) -> {
+                    if (!s.has(WRDataComponentTypes.DRAGON_TAG_COMPONENT)) return 0;
+                    return s.get(WRDataComponentTypes.DRAGON_TAG_COMPONENT).getInt(CoinDragonEntity.DATA_VARIANT);
+                });
+            });
+        }
     }
 
     @Override

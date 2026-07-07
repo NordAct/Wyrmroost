@@ -1,9 +1,12 @@
 package com.github.wolfshotz.wyrmroost.items;
 
+import com.github.wolfshotz.wyrmroost.Wyrmroost;
+import com.github.wolfshotz.wyrmroost.client.ClientEvents;
 import com.github.wolfshotz.wyrmroost.entities.dragon.LDWyrmEntity;
 import com.github.wolfshotz.wyrmroost.registry.WRDataComponentTypes;
 import com.github.wolfshotz.wyrmroost.registry.WREntities;
 import com.github.wolfshotz.wyrmroost.registry.WRItems;
+import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
@@ -12,18 +15,20 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.fml.loading.FMLLoader;
 
 public class LDWyrmItem extends Item {
     public static final String DATA_CONTENTS = "DesertWyrm"; // Should ALWAYS be a compound. If it throws a cast class exception SOMETHING fucked up.
 
     public LDWyrmItem() {
         super(WRItems.builder());
-
-        //DistExecutor.unsafeCallWhenOn(Dist.CLIENT, () -> () -> ClientEvents.CALLBACKS.add(() -> ItemModelsProperties.func_239418_a_(this, Wyrmroost.rl("is_alive"), (stack, world, player) ->
-        //{
-        //    if (stack.hasTag() && stack.getTag().contains(DATA_CONTENTS)) return 1f;
-        //    return 0f;
-        //}))); //todo model predicate - Nord
+        if (FMLLoader.getDist() == Dist.CLIENT) {
+            ClientEvents.CALLBACKS.add(() -> ItemProperties.register(this, Wyrmroost.rl("is_alive"), (stack, world, player, seed) -> {
+                if (stack.has(WRDataComponentTypes.DRAGON_TAG_COMPONENT)) return 1f;
+                return 0f;
+            }));
+        }
     }
 
     @Override
