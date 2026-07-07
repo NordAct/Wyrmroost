@@ -28,9 +28,9 @@
   - No Overworld ore currently got deepslate variant
   - Platinum Ore still drops as block instead of dropping its raw counterpart because there's no item for it
 
-- Un-hardcoded bunch of text and added localization keys for it (TODO)
+- Un-hardcoded bunch of text and added localization keys for it
   - As bilingual myself, I really want to hit with a pan anyone who does that. *Really, really hard*
-  - I also updated Russian translation because it was bad (TODO)
+  - I also updated Russian translation because it was bad
 
 - Replaced hardcoded food items entries (which for most dragons are also items usable for taming) with item tag entries:
   - Alpine Dragon uses `#wyrmroost:alpine_food`, with default entries being Honeycomb and Honey Bottle

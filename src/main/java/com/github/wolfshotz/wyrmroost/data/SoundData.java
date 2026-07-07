@@ -178,7 +178,7 @@ public class SoundData implements DataProvider
                 .build(json);
 
         getBuilder(WRSounds.ENTITY_COINDRAGON_IDLE.value())
-                .subtitle("Coin Dragon chirps")
+                .subtitle("sound.wyrmroost.entity.coin_dragon.idle")
                 .sounds(Wyrmroost::rl, "entity/coin_dragon/%s", "idle", "idle1", "idle2")
                 .build(json);
 
