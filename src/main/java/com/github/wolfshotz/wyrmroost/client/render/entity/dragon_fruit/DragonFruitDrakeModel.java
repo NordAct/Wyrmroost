@@ -427,7 +427,7 @@ public class DragonFruitDrakeModel extends WREntityModel<DragonFruitDrakeEntity>
         if (fruitDrake.isSleeping())
         {
             EyeL.yRot = 87;
-            EyeR.xRot = -87f;
+            EyeR.yRot = -87f;
         }
 
         idleAnim(frame, false);
