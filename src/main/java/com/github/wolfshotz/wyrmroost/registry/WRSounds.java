@@ -20,7 +20,7 @@ public class WRSounds
     public static final Holder<SoundEvent> ENTITY_SILVERGLIDER_DEATH = entity("silverglider.death");
 
     public static final Holder<SoundEvent> ENTITY_OWDRAKE_IDLE = entity("owdrake.idle");
-    public static final Holder<SoundEvent> ENTITY_OWDRAKE_ROAR = entity("owdrake.roar");
+    public static final Holder<SoundEvent> ENTITY_OWDRAKE_ROAR = entity("owdrake.roar", 32);
     public static final Holder<SoundEvent> ENTITY_OWDRAKE_HURT = entity("owdrake.hurt");
     public static final Holder<SoundEvent> ENTITY_OWDRAKE_DEATH = entity("owdrake.death");
 
@@ -29,7 +29,7 @@ public class WRSounds
     public static final Holder<SoundEvent> ENTITY_STALKER_DEATH = entity("stalker.death");
 
     public static final Holder<SoundEvent> ENTITY_BFLY_IDLE = entity("bfly.idle");
-    public static final Holder<SoundEvent> ENTITY_BFLY_ROAR = entity("bfly.roar");
+    public static final Holder<SoundEvent> ENTITY_BFLY_ROAR = entity("bfly.roar", 32);
     public static final Holder<SoundEvent> ENTITY_BFLY_HURT = entity("bfly.hurt");
     public static final Holder<SoundEvent> ENTITY_BFLY_DEATH = entity("bfly.death");
 
@@ -43,12 +43,12 @@ public class WRSounds
 
     public static final Holder<SoundEvent> ENTITY_ROYALRED_IDLE = entity("royalred.idle");
     public static final Holder<SoundEvent> ENTITY_ROYALRED_HURT = entity("royalred.hurt");
-    public static final Holder<SoundEvent> ENTITY_ROYALRED_ROAR = entity("royalred.roar");
+    public static final Holder<SoundEvent> ENTITY_ROYALRED_ROAR = entity("royalred.roar", 64);
     public static final Holder<SoundEvent> ENTITY_ROYALRED_DEATH = entity("royalred.death");
 
     public static final Holder<SoundEvent> ENTITY_ALPINE_IDLE = entity("alpine.idle");
     public static final Holder<SoundEvent> ENTITY_ALPINE_HURT = entity("alpine.hurt");
-    public static final Holder<SoundEvent> ENTITY_ALPINE_ROAR = entity("alpine.roar");
+    public static final Holder<SoundEvent> ENTITY_ALPINE_ROAR = entity("alpine.roar", 64);
     public static final Holder<SoundEvent> ENTITY_ALPINE_DEATH = entity("alpine.death");
 
     public static final Holder<SoundEvent> ENTITY_COINDRAGON_IDLE = entity("coindragon.idle");
