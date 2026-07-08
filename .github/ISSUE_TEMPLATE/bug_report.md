@@ -11,7 +11,7 @@ assignees: ''
 Specify mod and Minecraft versions here
 
 **Mods installed**
-If you have other mods installed, you can skip that. If you do, specify all of them here. Yes, every single one from your 1000 mods modpack. No exceptions
+If you have no other mods installed, you can skip that. If you do, specify all of them here. Yes, every single one from your 1000 mods modpack. No exceptions
 
 **Describe the bug**
 A clear and concise description of what the bug is.
