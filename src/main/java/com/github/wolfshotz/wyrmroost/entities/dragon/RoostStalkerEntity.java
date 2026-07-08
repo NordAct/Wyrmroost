@@ -45,7 +45,9 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.ChestBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.ChestBlockEntity;
+import net.minecraft.world.level.block.entity.ContainerOpenersCounter;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.gameevent.GameEvent;
 
 import javax.annotation.Nullable;
 import java.util.Random;
@@ -352,6 +354,7 @@ public class RoostStalkerEntity extends AbstractDragonEntity
     {
         private Container chest;
         private int searchDelay = 20 + new Random().nextInt(40) + 5;
+        private boolean interacted = false;
 
         public ScavengeGoal(double speed)
         {
@@ -361,7 +364,7 @@ public class RoostStalkerEntity extends AbstractDragonEntity
         @Override
         public boolean canUse()
         {
-            boolean flag = !isTame() && !hasItem() && super.canUse();
+            boolean flag = !isTame() && !hasItem() && super.canUse() && !isImmobile();
             if (flag) return (chest = getInventoryAtPosition()) != null && !chest.isEmpty();
             else return false;
         }
@@ -369,7 +372,7 @@ public class RoostStalkerEntity extends AbstractDragonEntity
         @Override
         public boolean canContinueToUse()
         {
-            return !hasItem() && chest != null && super.canContinueToUse();
+            return !hasItem() && chest != null && !isImmobile() && super.canContinueToUse();
         }
 
         @Override
@@ -383,8 +386,9 @@ public class RoostStalkerEntity extends AbstractDragonEntity
                 setScavenging(true);
 
                 if (chest == null) return;
-                if (chest instanceof ChestBlockEntity chestBE && ChestBlockEntity.getOpenCount(chestBE.getLevel(), chestBE.getBlockPos()) == 0)
-                    interactChest(chest, true);
+                if (chest instanceof ChestBlockEntity chestBE && ChestBlockEntity.getOpenCount(chestBE.getLevel(), chestBE.getBlockPos()) == 0) {
+                    if (!interacted) interactChest(chest, true);
+                }
                 if (!chest.isEmpty() && --searchDelay <= 0)
                 {
                     int index = random.nextInt(chest.getContainerSize());
@@ -401,9 +405,12 @@ public class RoostStalkerEntity extends AbstractDragonEntity
         @Override
         public void stop(){
             super.stop();
-            interactChest(chest, false);
+            if (interacted) {
+                interactChest(chest, false);
+            }
             searchDelay = 20 + new Random().nextInt(40) + 5;
             setScavenging(false);
+            interacted = false;
         }
 
         /**
@@ -446,7 +453,26 @@ public class RoostStalkerEntity extends AbstractDragonEntity
             if (!(intentory instanceof ChestBlockEntity chest)) return; // not a chest, ignore it
 
             chest.chestLidController.shouldBeOpen(open);
-            chest.getLevel().blockEvent(chest.getBlockPos(), chest.getBlockState().getBlock(), 1, ChestBlockEntity.getOpenCount(chest.getLevel(),chest.getBlockPos() ));
+            if (open) incrementOpeners(chest.openersCounter, chest.getLevel(), chest.getBlockPos(), chest.getBlockState());
+            else decrementOpeners(chest.openersCounter, chest.getLevel(), chest.getBlockPos(), chest.getBlockState());
+            chest.getLevel().blockEvent(chest.getBlockPos(), chest.getBlockState().getBlock(), 1, ChestBlockEntity.getOpenCount(chest.getLevel(),chest.getBlockPos()));
+        }
+
+        private void incrementOpeners(ContainerOpenersCounter counter, Level level, BlockPos pos, BlockState state) {
+            int i = counter.openCount++;
+            if (i == 0) {
+                ChestBlockEntity.playSound(level, pos, state, SoundEvents.CHEST_OPEN);
+                level.gameEvent(mob, GameEvent.CONTAINER_OPEN, pos);
+            }
+            interacted = true;
+        }
+
+        private void decrementOpeners(ContainerOpenersCounter counter, Level level, BlockPos pos, BlockState state) {
+           counter.openCount--;
+            if (counter.openCount == 0) {
+                ChestBlockEntity.playSound(level, pos, state, SoundEvents.CHEST_CLOSE);
+                level.gameEvent(mob, GameEvent.CONTAINER_CLOSE, pos);
+            }
         }
     }
 }

@@ -113,13 +113,10 @@ public class AlpineEntity extends AbstractDragonEntity
     {
         boolean flag = super.doHurtTarget(enemy);
 
-        if (!isTame() && flag && !enemy.isAlive() && enemy.getType() == EntityType.BEE)
-        {
-            Bee bee = (Bee) enemy;
-            if (bee.hasNectar() && bee.isLeashed())
-            {
+        if (!isTame() && flag && !enemy.isAlive() && enemy instanceof Bee bee) {
+            if (bee.hasNectar() && bee.isLeashed()) {
                 Entity holder = bee.getLeashHolder();
-                if (holder instanceof Player) tame(true, (Player) holder);
+                if (holder instanceof Player player) tame(true, player);
             }
         }
         return flag;
@@ -129,9 +126,8 @@ public class AlpineEntity extends AbstractDragonEntity
     public boolean isInvulnerableTo(DamageSource source)
     {
         Entity attacker = source.getDirectEntity();
-        if (attacker != null && attacker.getType() == EntityType.BEE)
-        {
-            setTarget((Bee) attacker);
+        if (attacker != null && attacker instanceof Bee bee) {
+            setTarget(bee);
             return true;
         }
         return super.isInvulnerableTo(source);

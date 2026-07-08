@@ -68,5 +68,6 @@
 - Added `#wyrmroost:geode_tipped_arrows` entity type tag that contains all geode arrows
 - Added `#wyrmroost:geode_tipped_arrows` item tag that contains all geode arrows
 - Different geode tipped arrow types have been split to have their own entity type instead of unified one
+- Alpine Dragon can now be tamed with any bee and not just vanilla one
 
 - Other possible changes in mod behavior that came up as result of porting process. Mostly unintentional, because I had to remap entire mob from MCP mappings to Mojmaps by hand (shoutout to shedaniel for making mappings translator tool, it wouldn't be possible to make this port otherwise) or because of differences between game versions

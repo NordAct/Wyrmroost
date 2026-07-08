@@ -9,8 +9,8 @@
   "mixins": [
   ],
   "client": [
-    "LivingEntityMixin",
-    "EntityMixin"
+    "EntityMixin",
+    "LivingEntityMixin"
   ],
   "injectors": {
     "defaultRequire": 1
