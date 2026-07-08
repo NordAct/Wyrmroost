@@ -117,6 +117,7 @@
   "item.wyrmroost.soul_crystal": "Dragon Soul Crystal",
   "item.wyrmroost.soul_crystal.fail": "It isn't safe here...",
   "item.wyrmroost.soul_crystal.not_owner": "You are not entrusted with this dragon...",
+  "item.wyrmroost.soul_crystal.desc": "Tamed by: %s",
 
   "item.wyrmroost.dragon_staff": "Dragon Staff",
   "item.wyrmroost.dragon_staff.desc": "Slap a Dragon!",

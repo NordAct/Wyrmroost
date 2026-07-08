@@ -275,6 +275,8 @@ public class WREntities {
 
     public static class Tags {
         public static final TagKey<EntityType<?>> GEODE_ARROWS = tag("geode_arrows");
+        public static final TagKey<EntityType<?>> DRAGONS = tag("dragons");
+        public static final TagKey<EntityType<?>> SOUL_CRYSTAL_CAN_FIT = tag("soul_crystal_can_fit");
 
         private static TagKey<EntityType<?>> tag(String path) {
             return TagKey.create(Registries.ENTITY_TYPE, Wyrmroost.rl(path));

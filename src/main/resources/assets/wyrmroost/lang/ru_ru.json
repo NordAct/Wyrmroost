@@ -117,6 +117,7 @@
   "item.wyrmroost.soul_crystal": "Кристал драконьей души",
   "item.wyrmroost.soul_crystal.fail": "Здесь небезопасно...",
   "item.wyrmroost.soul_crystal.not_owner": "Этот дракон вам не принадлежит...",
+  "item.wyrmroost.soul_crystal.desc": "Приручен: %s",
 
   "item.wyrmroost.dragon_staff": "Драконий посох",
   "item.wyrmroost.dragon_staff.desc": "Ударь дракона!",

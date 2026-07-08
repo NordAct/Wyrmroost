@@ -29,12 +29,12 @@ public class WRBlocks
     public static final Holder<Block> PLATINUM_ORE = register("platinum_ore", () -> new Block(builder().requiresCorrectToolForDrops().strength(3).sound(SoundType.STONE).mapColor(MapColor.STONE).instrument(NoteBlockInstrument.BASEDRUM)));
     public static final Holder<Block> PLATINUM_BLOCK = register("platinum_block", () -> new Block(builder().requiresCorrectToolForDrops().strength(5).sound(SoundType.METAL).instrument(NoteBlockInstrument.IRON_XYLOPHONE)));
 
-    public static final Holder<Block> BLUE_GEODE_ORE = register("blue_geode_ore", () -> new DropExperienceBlock(UniformInt.of(3, 7), builder().requiresCorrectToolForDrops().sound(SoundType.STONE).mapColor(MapColor.STONE).instrument(NoteBlockInstrument.BASEDRUM)));
-    public static final Holder<Block> BLUE_GEODE_BLOCK = register("blue_geode_block", () -> new Block(builder().requiresCorrectToolForDrops().sound(SoundType.METAL).instrument(NoteBlockInstrument.IRON_XYLOPHONE)));
-    public static final Holder<Block> RED_GEODE_ORE = register("red_geode_ore", () -> new DropExperienceBlock(UniformInt.of(4, 8), builder().requiresCorrectToolForDrops().sound(SoundType.STONE).mapColor(MapColor.STONE).instrument(NoteBlockInstrument.BASEDRUM)));
-    public static final Holder<Block> RED_GEODE_BLOCK = register("red_geode_block", () -> new Block(builder().requiresCorrectToolForDrops().sound(SoundType.METAL).instrument(NoteBlockInstrument.IRON_XYLOPHONE)));
-    public static final Holder<Block> PURPLE_GEODE_ORE = register("purple_geode_ore", () -> new DropExperienceBlock(UniformInt.of(8, 11), builder().requiresCorrectToolForDrops().sound(SoundType.STONE).mapColor(MapColor.STONE).instrument(NoteBlockInstrument.BASEDRUM)));
-    public static final Holder<Block> PURPLE_GEODE_BLOCK = register("purple_geode_block", () -> new Block(builder().requiresCorrectToolForDrops().sound(SoundType.METAL).instrument(NoteBlockInstrument.IRON_XYLOPHONE)));
+    public static final Holder<Block> BLUE_GEODE_ORE = register("blue_geode_ore", () -> new DropExperienceBlock(UniformInt.of(3, 7), builder().requiresCorrectToolForDrops().strength(3).sound(SoundType.STONE).mapColor(MapColor.STONE).instrument(NoteBlockInstrument.BASEDRUM)));
+    public static final Holder<Block> BLUE_GEODE_BLOCK = register("blue_geode_block", () -> new Block(builder().requiresCorrectToolForDrops().strength(5).sound(SoundType.METAL).instrument(NoteBlockInstrument.IRON_XYLOPHONE)));
+    public static final Holder<Block> RED_GEODE_ORE = register("red_geode_ore", () -> new DropExperienceBlock(UniformInt.of(4, 8), builder().requiresCorrectToolForDrops().strength(3).sound(SoundType.STONE).mapColor(MapColor.STONE).instrument(NoteBlockInstrument.BASEDRUM)));
+    public static final Holder<Block> RED_GEODE_BLOCK = register("red_geode_block", () -> new Block(builder().requiresCorrectToolForDrops().strength(5).sound(SoundType.METAL).instrument(NoteBlockInstrument.IRON_XYLOPHONE)));
+    public static final Holder<Block> PURPLE_GEODE_ORE = register("purple_geode_ore", () -> new DropExperienceBlock(UniformInt.of(8, 11), builder().requiresCorrectToolForDrops().strength(3).sound(SoundType.STONE).mapColor(MapColor.STONE).instrument(NoteBlockInstrument.BASEDRUM)));
+    public static final Holder<Block> PURPLE_GEODE_BLOCK = register("purple_geode_block", () -> new Block(builder().requiresCorrectToolForDrops().strength(5).sound(SoundType.METAL).instrument(NoteBlockInstrument.IRON_XYLOPHONE)));
 
     public static Holder<Block> register(String name, Supplier<Block> block)
     {

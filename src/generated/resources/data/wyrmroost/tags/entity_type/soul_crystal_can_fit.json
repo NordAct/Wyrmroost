@@ -1,0 +1,41 @@
+{
+  "values": [
+    "#wyrmroost:dragons",
+    {
+      "id": "iceandfire:fire_dragon",
+      "required": false
+    },
+    {
+      "id": "iceandfire:lightning_dragon",
+      "required": false
+    },
+    {
+      "id": "iceandfire:ice_dragon",
+      "required": false
+    },
+    {
+      "id": "iceandfire:amphithere",
+      "required": false
+    },
+    {
+      "id": "dmr:dragon",
+      "required": false
+    },
+    {
+      "id": "uselessreptile:wyvern",
+      "required": false
+    },
+    {
+      "id": "uselessreptile:moleclaw",
+      "required": false
+    },
+    {
+      "id": "uselessreptile:river_pikehorn",
+      "required": false
+    },
+    {
+      "id": "uselessreptile:lightning_chaser",
+      "required": false
+    }
+  ]
+}

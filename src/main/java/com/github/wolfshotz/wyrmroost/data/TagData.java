@@ -9,6 +9,7 @@ import net.minecraft.data.tags.BiomeTagsProvider;
 import net.minecraft.data.tags.DamageTypeTagsProvider;
 import net.minecraft.data.tags.EntityTypeTagsProvider;
 import net.minecraft.data.tags.ItemTagsProvider;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.tags.EntityTypeTags;
@@ -123,6 +124,73 @@ public class TagData
             tag(WRItems.Tags.ACTIVATES_DRAGON_FRUIT_DRAKE_CROPS_GROWTH).add(Items.GLISTERING_MELON_SLICE);
             tag(WRItems.Tags.ROOST_STALKER_TAMING_ITEMS)
                     .addTag(Tags.Items.EGGS);
+
+            tag(ItemTags.PICKAXES)
+                    .add(WRItems.BLUE_GEODE_PICKAXE.value())
+                    .add(WRItems.RED_GEODE_PICKAXE.value())
+                    .add(WRItems.PURPLE_GEODE_PICKAXE.value())
+                    .add(WRItems.PLATINUM_PICKAXE.value())
+            ;
+
+            tag(ItemTags.SHOVELS)
+                    .add(WRItems.BLUE_GEODE_SHOVEL.value())
+                    .add(WRItems.RED_GEODE_SHOVEL.value())
+                    .add(WRItems.PURPLE_GEODE_SHOVEL.value())
+                    .add(WRItems.PLATINUM_SHOVEL.value())
+            ;
+
+            tag(ItemTags.SWORDS)
+                    .add(WRItems.BLUE_GEODE_SWORD.value())
+                    .add(WRItems.RED_GEODE_SWORD.value())
+                    .add(WRItems.PURPLE_GEODE_SWORD.value())
+                    .add(WRItems.PLATINUM_SWORD.value())
+            ;
+
+            tag(ItemTags.HOES)
+                    .add(WRItems.BLUE_GEODE_HOE.value())
+                    .add(WRItems.RED_GEODE_HOE.value())
+                    .add(WRItems.PURPLE_GEODE_HOE.value())
+                    .add(WRItems.PLATINUM_HOE.value())
+            ;
+
+            tag(ItemTags.AXES)
+                    .add(WRItems.BLUE_GEODE_AXE.value())
+                    .add(WRItems.RED_GEODE_AXE.value())
+                    .add(WRItems.PURPLE_GEODE_AXE.value())
+                    .add(WRItems.PLATINUM_AXE.value())
+            ;
+
+            tag(ItemTags.HEAD_ARMOR)
+                    .add(WRItems.BLUE_GEODE_HELMET.value())
+                    .add(WRItems.RED_GEODE_HELMET.value())
+                    .add(WRItems.PURPLE_GEODE_HELMET.value())
+                    .add(WRItems.PLATINUM_HELMET.value())
+                    .add(WRItems.DRAKE_HELMET.value())
+            ;
+
+            tag(ItemTags.CHEST_ARMOR)
+                    .add(WRItems.BLUE_GEODE_CHESTPLATE.value())
+                    .add(WRItems.RED_GEODE_CHESTPLATE.value())
+                    .add(WRItems.PURPLE_GEODE_CHESTPLATE.value())
+                    .add(WRItems.PLATINUM_CHESTPLATE.value())
+                    .add(WRItems.DRAKE_CHESTPLATE.value())
+            ;
+
+            tag(ItemTags.LEG_ARMOR)
+                    .add(WRItems.BLUE_GEODE_LEGGINGS.value())
+                    .add(WRItems.RED_GEODE_LEGGINGS.value())
+                    .add(WRItems.PURPLE_GEODE_LEGGINGS.value())
+                    .add(WRItems.PLATINUM_LEGGINGS.value())
+                    .add(WRItems.DRAKE_LEGGINGS.value())
+            ;
+
+            tag(ItemTags.FOOT_ARMOR)
+                    .add(WRItems.BLUE_GEODE_BOOTS.value())
+                    .add(WRItems.RED_GEODE_BOOTS.value())
+                    .add(WRItems.PURPLE_GEODE_BOOTS.value())
+                    .add(WRItems.PLATINUM_BOOTS.value())
+                    .add(WRItems.DRAKE_BOOTS.value())
+            ;
         }
     }
 
@@ -143,7 +211,7 @@ public class TagData
             tag(WRBlocks.Tags.ORES_PLATINUM).add(WRBlocks.PLATINUM_ORE.value());
 
             tag(Tags.Blocks.STORAGE_BLOCKS).addTags(WRBlocks.Tags.STORAGE_BLOCKS_GEODE, WRBlocks.Tags.STORAGE_BLOCKS_PLATINUM);
-            tag(WRBlocks.Tags.STORAGE_BLOCKS_GEODE).add(WRBlocks.BLUE_GEODE_BLOCK.value(), WRBlocks.RED_GEODE_BLOCK.value(), WRBlocks.PURPLE_GEODE_BLOCK.value());
+            tag(WRBlocks.Tags.STORAGE_BLOCKS_GEODE);
             tag(WRBlocks.Tags.STORAGE_BLOCKS_PLATINUM).add(WRBlocks.PLATINUM_BLOCK.value());
 
             tag(BlockTags.DRAGON_IMMUNE).add(WRBlocks.PURPLE_GEODE_ORE.value());
@@ -151,6 +219,23 @@ public class TagData
             tag(WRBlocks.Tags.DRAGON_FRUIT_DRAKE_CAN_SPAWN_ON).add(Blocks.JUNGLE_LEAVES);
 
             tag(WRBlocks.Tags.LESSER_DESERT_WYRM_CAN_BURROW_IN).addTag(Tags.Blocks.SANDS);
+
+            tag(BlockTags.NEEDS_STONE_TOOL)
+                    .add(WRBlocks.PLATINUM_ORE.value())
+                    .add(WRBlocks.PLATINUM_BLOCK.value())
+            ;
+
+            tag(BlockTags.NEEDS_IRON_TOOL)
+                    .add(WRBlocks.BLUE_GEODE_ORE.value(), WRBlocks.RED_GEODE_ORE.value(), WRBlocks.PURPLE_GEODE_ORE.value())
+                    .add(WRBlocks.BLUE_GEODE_BLOCK.value(), WRBlocks.RED_GEODE_BLOCK.value(), WRBlocks.PURPLE_GEODE_BLOCK.value())
+            ;
+
+            tag(BlockTags.MINEABLE_WITH_PICKAXE)
+                    .add(WRBlocks.PLATINUM_ORE.value())
+                    .add(WRBlocks.PLATINUM_BLOCK.value())
+                    .add(WRBlocks.BLUE_GEODE_ORE.value(), WRBlocks.RED_GEODE_ORE.value(), WRBlocks.PURPLE_GEODE_ORE.value())
+                    .add(WRBlocks.BLUE_GEODE_BLOCK.value(), WRBlocks.RED_GEODE_BLOCK.value(), WRBlocks.PURPLE_GEODE_BLOCK.value())
+            ;
         }
     }
 
@@ -174,6 +259,32 @@ public class TagData
                     .add(WREntities.ALPINE.value())
                     .add(WREntities.ROYAL_RED.value())
                     .add(WREntities.OVERWORLD_DRAKE.value())
+            ;
+
+            tag(WREntities.Tags.DRAGONS)
+                    .add(WREntities.ALPINE.value())
+                    .add(WREntities.BUTTERFLY_LEVIATHAN.value())
+                    .add(WREntities.CANARI_WYVERN.value())
+                    .add(WREntities.COIN_DRAGON.value())
+                    .add(WREntities.DRAGON_FRUIT_DRAKE.value())
+                    .add(WREntities.LESSER_DESERTWYRM.value())
+                    .add(WREntities.OVERWORLD_DRAKE.value())
+                    .add(WREntities.ROOSTSTALKER.value())
+                    .add(WREntities.ROYAL_RED.value())
+                    .add(WREntities.SILVER_GLIDER.value())
+            ;
+
+            tag(WREntities.Tags.SOUL_CRYSTAL_CAN_FIT)
+                    .addTag(WREntities.Tags.DRAGONS)
+                    .addOptional(ResourceLocation.fromNamespaceAndPath("iceandfire", "fire_dragon"))
+                    .addOptional(ResourceLocation.fromNamespaceAndPath("iceandfire", "lightning_dragon"))
+                    .addOptional(ResourceLocation.fromNamespaceAndPath("iceandfire", "ice_dragon"))
+                    .addOptional(ResourceLocation.fromNamespaceAndPath("iceandfire", "amphithere"))
+                    .addOptional(ResourceLocation.fromNamespaceAndPath("dmr", "dragon"))
+                    .addOptional(ResourceLocation.fromNamespaceAndPath("uselessreptile", "wyvern"))
+                    .addOptional(ResourceLocation.fromNamespaceAndPath("uselessreptile", "moleclaw"))
+                    .addOptional(ResourceLocation.fromNamespaceAndPath("uselessreptile", "river_pikehorn"))
+                    .addOptional(ResourceLocation.fromNamespaceAndPath("uselessreptile", "lightning_chaser"))
             ;
         }
     }

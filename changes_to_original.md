@@ -69,5 +69,7 @@
 - Added `#wyrmroost:geode_tipped_arrows` item tag that contains all geode arrows
 - Different geode tipped arrow types have been split to have their own entity type instead of unified one
 - Alpine Dragon can now be tamed with any bee and not just vanilla one
+- Added `#wyrmroost:dragons` tag that contains all dragons from the mod
+- Soul Crystal now accepts entities from `#wyrmroost:soul_crystal_can_fit` tag. By default, tag contains `#wyrmroost:dragons` and a few mobs from Ice and Fire Community Edition, Dragon Mounts Remastered and Useless Reptile
 
 - Other possible changes in mod behavior that came up as result of porting process. Mostly unintentional, because I had to remap entire mob from MCP mappings to Mojmaps by hand (shoutout to shedaniel for making mappings translator tool, it wouldn't be possible to make this port otherwise) or because of differences between game versions
