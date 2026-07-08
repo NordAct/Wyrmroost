@@ -45,9 +45,8 @@ public class RenderHelper
 
     public static final Object2IntMap<Entity> ENTITY_OUTLINE_MAP = new Object2IntOpenHashMap<>(1);
 
-    public static void renderEntityOutline(Entity entity, int red, int green, int blue, int alpha)
-    {
-        ENTITY_OUTLINE_MAP.put(entity, ((alpha & 0xFF) << 24) | ((red & 0xFF) << 16) | ((green & 0xFF) << 8) | ((blue & 0xFF)));
+    public static void renderEntityOutline(Entity entity, int red, int green, int blue, int alpha) {
+        if (WRConfig.renderEntityOutlines) ENTITY_OUTLINE_MAP.put(entity, ((alpha & 0xFF) << 24) | ((red & 0xFF) << 16) | ((green & 0xFF) << 8) | ((blue & 0xFF)));
     }
 
     @SubscribeEvent
@@ -90,12 +89,9 @@ public class RenderHelper
         if (dragon == null) return;
 
         DragonStaffItem.getAction(stack).render(dragon, ms, partialTicks);
-        if (WRConfig.renderEntityOutlines)
-        {
-            renderEntityOutline(dragon, 0, 255, 255, (int) (Mth.cos((dragon.tickCount + partialTicks) * 0.2f) * 35 + 45));
-            LivingEntity target = dragon.getTarget();
-            if (target != null) renderEntityOutline(target, 255, 0, 0, 100);
-        }
+        renderEntityOutline(dragon, 0, 255, 255, (int) (Mth.cos((dragon.tickCount + partialTicks) * 0.2f) * 35 + 45));
+        LivingEntity target = dragon.getTarget();
+        if (target != null) renderEntityOutline(target, 255, 0, 0, 100);
     }
 
     public enum DebugBox
