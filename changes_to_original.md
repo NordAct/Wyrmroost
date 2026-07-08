@@ -71,5 +71,6 @@
 - Alpine Dragon can now be tamed with any bee and not just vanilla one
 - Added `#wyrmroost:dragons` tag that contains all dragons from the mod
 - Soul Crystal now accepts entities from `#wyrmroost:soul_crystal_can_fit` tag. By default, tag contains `#wyrmroost:dragons` and a few mobs from Ice and Fire Community Edition, Dragon Mounts Remastered and Useless Reptile
+- Fixed Platinum Ore being breakable with your bare hands
 
 - Other possible changes in mod behavior that came up as result of porting process. Mostly unintentional, because I had to remap entire mob from MCP mappings to Mojmaps by hand (shoutout to shedaniel for making mappings translator tool, it wouldn't be possible to make this port otherwise) or because of differences between game versions
