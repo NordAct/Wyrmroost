@@ -294,6 +294,11 @@ public class DragonEggEntity extends Entity implements IEntityWithComplexSpawn
     public boolean canBeCollidedWith() { return true; }
 
     @Override
+    public boolean isPickable() {
+        return true;
+    }
+
+    @Override
     public void writeSpawnData(RegistryFriendlyByteBuf buffer) { buffer.writeCharSequence(getDragonKey(), StandardCharsets.UTF_8); }
 
     @Override
