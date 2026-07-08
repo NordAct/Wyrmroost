@@ -306,7 +306,7 @@ public class ButterflyLeviathanEntity extends AbstractDragonEntity
     @Override
     public ItemStack eat(Level world, ItemStack stack, FoodProperties foodProperties) {
         lightningCooldown = 0;
-        return super.eat(world, stack);
+        return super.eat(world, stack, foodProperties);
     }
 
     @Override
