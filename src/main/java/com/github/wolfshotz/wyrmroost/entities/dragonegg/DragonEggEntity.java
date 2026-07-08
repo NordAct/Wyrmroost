@@ -269,7 +269,10 @@ public class DragonEggEntity extends Entity implements IEntityWithComplexSpawn
     }
     
     public DragonEggProperties getProperties() {
-        if (properties == null) return properties = DragonEggProperties.get(getContainedDragon().orElse(null));
+        if (properties == null) {
+            properties = DragonEggProperties.get(getContainedDragon().orElse(null));
+            refreshDimensions();
+        }
         return properties;
     }
 

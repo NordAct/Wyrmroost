@@ -161,8 +161,7 @@ public class RoostStalkerEntity extends AbstractDragonEntity
         }
 
         if (isTame() && isBreedingItem(stack)) {
-            if (!level().isClientSide() && canFallInLove() && getAge() == 0)
-            {
+            if (!level().isClientSide() && canFallInLove() && getAge() == 0) {
                 setInLove(player);
                 stack.shrink(1);
                 return InteractionResult.SUCCESS;
@@ -312,7 +311,7 @@ public class RoostStalkerEntity extends AbstractDragonEntity
 
     @Override
     public boolean isBreedingItem(ItemStack stack) {
-        return stack.is(WRItems.Tags.BUTTERFLY_LEVIATHAN_BREEDING_ITEMS);
+        return stack.is(WRItems.Tags.ROOST_STALKER_BREEDING_ITEMS);
     }
 
     @Override

@@ -116,6 +116,7 @@ public class TagData
             tag(WRItems.Tags.ALPINE_BREEDING_ITEMS).addTag(WRItems.Tags.ALPINE_FOOD);
             tag(WRItems.Tags.BUTTERFLY_LEVIATHAN_BREEDING_ITEMS).add(Items.KELP);
             tag(WRItems.Tags.CANARI_WYVERN_BREEDING_ITEMS).addTag(WRItems.Tags.CANARI_WYVERN_FOOD);
+            tag(WRItems.Tags.DRAGON_FRUIT_DRAKE_FOOD).addTag(WRItems.Tags.DRAGON_FRUIT_DRAKE_FOOD);
             tag(WRItems.Tags.OVERWORLD_DRAKE_BREEDING_ITEMS).addTag(WRItems.Tags.OVERWORLD_DRAKE_FOOD);
             tag(WRItems.Tags.ROOST_STALKER_BREEDING_ITEMS).addTag(Tags.Items.NUGGETS_GOLD);
             tag(WRItems.Tags.ROYAL_RED_BREEDING_ITEMS).addTag(WRItems.Tags.ROYAL_RED_FOOD);
