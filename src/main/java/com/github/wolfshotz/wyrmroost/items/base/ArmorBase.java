@@ -13,8 +13,8 @@ import java.util.List;
 public class ArmorBase extends ArmorItem
 {
 
-    public ArmorBase(Holder<ArmorMaterial> armorMaterialHolder, Type type, Properties properties) {
-        super(armorMaterialHolder, type, properties.stacksTo(1));
+    public ArmorBase(Holder<ArmorMaterial> armorMaterialHolder, Type type, Properties properties, int durability) {
+        super(armorMaterialHolder, type, properties.stacksTo(1).durability(type.getDurability(durability)));
     }
 
     @Override
