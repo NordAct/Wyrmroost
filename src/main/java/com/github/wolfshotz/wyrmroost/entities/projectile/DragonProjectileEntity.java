@@ -6,8 +6,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.syncher.EntityDataAccessor;
-import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.Mth;
@@ -76,8 +74,7 @@ public class DragonProjectileEntity extends Projectile implements IEntityWithCom
         super.tick();
         if (growthRate != 1) refreshDimensions();
 
-        switch (getEffectType())
-        {
+        switch (getEffectType()) {
             case RAYTRACE:
             {
                 HitResult rayTrace = ProjectileUtil.getHitResultOnMoveVector(this, this::canImpactEntity);
@@ -115,14 +112,12 @@ public class DragonProjectileEntity extends Projectile implements IEntityWithCom
         setPos(x, y, z);
     }
 
-    public boolean canImpactEntity(Entity entity)
-    {
+    public boolean canImpactEntity(Entity entity) {
+        if (shooter == null) return false;
         if (entity == shooter) return false;
-        if (!entity.isAlive()) return false;
-        if (!(entity instanceof LivingEntity)) return false;
-        if (entity.getRootVehicle() == shooter) return false;
-        if (entity.isSpectator() || !entity.canBeCollidedWith() || entity.noPhysics) return false;
-        return shooter != null && !entity.isAlliedTo(shooter);
+        if (entity instanceof OwnableEntity ownable && (ownable.getOwner() == shooter || ownable.getOwner() == shooter.getOwner())) return false;
+        if (entity instanceof LivingEntity livingEntity && shooter.canAttack(livingEntity)) return false;
+        return !entity.isAlliedTo(shooter);
     }
 
     public void hit(HitResult result)
