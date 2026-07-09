@@ -116,7 +116,7 @@ public class DragonProjectileEntity extends Projectile implements IEntityWithCom
         if (shooter == null) return false;
         if (entity == shooter) return false;
         if (entity instanceof OwnableEntity ownable && (ownable.getOwner() == shooter || ownable.getOwner() == shooter.getOwner())) return false;
-        if (entity instanceof LivingEntity livingEntity && shooter.canAttack(livingEntity)) return false;
+        if (entity instanceof TraceableEntity traceable && (traceable.getOwner() == shooter || traceable.getOwner() == shooter.getOwner())) return false;
         return !entity.isAlliedTo(shooter);
     }
 
