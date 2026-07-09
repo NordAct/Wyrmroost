@@ -284,6 +284,16 @@ public class RoyalRedEntity extends AbstractDragonEntity {
     }
 
     @Override
+    public boolean shouldFly() {
+        return super.shouldFly() && !(getTarget() instanceof RoyalRedEntity); //they cannot kill each other with breath attack anyway
+    }
+
+    //@Override
+    //public boolean canBeSeenAsEnemy() {
+    //    return super.canBeSeenAsEnemy() && !isKnockedOut();
+    //}
+
+    @Override
     protected boolean canRide(Entity entity) {
         return !isBaby() && !isKnockedOut() && isTame();
     }

@@ -299,8 +299,15 @@ public abstract class AbstractDragonEntity extends TamableAnimal implements IAni
 
         if (isEffectiveAi()) {
             // uhh so were falling, we should probably start flying
-            boolean flying = shouldFly();
-            if (flying != isFlying()) setFlying(flying);
+            //boolean flying = shouldFly();
+            //if (flying != isFlying()) setFlying(flying);
+
+            //removing thing above got some consequences for AI, thus let's make thing that would emulate it
+            if (!isTame() && !isFlying()) {
+                if (shouldFly()) setFlying(true);
+            }
+
+            if (onGround()) setFlying(false);
 
             if (sleepCooldown > 0) --sleepCooldown;
             if (isSleeping()) {
@@ -492,7 +499,7 @@ public abstract class AbstractDragonEntity extends TamableAnimal implements IAni
             else
             {
                 speed *= 0.35f;
-                if (entity.jumping && canFly()) setFlying(true);
+                if (shouldFly() || entity.jumping && canFly()) setFlying(true);
             }
 
             setSpeed(speed);
@@ -535,7 +542,7 @@ public abstract class AbstractDragonEntity extends TamableAnimal implements IAni
 
     public boolean shouldFly() {
         boolean ignoreAltitude = getY() <= level().getMinBuildHeight() + 1;
-        return canFly() && (ignoreAltitude || getAltitude() > getFlightThreshold());
+        return canFly() && !onGround() && (ignoreAltitude || getAltitude() > getFlightThreshold());
     }
 
     @Override
@@ -1136,9 +1143,8 @@ public abstract class AbstractDragonEntity extends TamableAnimal implements IAni
         return super.causeFallDamage(distance - (int) (getBbHeight() * 0.8), damageMultiplier, damageSource);
     }
 
-    public float getFlightThreshold()
-    {
-        return getBbHeight() * 0.5f;
+    public float getFlightThreshold() {
+        return isTame() ? getBbHeight() * 0.5f : getBbHeight();
     }
 
     public void setMountCameraAngles(boolean backView, CalculateDetachedCameraDistanceEvent event)
