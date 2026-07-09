@@ -15,7 +15,7 @@ public class DrakeArmorItem extends ArmorBase
     private static final AttributeModifier KB_RESISTANCE = new AttributeModifier(KB_RESISTANCE_ID, 10, AttributeModifier.Operation.ADD_VALUE);
 
     public DrakeArmorItem(Type type, Properties properties) {
-        super(WRArmorMaterials.DRAKE, type, properties);
+        super(WRArmorMaterials.DRAKE, type, properties, 25);
     }
 
     @Override
