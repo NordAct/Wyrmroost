@@ -145,6 +145,7 @@ public class RoostStalkerEntity extends AbstractDragonEntity
         }
     }
 
+
     @Override
     public InteractionResult actuallyInteractWithMob(Player player, InteractionHand hand)
     {
@@ -155,7 +156,10 @@ public class RoostStalkerEntity extends AbstractDragonEntity
 
         if (!isTame() && stack.is(WRItems.Tags.ROOST_STALKER_TAMING_ITEMS)) {
             eat(stack);
-            if (tame(random.nextDouble() < 0.25, player)) getAttribute(Attributes.MAX_HEALTH).setBaseValue(20d);
+            if (tame(random.nextDouble() < 0.25, player)) {
+                getAttribute(Attributes.MAX_HEALTH).setBaseValue(20);
+                setHealth(getMaxHealth());
+            }
 
             return COMMON_SUCCESS;
         }
