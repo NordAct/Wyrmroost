@@ -7,6 +7,7 @@ import com.github.wolfshotz.wyrmroost.registry.WRDataComponentTypes;
 import com.github.wolfshotz.wyrmroost.registry.WREntities;
 import com.github.wolfshotz.wyrmroost.registry.WRItems;
 import net.minecraft.ChatFormatting;
+import net.minecraft.Util;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
@@ -19,14 +20,13 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.storage.loot.entries.EntryGroup;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer;
 import net.minecraft.world.level.storage.loot.functions.SetComponentsFunction;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.fml.loading.FMLLoader;
-
-import java.util.Random;
 
 public class CoinDragonItem extends Item
 {
@@ -80,12 +80,13 @@ public class CoinDragonItem extends Item
         return InteractionResult.SUCCESS;
     }
 
-    public static LootPoolEntryContainer.Builder<?> getLootEntry()
-    {
-        CompoundTag parent = new CompoundTag();
-        CompoundTag child = new CompoundTag(); // because the parent nbt gets merged with the stack, we need to nest a child within the one getting merged
-        child.putInt(CoinDragonEntity.DATA_VARIANT, new Random().nextInt(5));
-        parent.put(DATA_ENTITY, child);
-        return LootItem.lootTableItem(WRItems.COIN_DRAGON.value()).apply(SetComponentsFunction.setComponent(WRDataComponentTypes.DRAGON_TAG_COMPONENT.get(), child));
+    public static LootPoolEntryContainer.Builder<?> getLootEntry() { //idk how to fix this in prettier manner
+        return EntryGroup.list(
+                LootItem.lootTableItem(WRItems.COIN_DRAGON.value()).apply(SetComponentsFunction.setComponent(WRDataComponentTypes.DRAGON_TAG_COMPONENT.get(), Util.make(new CompoundTag(), tag -> tag.putInt(CoinDragonEntity.DATA_VARIANT, 0)))),
+                LootItem.lootTableItem(WRItems.COIN_DRAGON.value()).apply(SetComponentsFunction.setComponent(WRDataComponentTypes.DRAGON_TAG_COMPONENT.get(), Util.make(new CompoundTag(), tag -> tag.putInt(CoinDragonEntity.DATA_VARIANT, 1)))),
+                LootItem.lootTableItem(WRItems.COIN_DRAGON.value()).apply(SetComponentsFunction.setComponent(WRDataComponentTypes.DRAGON_TAG_COMPONENT.get(), Util.make(new CompoundTag(), tag -> tag.putInt(CoinDragonEntity.DATA_VARIANT, 2)))),
+                LootItem.lootTableItem(WRItems.COIN_DRAGON.value()).apply(SetComponentsFunction.setComponent(WRDataComponentTypes.DRAGON_TAG_COMPONENT.get(), Util.make(new CompoundTag(), tag -> tag.putInt(CoinDragonEntity.DATA_VARIANT, 3)))),
+                LootItem.lootTableItem(WRItems.COIN_DRAGON.value()).apply(SetComponentsFunction.setComponent(WRDataComponentTypes.DRAGON_TAG_COMPONENT.get(), Util.make(new CompoundTag(), tag -> tag.putInt(CoinDragonEntity.DATA_VARIANT, 4))))
+        );
     }
 }
