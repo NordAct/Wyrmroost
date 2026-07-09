@@ -145,6 +145,7 @@
 
   "death.attack.fireBreath0": "%s был испепелён %s",
   "death.attack.fireBreath1": "Чаризард использовал Огнемет на %s. Это суперэффективно!",
+  "death.attack.windGust": "%s был сдут %s",
 
   "sound.wyrmroost.entity.other.fire_breath": "Дракон извергает огонь",
   "sound.wyrmroost.entity.other.flap": "Дракон машет крыльями",

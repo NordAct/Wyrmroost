@@ -145,6 +145,7 @@
 
   "death.attack.fireBreath0": "%s was torched by %s",
   "death.attack.fireBreath1": "Charizard used Flamethrower on %s, It's super effective!",
+  "death.attack.windGust": "%s was blown out by %s",
 
   "sound.wyrmroost.entity.other.fire_breath": "Dragon breathes fire",
   "sound.wyrmroost.entity.other.flap": "Dragon wing flaps",
