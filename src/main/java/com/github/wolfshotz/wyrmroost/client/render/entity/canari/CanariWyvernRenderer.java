@@ -33,7 +33,7 @@ public class CanariWyvernRenderer extends AbstractDragonRenderer<CanariWyvernEnt
             else if (name.equals("Lady Everlyn Winklestein") && !canari.isMale()) return LADY;
         }
 
-        int texture = Mth.clamp(canari.isMale() ? 0 : 5 + canari.getVariant(), 0, TEXTURES.length - 1);
+        int texture = Mth.clamp((canari.isMale() ? 0 : 5) + canari.getVariant(), 0, TEXTURES.length - 1);
         if (TEXTURES[texture] == null)
             return TEXTURES[texture] = resource("body_" + canari.getVariant() + (canari.isMale()? "m" : "f") + ".png");
         return TEXTURES[texture];
