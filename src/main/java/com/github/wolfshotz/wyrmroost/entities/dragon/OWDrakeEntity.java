@@ -51,6 +51,8 @@ import net.minecraft.world.level.block.ChestBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.client.event.CalculateDetachedCameraDistanceEvent;
 import net.neoforged.neoforge.common.Tags;
 import org.lwjgl.glfw.GLFW;
@@ -300,6 +302,7 @@ public class OWDrakeEntity extends AbstractDragonEntity
     }
 
     @Override
+    @OnlyIn(Dist.CLIENT)
     public void addScreenInfo(StaffScreen screen)
     {
         screen.addAction(StaffAction.INVENTORY);

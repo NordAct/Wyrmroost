@@ -64,6 +64,8 @@ import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.client.event.CalculateDetachedCameraDistanceEvent;
 import net.neoforged.neoforge.event.EventHooks;
 import net.neoforged.neoforge.event.entity.living.BabyEntitySpawnEvent;
@@ -1156,6 +1158,7 @@ public abstract class AbstractDragonEntity extends TamableAnimal implements IAni
         return false;
     }
 
+    @OnlyIn(Dist.CLIENT)
     public void addScreenInfo(StaffScreen screen)
     {
         screen.addAction(StaffAction.HOME);

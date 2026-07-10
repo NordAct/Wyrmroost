@@ -35,6 +35,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 import javax.annotation.Nullable;
 import java.util.EnumSet;
@@ -160,6 +162,7 @@ public class CanariWyvernEntity extends AbstractDragonEntity
     }
 
     @Override
+    @OnlyIn(Dist.CLIENT)
     public void addScreenInfo(StaffScreen screen)
     {
         super.addScreenInfo(screen);

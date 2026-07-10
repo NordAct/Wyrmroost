@@ -58,6 +58,8 @@ import net.minecraft.world.level.pathfinder.PathFinder;
 import net.minecraft.world.level.pathfinder.PathType;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.client.event.CalculateDetachedCameraDistanceEvent;
 import net.neoforged.neoforge.common.NeoForgeMod;
 
@@ -359,6 +361,7 @@ public class ButterflyLeviathanEntity extends AbstractDragonEntity
     }
 
     @Override
+    @OnlyIn(Dist.CLIENT)
     public void addScreenInfo(StaffScreen screen)
     {
         screen.addAction(StaffAction.INVENTORY);

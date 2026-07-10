@@ -47,6 +47,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.pathfinder.PathType;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.client.event.CalculateDetachedCameraDistanceEvent;
 import org.lwjgl.glfw.GLFW;
 
@@ -256,6 +258,7 @@ public class RoyalRedEntity extends AbstractDragonEntity {
     }
 
     @Override
+    @OnlyIn(Dist.CLIENT)
     public void addScreenInfo(StaffScreen screen) {
         screen.addAction(StaffAction.INVENTORY);
         screen.addAction(StaffAction.TARGET);

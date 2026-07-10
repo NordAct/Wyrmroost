@@ -48,6 +48,8 @@ import net.minecraft.world.level.block.entity.ChestBlockEntity;
 import net.minecraft.world.level.block.entity.ContainerOpenersCounter;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 import javax.annotation.Nullable;
 import java.util.Random;
@@ -229,6 +231,7 @@ public class RoostStalkerEntity extends AbstractDragonEntity
     }
 
     @Override
+    @OnlyIn(Dist.CLIENT)
     public void addScreenInfo(StaffScreen screen)
     {
         screen.addAction(StaffAction.INVENTORY);
