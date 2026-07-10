@@ -55,8 +55,10 @@ public class WRFollowOwnerGoal extends Goal
 
             final double minTeleportDist = (dragon.getBbWidth() * 5 * dragon.getBbWidth() * 5 * (dragon.isFlying()? dragon.getBbWidth() * 5 : 1)) + 196;
 
-            if (dragon.distanceToSqr(owner) > minTeleportDist && (owner.getRootVehicle().onGround() || dragon.canFly()) && dragon.tryTeleportToOwner())
+            if (dragon.distanceToSqr(owner) > minTeleportDist && (owner.getRootVehicle().onGround() || dragon.canFly()) && dragon.tryTeleportToOwner()) {
                 dragon.getNavigation().stop();
+                if (!dragon.isFlying() && dragon.canFly() && (dragon.getAltitude() > dragon.getFlightThreshold())) dragon.setFlying(true);
+            }
             else dragon.getNavigation().moveTo(owner, 1);
         }
     }
