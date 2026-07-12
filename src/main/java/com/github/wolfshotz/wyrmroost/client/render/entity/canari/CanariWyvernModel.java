@@ -454,10 +454,8 @@ public class CanariWyvernModel extends WREntityModel<CanariWyvernEntity>
     }
 
     // Standing pose without the t-pose wings shit
-    public void setInitialPositions()
-    {
-        if (entity.isFlying())
-        {
+    public void setInitialPositions() {
+        if (entity.isFlying()) {
             body2.xRot = 0f;
 
             for (WRModelPart model : headArray) model.xRot = 0f;
@@ -482,8 +480,7 @@ public class CanariWyvernModel extends WREntityModel<CanariWyvernEntity>
             claw2R.xRot = 0.2f;
             claw3R.xRot = 0.2f;
         }
-        else
-        {
+        else {
             // left wing
             wing1L.xRot = 1f;
             wing1L.yRot = -0.8f;
@@ -514,6 +511,10 @@ public class CanariWyvernModel extends WREntityModel<CanariWyvernEntity>
             membrane3R.yRot = -3f;
             membrane3R_1.yRot = -0.8f;
         }
+
+        boolean showShoulderMembranes = entity.getAnimation() == CanariWyvernEntity.FLAP_WINGS_ANIMATION || entity.isFlying();
+        membrane3R.visible = showShoulderMembranes;
+        membrane3L.visible = showShoulderMembranes;
     }
 
     public void sitPose()

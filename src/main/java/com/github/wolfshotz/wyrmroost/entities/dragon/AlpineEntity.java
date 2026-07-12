@@ -43,10 +43,10 @@ public class AlpineEntity extends AbstractDragonEntity
     public final TickFloat sitTimer = new TickFloat().setLimit(0, 1);
     public final TickFloat flightTimer = new TickFloat().setLimit(0, 1);
 
-    public AlpineEntity(EntityType<? extends AbstractDragonEntity> dragon, Level world)
-    {
+    public AlpineEntity(EntityType<? extends AbstractDragonEntity> dragon, Level world) {
         super(dragon, world);
 
+        registerDataEntry("Gender", EntityDataEntry.BOOLEAN, GENDER);
         registerDataEntry("Sleeping", EntityDataEntry.BOOLEAN, SLEEPING);
         registerDataEntry("Variant", EntityDataEntry.INTEGER, VARIANT);
     }
@@ -232,7 +232,7 @@ public class AlpineEntity extends AbstractDragonEntity
 
     @Override
     public boolean hasGender() {
-        return false;
+        return true;
     }
 
     @Override

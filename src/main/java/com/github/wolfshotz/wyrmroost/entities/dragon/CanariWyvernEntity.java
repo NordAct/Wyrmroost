@@ -50,8 +50,7 @@ public class CanariWyvernEntity extends AbstractDragonEntity
 
     public Player pissedOffTarget;
 
-    public CanariWyvernEntity(EntityType<? extends AbstractDragonEntity> dragon, Level world)
-    {
+    public CanariWyvernEntity(EntityType<? extends AbstractDragonEntity> dragon, Level world) {
         super(dragon, world);
 
         registerDataEntry("Gender", EntityDataEntry.BOOLEAN, GENDER);
