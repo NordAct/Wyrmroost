@@ -1,0 +1,13 @@
+{
+  "remove": [
+    "minecraft:bee",
+    "minecraft:skeleton_horse",
+    "minecraft:zombie_horse"
+  ],
+  "values": [
+    "#minecraft:undead",
+    "#minecraft:raiders",
+    "#minecraft:illager",
+    "#minecraft:arthropod"
+  ]
+}

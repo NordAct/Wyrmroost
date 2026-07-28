@@ -14,6 +14,7 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.tags.ItemTags;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.block.Block;
@@ -286,6 +287,16 @@ public class TagData
                     .addOptional(ResourceLocation.fromNamespaceAndPath("uselessreptile", "moleclaw"))
                     .addOptional(ResourceLocation.fromNamespaceAndPath("uselessreptile", "river_pikehorn"))
                     .addOptional(ResourceLocation.fromNamespaceAndPath("uselessreptile", "lightning_chaser"))
+            ;
+
+            tag(WREntities.Tags.HOME_DEFENDER_ATTACKABLE)
+                    .addTag(EntityTypeTags.UNDEAD)
+                    .addTag(EntityTypeTags.RAIDERS)
+                    .addTag(EntityTypeTags.ILLAGER)
+                    .addTag(EntityTypeTags.ARTHROPOD)
+                    .remove(EntityType.BEE)
+                    .remove(EntityType.SKELETON_HORSE)
+                    .remove(EntityType.ZOMBIE_HORSE)
             ;
         }
     }

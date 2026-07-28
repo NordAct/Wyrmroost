@@ -2,11 +2,11 @@ package com.github.wolfshotz.wyrmroost.entities.dragon.helpers.ai.goals;
 
 import com.github.wolfshotz.wyrmroost.WRConfig;
 import com.github.wolfshotz.wyrmroost.entities.dragon.AbstractDragonEntity;
+import com.github.wolfshotz.wyrmroost.registry.WREntities;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.goal.target.TargetGoal;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
-import net.minecraft.world.entity.monster.Creeper;
 import net.minecraft.world.phys.AABB;
 
 import java.util.EnumSet;
@@ -17,7 +17,7 @@ import java.util.function.Predicate;
  */
 public class DefendHomeGoal extends TargetGoal
 {
-    private static final Predicate<LivingEntity> FILTER = e -> e instanceof Mob && !(e instanceof Creeper) && !e.getName().getString().equalsIgnoreCase("Ignore Me");
+    private static final Predicate<LivingEntity> FILTER = e -> e.getType().is(WREntities.Tags.HOME_DEFENDER_ATTACKABLE) && !e.getName().getString().equalsIgnoreCase("Ignore Me");
 
     private final AbstractDragonEntity defender;
     private final TargetingConditions predicate;
@@ -38,7 +38,7 @@ public class DefendHomeGoal extends TargetGoal
     public boolean canUse() {
         if (defender.getHealth() <= defender.getMaxHealth() * 0.25) return false;
         if (!defender.getHomePos().isPresent()) return false;
-        return defender.getRandom().nextDouble() < 0.2 && (targetMob = findPotentialTarget()) != null;
+        return defender.getRandom().nextDouble() < 0.2 && (targetMob = findPotentialTarget()) != null && defender.canAttack(targetMob);
     }
 
     @Override

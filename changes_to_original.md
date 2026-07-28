@@ -82,3 +82,6 @@
 - Alpine Dragons got genders now. We respect "traditional values" here (/j)
   - This is also represented visually. Males got markings on their wings
   - As consequence, any resource pack that edited Alpine textures besides Christmas one no longer works
+  - All existing Alpine Dragons in the world will be turned into females when updating the world from previous game version
+- Added `wyrmroost:home_defender_attackable` tag for filtering entities that can be attacked
+  - Tag by default attempts to contain only hostile mobs (minus creepers) to exclude possibility of accidentally massacring lots of passive mobs
