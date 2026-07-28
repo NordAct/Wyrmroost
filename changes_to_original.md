@@ -88,5 +88,6 @@
 - Fixed Butterfly Leviathan Conduit attack targeting entities considered allies
 - Fixed various issues with ore spawns
 - Dragon Fruit Drake now spawns as baby with 60% chance
-- Alpine Dragons now will have 10 seconds delay between attempting to roar to prevent causing infinite roar loops. And also to have some mercy on MC sound engine
+- Alpine Dragons now will have 10 seconds delay between attempting to roar (starting from moment of roar start) to prevent causing infinite roar loops. And also to have some mercy on MC sound engine
 - Fixed dragons trying to set home position mid air while leashed and desperately trying to return to it after
+  - If it affected existing dragon in world, you still need to find a way to reset affected dragon's home position
