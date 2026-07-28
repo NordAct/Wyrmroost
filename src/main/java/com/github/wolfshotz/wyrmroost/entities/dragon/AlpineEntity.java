@@ -13,6 +13,7 @@ import com.github.wolfshotz.wyrmroost.registry.WRItems;
 import com.github.wolfshotz.wyrmroost.registry.WRSounds;
 import com.github.wolfshotz.wyrmroost.util.TickFloat;
 import com.github.wolfshotz.wyrmroost.util.animation.Animation;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
@@ -42,6 +43,7 @@ public class AlpineEntity extends AbstractDragonEntity
 
     public final TickFloat sitTimer = new TickFloat().setLimit(0, 1);
     public final TickFloat flightTimer = new TickFloat().setLimit(0, 1);
+    private int roarDelay = 200;
 
     public AlpineEntity(EntityType<? extends AbstractDragonEntity> dragon, Level world) {
         super(dragon, world);
@@ -69,6 +71,18 @@ public class AlpineEntity extends AbstractDragonEntity
     }
 
     @Override
+    public void addAdditionalSaveData(CompoundTag nbt) {
+        super.addAdditionalSaveData(nbt);
+        nbt.putInt("RoarDelay", roarDelay);
+    }
+
+    @Override
+    public void readAdditionalSaveData(CompoundTag nbt) {
+        super.readAdditionalSaveData(nbt);
+        roarDelay = nbt.getInt("RoarDelay");
+    }
+
+    @Override
     public void aiStep()
     {
         super.aiStep();
@@ -77,8 +91,12 @@ public class AlpineEntity extends AbstractDragonEntity
         sleepTimer.add(isSleeping()? 0.1f : -0.1f);
         flightTimer.add(isFlying()? 0.1f : -0.05f);
 
-        if (!level().isClientSide() && noActiveAnimation() && !isSleeping() && !isBaby() && random.nextDouble() < 0.0005)
-            AnimationPacket.send(this, ROAR_ANIMATION);
+        if (roarDelay <= 0) {
+            if (!level().isClientSide() && noActiveAnimation() && !isSleeping() && !isBaby() && random.nextDouble() < 0.0005) {
+                AnimationPacket.send(this, ROAR_ANIMATION);
+                roarDelay = 200;
+            }
+        } else roarDelay--;
 
         Animation animation = getAnimation();
         int tick = getAnimationTick();
@@ -91,7 +109,7 @@ public class AlpineEntity extends AbstractDragonEntity
                 for (LivingEntity entity : getEntitiesNearby(20, e -> e.getType() == WREntities.ALPINE.value()))
                 {
                     AlpineEntity alpine = ((AlpineEntity) entity);
-                    if (alpine.noActiveAnimation() && alpine.isIdling() && !alpine.isSleeping())
+                    if (alpine.noActiveAnimation() && alpine.roarDelay <= 0 && alpine.isIdling() && !alpine.isSleeping())
                         alpine.setAnimation(ROAR_ANIMATION);
                 }
             }

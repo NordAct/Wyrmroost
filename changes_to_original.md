@@ -88,3 +88,4 @@
 - Fixed Butterfly Leviathan Conduit attack targeting entities considered allies
 - Fixed various issues with ore spawns
 - Dragon Fruit Drake now spawns as baby with 60% chance
+- Alpine Dragons now will have 10 seconds delay between attempting to roar to prevent causing infinite roar loops. And also to have some mercy on MC sound engine
