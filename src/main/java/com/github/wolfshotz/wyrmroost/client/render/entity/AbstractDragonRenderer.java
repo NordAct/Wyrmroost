@@ -26,15 +26,6 @@ public abstract class AbstractDragonRenderer<T extends AbstractDragonEntity, M e
         super(manager, model, shadowSize);
     }
 
-    @Override
-    public void render(T entity, float entityYaw, float partialTicks, PoseStack ms, MultiBufferSource buffer, int packedLightIn) {
-        ms.pushPose();
-        float scale = entity.getScale();
-        ms.scale(scale, scale, scale);
-        super.render(entity, entityYaw, partialTicks, ms, buffer, packedLightIn);
-        ms.popPose();
-    }
-
     /**
      * A conditional layer that can only render if certain conditions are met.
      * E.G. is the dragon sleeping, saddled, etc
