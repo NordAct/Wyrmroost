@@ -87,3 +87,4 @@
   - Tag by default attempts to contain only hostile mobs (minus creepers) to exclude possibility of accidentally massacring lots of passive mobs
 - Fixed Butterfly Leviathan Conduit attack targeting entities considered allies
 - Fixed various issues with ore spawns
+- Dragon Fruit Drake now spawns as baby with 60% chance
