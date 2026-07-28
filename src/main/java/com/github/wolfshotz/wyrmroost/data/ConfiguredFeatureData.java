@@ -58,7 +58,7 @@ public class ConfiguredFeatureData extends DatapackBuiltinEntriesProvider {
                         Feature.ORE,
                         new OreConfiguration(
                                 List.of(
-                                        OreConfiguration.target(new TagMatchTest(Tags.Blocks.ORES_IN_GROUND_NETHERRACK), WRBlocks.RED_GEODE_ORE.value().defaultBlockState())
+                                        OreConfiguration.target(new TagMatchTest(Tags.Blocks.NETHERRACKS), WRBlocks.RED_GEODE_ORE.value().defaultBlockState())
                                 ),
                                 4
                         )

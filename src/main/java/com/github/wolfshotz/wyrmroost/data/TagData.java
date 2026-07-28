@@ -211,6 +211,8 @@ public class TagData
             tag(Tags.Blocks.ORES).addTag(WRBlocks.Tags.ORES_GEODE).addTag(WRBlocks.Tags.ORES_PLATINUM);
             tag(WRBlocks.Tags.ORES_GEODE).add(WRBlocks.BLUE_GEODE_ORE.value(), WRBlocks.RED_GEODE_ORE.value(), WRBlocks.PURPLE_GEODE_ORE.value());
             tag(WRBlocks.Tags.ORES_PLATINUM).add(WRBlocks.PLATINUM_ORE.value());
+            tag(Tags.Blocks.ORES_IN_GROUND_NETHERRACK).add(WRBlocks.RED_GEODE_ORE.value());
+            tag(Tags.Blocks.ORES_IN_GROUND_STONE).add(WRBlocks.BLUE_GEODE_ORE.value(), WRBlocks.PLATINUM_ORE.value());
 
             tag(Tags.Blocks.STORAGE_BLOCKS).addTags(WRBlocks.Tags.STORAGE_BLOCKS_GEODE, WRBlocks.Tags.STORAGE_BLOCKS_PLATINUM);
             tag(WRBlocks.Tags.STORAGE_BLOCKS_GEODE);
