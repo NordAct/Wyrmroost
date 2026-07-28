@@ -76,8 +76,8 @@
 
 - Other possible changes in mod behavior that came up as result of porting process. Mostly unintentional, because I had to remap entire mob from MCP mappings to Mojmaps by hand (shoutout to shedaniel for making mappings translator tool, it wouldn't be possible to make this port otherwise) or because of differences between game versions
 
-## Changes for 1.4.0 version
-- Updated textures for all dragons
+## Changes for 1.4 version
+- Updated textures for all dragons (thanks Therzis for all of her hard work of stitching updated textures on older models)
 - Slightly edited animation of Canari Wyvern to hide one membrane that just looks bad
 - Alpine Dragons got genders now. We respect "traditional values" here (/j)
   - This is also represented visually. Males got markings on their wings
