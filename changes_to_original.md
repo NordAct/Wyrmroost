@@ -85,3 +85,4 @@
   - All existing Alpine Dragons in the world will be turned into females when updating the world from previous game version
 - Added `wyrmroost:home_defender_attackable` tag for filtering entities that can be attacked
   - Tag by default attempts to contain only hostile mobs (minus creepers) to exclude possibility of accidentally massacring lots of passive mobs
+- Fixed Butterfly Leviathan Conduit attack targeting entities considered allies

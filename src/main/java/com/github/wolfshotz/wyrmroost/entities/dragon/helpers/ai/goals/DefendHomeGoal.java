@@ -38,7 +38,7 @@ public class DefendHomeGoal extends TargetGoal
     public boolean canUse() {
         if (defender.getHealth() <= defender.getMaxHealth() * 0.25) return false;
         if (!defender.getHomePos().isPresent()) return false;
-        return defender.getRandom().nextDouble() < 0.2 && (targetMob = findPotentialTarget()) != null && defender.canAttack(targetMob);
+        return defender.getRandom().nextDouble() < 0.2 && (targetMob = findPotentialTarget()) != null && defender.canAttack(targetMob) && !defender.isAlliedTo(targetMob);
     }
 
     @Override

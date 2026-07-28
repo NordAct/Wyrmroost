@@ -171,8 +171,7 @@ public class ButterflyLeviathanEntity extends AbstractDragonEntity
                     if (entity != getTarget() && (entity instanceof Player || isAlliedTo(entity)))
                         entity.addEffect(new MobEffectInstance(MobEffects.CONDUIT_POWER, 220, 0, true, true));
 
-                    if (!attacked && entity instanceof Mob)
-                    {
+                    if (!attacked && entity instanceof Mob && canAttack(entity) && !isAlliedTo(entity)) {
                         attacked = true;
                         entity.hurt(damageSources().magic(), 4);
                         playSound(SoundEvents.CONDUIT_ATTACK_TARGET, 1, 1);
