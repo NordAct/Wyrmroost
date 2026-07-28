@@ -729,12 +729,6 @@ public abstract class AbstractDragonEntity extends TamableAnimal implements IAni
     }
 
     @Override
-    public void restrictTo(BlockPos pos, int distance)
-    {
-        setHomePos(pos);
-    }
-
-    @Override
     public boolean isWithinRestriction()
     {
         return isWithinRestriction(blockPosition());
@@ -778,6 +772,12 @@ public abstract class AbstractDragonEntity extends TamableAnimal implements IAni
     {
         FoodProperties foodProperties = stack.getFoodProperties(this);
         eat(level(), stack, foodProperties);
+    }
+
+    @Override
+    public void elasticRangeLeashBehaviour(Entity p_353036_, float p_353047_) {
+        super.elasticRangeLeashBehaviour(p_353036_, p_353047_);
+        if (canFly() && !onGround()) setFlying(true);
     }
 
     @Override
