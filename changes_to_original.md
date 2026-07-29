@@ -93,3 +93,4 @@
 - Fixed various issues related to Butterfly Leviathans and conduits
 - Added `#wyrmroost:butterfly_leviathan_conduit_targets` tag that contains entities that can be damaged by Butterfly Leviathans with Conduit if they're not actively targeted and get too close
   - By default, tag contains `#wyrmroost:home_defender_attackable` and `#minecraft:aquatic`, so don't leave your BFLs near your aquariums
+- Updated Butterfly Leviathan navigator to make it do donuts in water less often

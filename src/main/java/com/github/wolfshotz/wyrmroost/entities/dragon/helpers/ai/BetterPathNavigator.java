@@ -15,8 +15,7 @@ public class BetterPathNavigator extends GroundPathNavigation
     }
 
     @Override
-    protected void followThePath()
-    {
+    protected void followThePath() {
         Vec3 pos = getTempMobPos();
         Vec3 pathPos = path.getNextNodePos().getBottomCenter();
 
@@ -33,8 +32,7 @@ public class BetterPathNavigator extends GroundPathNavigation
         doStuckDetection(pos);
     }
 
-    private boolean isPathLongEnough(Vec3 entityPosition)
-    {
+    private boolean isPathLongEnough(Vec3 entityPosition) {
         if (path.getNextNodeIndex() + 1 >= path.getNodeCount()) return false;
 
         Vec3 pathPos = Vec3.atBottomCenterOf(this.path.getNextNodePos());

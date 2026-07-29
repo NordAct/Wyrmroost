@@ -5,6 +5,7 @@ import com.github.wolfshotz.wyrmroost.client.screen.StaffScreen;
 import com.github.wolfshotz.wyrmroost.containers.DragonInvContainer;
 import com.github.wolfshotz.wyrmroost.containers.util.SlotBuilder;
 import com.github.wolfshotz.wyrmroost.entities.dragon.helpers.DragonInvHandler;
+import com.github.wolfshotz.wyrmroost.entities.dragon.helpers.ai.BetterWaterBoundPathNavigator;
 import com.github.wolfshotz.wyrmroost.entities.dragon.helpers.ai.LessShitLookController;
 import com.github.wolfshotz.wyrmroost.entities.dragon.helpers.ai.goals.*;
 import com.github.wolfshotz.wyrmroost.entities.util.EntityDataEntry;
@@ -45,7 +46,6 @@ import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NonTameRandomTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.OwnerHurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.OwnerHurtTargetGoal;
-import net.minecraft.world.entity.ai.navigation.WaterBoundPathNavigation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.ItemStack;
@@ -54,8 +54,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.levelgen.Heightmap;
-import net.minecraft.world.level.pathfinder.AmphibiousNodeEvaluator;
-import net.minecraft.world.level.pathfinder.PathFinder;
 import net.minecraft.world.level.pathfinder.PathType;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
@@ -423,9 +421,9 @@ public class ButterflyLeviathanEntity extends AbstractDragonEntity
         return WRSounds.ENTITY_BFLY_DEATH.value();
     }
 
-    protected Navigator createNavigation(Level world)
+    protected BetterWaterBoundPathNavigator createNavigation(Level world)
     {
-        return new Navigator();
+        return new BetterWaterBoundPathNavigator(this, level());
     }
 
     public boolean hasConduit()
@@ -559,32 +557,6 @@ public class ButterflyLeviathanEntity extends AbstractDragonEntity
 
     public int getLightningCooldown() {
         return entityData.get(LIGHTNING_COOLDOWN);
-    }
-
-    public class Navigator extends WaterBoundPathNavigation
-    {
-        public Navigator()
-        {
-            super(ButterflyLeviathanEntity.this, ButterflyLeviathanEntity.this.level());
-        }
-
-        @Override
-        protected PathFinder createPathFinder(int range)
-        {
-            return new PathFinder(nodeEvaluator = new AmphibiousNodeEvaluator(false), range);
-        }
-
-        @Override
-        public boolean isStableDestination(BlockPos pos)
-        {
-            return !level().getBlockState(pos.below()).isAir();
-        }
-
-        @Override
-        protected boolean canUpdatePath()
-        {
-            return true;
-        }
     }
 
     private class MoveController extends MoveControl
