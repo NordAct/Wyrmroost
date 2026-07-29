@@ -691,13 +691,11 @@ public abstract class AbstractDragonEntity extends TamableAnimal implements IAni
     }
 
     @Override
-    public BlockPos getRestrictCenter()
-    {
-        return getHomePos().orElse(BlockPos.ZERO);
+    public BlockPos getRestrictCenter() {
+        return getHomePos().orElse(super.getRestrictCenter());
     }
 
-    public Optional<BlockPos> getHomePos()
-    {
+    public Optional<BlockPos> getHomePos() {
         return entityData.get(HOME_POS);
     }
 
@@ -729,16 +727,15 @@ public abstract class AbstractDragonEntity extends TamableAnimal implements IAni
     }
 
     @Override
-    public boolean isWithinRestriction()
-    {
-        return isWithinRestriction(blockPosition());
+    public void restrictTo(BlockPos pos, int radius) {
+        super.restrictTo(pos, radius);
+        setHomePos(pos);
     }
 
     @Override
-    public boolean isWithinRestriction(BlockPos pos)
-    {
+    public boolean isWithinRestriction(BlockPos pos) {
         Optional<BlockPos> home = getHomePos();
-        return home.map(h -> h.distSqr(pos) <= getRestrictRadius()).orElse(true);
+        return home.map(h -> h.distSqr(pos) <= getRestrictRadius()).orElse(true) || super.isWithinRestriction(pos);
     }
 
     public boolean isAtHome()

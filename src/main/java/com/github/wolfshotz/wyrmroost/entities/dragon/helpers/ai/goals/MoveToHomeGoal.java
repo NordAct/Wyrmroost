@@ -13,6 +13,7 @@ public class MoveToHomeGoal extends Goal
 {
     private int time;
     private final AbstractDragonEntity dragon;
+    private final int TIME_UNTIL_TELEPORT = 600; // 30 seconds
 
     public MoveToHomeGoal(AbstractDragonEntity creatureIn)
     {
@@ -21,9 +22,8 @@ public class MoveToHomeGoal extends Goal
     }
 
     @Override
-    public boolean canUse()
-    {
-        return !dragon.isWithinRestriction();
+    public boolean canUse() {
+        return dragon.getHomePos().isPresent() && !dragon.isWithinRestriction();
     }
 
     @Override
@@ -39,20 +39,33 @@ public class MoveToHomeGoal extends Goal
     }
 
     @Override
-    public void tick()
-    {
+    public void tick() {
         int sq = WRConfig.homeRadius * WRConfig.homeRadius;
         Vec3 home = dragon.getRestrictCenter().getBottomCenter();
-        final int TIME_UNTIL_TELEPORT = 600; // 30 seconds
 
         time++;
-        if (dragon.distanceToSqr(home) > sq + 35 || time >= TIME_UNTIL_TELEPORT)
-            dragon.trySafeTeleport(dragon.getRestrictCenter().above());
-        else
-        {
-            BlockPos movePos;
-            if (dragon.getNavigation().isDone() && (movePos = RandomPos.generateRandomPosTowardDirection(dragon, WRConfig.homeRadius, dragon.getRandom(), dragon.getRestrictCenter())) != null)
-                dragon.getNavigation().moveTo(movePos.getX(), movePos.getY(), movePos.getZ(), 1.1);
+        if (dragon.distanceToSqr(home) > sq + 35 || time >= TIME_UNTIL_TELEPORT) {
+            //attempt to fix home pos if it's somehow happens to be in air
+            if (dragon.level().getBlockState(dragon.getRestrictCenter()).getCollisionShape(dragon.level(), dragon.getRestrictCenter()).isEmpty()) {
+                BlockPos.MutableBlockPos mutableBlockPos =  dragon.getRestrictCenter().mutable();
+                while (dragon.level().getBlockState(mutableBlockPos).getCollisionShape(dragon.level(), dragon.getRestrictCenter()).isEmpty() && mutableBlockPos.getY() > dragon.level().getMinBuildHeight()) {
+                    mutableBlockPos.move(0, -1, 0);
+                }
+                if (dragon.level().getBlockState(mutableBlockPos).getCollisionShape(dragon.level(), dragon.getRestrictCenter()).isEmpty()) {
+                    mutableBlockPos.setY(dragon.level().getMaxBuildHeight());
+                    while (dragon.level().getBlockState(mutableBlockPos).getCollisionShape(dragon.level(), dragon.getRestrictCenter()).isEmpty() && mutableBlockPos.getY() > dragon.level().getMinBuildHeight()) {
+                        mutableBlockPos.move(0, -1, 0);
+                    }
+                }
+                if (!dragon.level().getBlockState(mutableBlockPos).getCollisionShape(dragon.level(), dragon.getRestrictCenter()).isEmpty()) dragon.setHomePos(mutableBlockPos.immutable());
+            }
+            if (!dragon.level().getBlockState(dragon.getRestrictCenter()).getCollisionShape(dragon.level(), dragon.getRestrictCenter()).isEmpty()) {
+                dragon.trySafeTeleport(dragon.getRestrictCenter().above());
+                return;
+            } else time = 0;
         }
+        BlockPos movePos;
+        if (dragon.getNavigation().isDone() && (movePos = RandomPos.generateRandomPosTowardDirection(dragon, WRConfig.homeRadius, dragon.getRandom(), dragon.getRestrictCenter())) != null)
+            dragon.getNavigation().moveTo(movePos.getX(), movePos.getY(), movePos.getZ(), 1.1);
     }
 }
