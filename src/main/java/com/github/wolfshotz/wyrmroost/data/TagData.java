@@ -300,6 +300,11 @@ public class TagData
                     .remove(EntityType.SKELETON_HORSE)
                     .remove(EntityType.ZOMBIE_HORSE)
             ;
+
+            tag(WREntities.Tags.BUTTERFLY_LEVIATHAN_CONDUIT_TARGETS)
+                    .addTag(WREntities.Tags.HOME_DEFENDER_ATTACKABLE)
+                    .addTag(EntityTypeTags.AQUATIC)
+                    ;
         }
     }
 

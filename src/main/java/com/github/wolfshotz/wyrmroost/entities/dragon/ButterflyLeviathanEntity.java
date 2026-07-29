@@ -11,6 +11,7 @@ import com.github.wolfshotz.wyrmroost.entities.util.EntityDataEntry;
 import com.github.wolfshotz.wyrmroost.items.staff.StaffAction;
 import com.github.wolfshotz.wyrmroost.network.packets.AnimationPacket;
 import com.github.wolfshotz.wyrmroost.network.packets.KeybindPacket;
+import com.github.wolfshotz.wyrmroost.registry.WREntities;
 import com.github.wolfshotz.wyrmroost.registry.WRItems;
 import com.github.wolfshotz.wyrmroost.registry.WRSounds;
 import com.github.wolfshotz.wyrmroost.util.Mafs;
@@ -69,6 +70,7 @@ import java.util.EnumSet;
 public class ButterflyLeviathanEntity extends AbstractDragonEntity
 {
     public static final EntityDataAccessor<Boolean> HAS_CONDUIT = SynchedEntityData.defineId(ButterflyLeviathanEntity.class, EntityDataSerializers.BOOLEAN);
+    public static final EntityDataAccessor<Integer> LIGHTNING_COOLDOWN = SynchedEntityData.defineId(ButterflyLeviathanEntity.class, EntityDataSerializers.INT);
     public static final Animation LIGHTNING_ANIMATION = new Animation(64);
     public static final Animation CONDUIT_ANIMATION = new Animation(59);
     public static final Animation BITE_ANIMATION = new Animation(17);
@@ -77,7 +79,6 @@ public class ButterflyLeviathanEntity extends AbstractDragonEntity
     public final TickFloat beachedTimer = new TickFloat().setLimit(0, 1);
     public final TickFloat swimTimer = new TickFloat().setLimit(0, 1);
     public final TickFloat sitTimer = new TickFloat().setLimit(0, 1);
-    public int lightningCooldown = 0;
     public boolean beached = true;
 
     public ButterflyLeviathanEntity(EntityType<? extends AbstractDragonEntity> dragon, Level world)
@@ -88,6 +89,7 @@ public class ButterflyLeviathanEntity extends AbstractDragonEntity
         setPathfindingMalus(PathType.WATER, 0);
 
         registerDataEntry("Variant", EntityDataEntry.INTEGER, VARIANT);
+        registerDataEntry("LightningCooldown", EntityDataEntry.INTEGER, LIGHTNING_COOLDOWN);
     }
 
     @Override
@@ -116,10 +118,10 @@ public class ButterflyLeviathanEntity extends AbstractDragonEntity
     }
 
     @Override
-    protected void  defineSynchedData(SynchedEntityData.Builder builder)
-    {
+    protected void  defineSynchedData(SynchedEntityData.Builder builder) {
         super.defineSynchedData(builder);
         builder.define(HAS_CONDUIT, false);
+        builder.define(LIGHTNING_COOLDOWN, 0);
     }
 
     @Override
@@ -130,7 +132,8 @@ public class ButterflyLeviathanEntity extends AbstractDragonEntity
         Vec3 conduitPos = getConduitPos();
 
         // cooldown for lightning attack
-        if (lightningCooldown > 0) --lightningCooldown;
+        if (getLightningCooldown() > 0)
+            setLightningCooldown(getLightningCooldown() - 1);
 
         // handle "beached" logic (if this fat bastard is on land)
         boolean prevBeached = beached;
@@ -148,10 +151,8 @@ public class ButterflyLeviathanEntity extends AbstractDragonEntity
         }
 
         // conduit effects
-        if (hasConduit())
-        {
-            if (level().isClientSide() && isInWaterRainOrBubble() && random.nextDouble() <= 0.1)
-            {
+        if (hasConduit()) {
+            if (level().isClientSide() && isInWaterRainOrBubble() && random.nextDouble() <= 0.1) {
                 for (int i = 0; i < 16; ++i)
                     level().addParticle(ParticleTypes.NAUTILUS,
                             conduitPos.x,
@@ -163,16 +164,12 @@ public class ButterflyLeviathanEntity extends AbstractDragonEntity
             }
 
             // nearby entities: if evil, kill, if not, give reallly cool potion effect
-            if (tickCount % 80 == 0)
-            {
-                boolean attacked = false;
-                for (LivingEntity entity : getEntitiesNearby(25, Entity::isInWaterRainOrBubble))
-                {
-                    if (entity != getTarget() && (entity instanceof Player || isAlliedTo(entity)))
+            if (tickCount % 80 == 0) {
+                for (LivingEntity entity : getEntitiesNearby(25, Entity::isInWaterRainOrBubble)) {
+                    if (entity instanceof Player || isAlliedTo(entity))
                         entity.addEffect(new MobEffectInstance(MobEffects.CONDUIT_POWER, 220, 0, true, true));
 
-                    if (!attacked && entity instanceof Mob && canAttack(entity) && !isAlliedTo(entity)) {
-                        attacked = true;
+                    if ((entity.getType().is(WREntities.Tags.BUTTERFLY_LEVIATHAN_CONDUIT_TARGETS) || entity == getTarget()) && canAttack(entity) && !isAlliedTo(entity)) {
                         entity.hurt(damageSources().magic(), 4);
                         playSound(SoundEvents.CONDUIT_ATTACK_TARGET, 1, 1);
                     }
@@ -190,24 +187,18 @@ public class ButterflyLeviathanEntity extends AbstractDragonEntity
         int animTick = getAnimationTick();
 
         // zap the fuckers
-        if (animation == LIGHTNING_ANIMATION)
-        {
-            lightningCooldown += 6;
+        if (animation == LIGHTNING_ANIMATION) {
+            setLightningCooldown(getLightningCooldown() + 6);
             if (animTick == 10) playSound(WRSounds.ENTITY_BFLY_ROAR.value(), 3f, 1f, true);
-            if (!level().isClientSide() && isInWaterRainOrBubble() && animTick >= 10)
-            {
+            if (!level().isClientSide() && isInWaterRainOrBubble() && animTick >= 10) {
                 LivingEntity target = getTarget();
-                if (target != null)
-                {
-                    if (hasConduit())
-                    {
-                        if (animTick % 10 == 0)
-                        {
+                if (target != null) {
+                    if (hasConduit()) {
+                        if (animTick % 10 == 0) {
                             Vec3 vec3d = target.position().add(Mafs.nextDouble(random) * 2.333, 0, Mafs.nextDouble(random) * 2.333);
                             createLightning(level(), vec3d, false);
                         }
-                    }
-                    else if (animTick == 10) createLightning(level(), target.position(), false);
+                    } else if (animTick == 10) createLightning(level(), target.position(), false);
                 }
             }
         }
@@ -241,7 +232,7 @@ public class ButterflyLeviathanEntity extends AbstractDragonEntity
     @Override
     public InteractionResult actuallyInteractWithMob(Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
-        if (((beached && lightningCooldown > 60 && level().isRainingAt(blockPosition())) || player.isCreative() || isBaby()) && isFoodItem(stack))
+        if (((beached && getLightningCooldown() > 60 && level().isRainingAt(blockPosition())) || player.isCreative() || isBaby()) && isFoodItem(stack))
         {
             eat(stack);
             if (!level().isClientSide()) tame(random.nextDouble() < 0.2, player);
@@ -306,7 +297,7 @@ public class ButterflyLeviathanEntity extends AbstractDragonEntity
 
     @Override
     public ItemStack eat(Level world, ItemStack stack, FoodProperties foodProperties) {
-        lightningCooldown = 0;
+        setLightningCooldown(0);
         return super.eat(world, stack, foodProperties);
     }
 
@@ -356,7 +347,7 @@ public class ButterflyLeviathanEntity extends AbstractDragonEntity
     {
         return getEyePosition(1)
                 .add(0, 0.4, 0)
-                .add(calculateViewVector(getXRot(), getYRot()).multiply(-4d, -4d, -4));
+                .add(calculateViewVector(getXRot(), getYRot()).multiply(4d, -4d, 4));
     }
 
     @Override
@@ -453,9 +444,8 @@ public class ButterflyLeviathanEntity extends AbstractDragonEntity
         return !isInWater() && !beached;
     }
 
-    public boolean canZap()
-    {
-        return isInWaterRainOrBubble() && lightningCooldown <= 0;
+    public boolean canZap() {
+        return isInWaterRainOrBubble() && getLightningCooldown() <= 0;
     }
 
     @Override
@@ -563,6 +553,14 @@ public class ButterflyLeviathanEntity extends AbstractDragonEntity
                 .add(Attributes.FOLLOW_RANGE, 50);
     }
 
+    public void setLightningCooldown(int cooldown) {
+        entityData.set(LIGHTNING_COOLDOWN, cooldown);
+    }
+
+    public int getLightningCooldown() {
+        return entityData.get(LIGHTNING_COOLDOWN);
+    }
+
     public class Navigator extends WaterBoundPathNavigation
     {
         public Navigator()
@@ -644,8 +642,7 @@ public class ButterflyLeviathanEntity extends AbstractDragonEntity
         }
 
         @Override
-        public void tick()
-        {
+        public void tick() {
             LivingEntity target = getTarget();
             if (target == null) return;
             double distFromTarget = distanceToSqr(target);
@@ -654,14 +651,12 @@ public class ButterflyLeviathanEntity extends AbstractDragonEntity
 
             boolean isClose = distFromTarget < 40;
 
-            if (getNavigation().isDone())
-                getNavigation().moveTo(target, 1.2);
+            getNavigation().moveTo(target, 1.2);
 
             if (isClose) setYRot((float) Mafs.getAngle(ButterflyLeviathanEntity.this, target) + 90f);
 
-            if (noActiveAnimation())
-            {
-                if (distFromTarget > 225 && (isTame() || target.getType() == EntityType.PLAYER) && canZap())
+            if (noActiveAnimation()) {
+                if (!isClose && (isTame() || target.getType() == EntityType.PLAYER) && canZap())
                     AnimationPacket.send(ButterflyLeviathanEntity.this, LIGHTNING_ANIMATION);
                 else if (isClose && Mth.degreesDifferenceAbs((float) Mafs.getAngle(ButterflyLeviathanEntity.this, target) + 90, getYRot()) < 30)
                     AnimationPacket.send(ButterflyLeviathanEntity.this, BITE_ANIMATION);
