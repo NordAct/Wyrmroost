@@ -476,7 +476,7 @@ public abstract class AbstractDragonEntity extends TamableAnimal implements IAni
 
     @Override
     public void stopRiding() {
-        if (canRidePlayers() && getVehicle() instanceof Player player) {
+        if (getVehicle() instanceof Player player) {
             if (player instanceof ServerPlayer serverPlayer && serverPlayer.hasDisconnected()) return;
             List<ShoulderDragon> shoulderDragonList = new ArrayList<>(player.getData(WRAttachments.SHOULDER_DRAGON_LIST));
             shoulderDragonList.removeIf(d -> {

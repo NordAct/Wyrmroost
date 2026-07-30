@@ -43,7 +43,8 @@ public class AlpineEntity extends AbstractDragonEntity
 
     public final TickFloat sitTimer = new TickFloat().setLimit(0, 1);
     public final TickFloat flightTimer = new TickFloat().setLimit(0, 1);
-    private int roarDelay = 200;
+    private int roarDelay = 0;
+    private static final int ROAR_DELAY = 30 * 20;
 
     public AlpineEntity(EntityType<? extends AbstractDragonEntity> dragon, Level world) {
         super(dragon, world);
@@ -94,7 +95,7 @@ public class AlpineEntity extends AbstractDragonEntity
         if (roarDelay <= 0) {
             if (!level().isClientSide() && noActiveAnimation() && !isSleeping() && !isBaby() && random.nextDouble() < 0.0005) {
                 AnimationPacket.send(this, ROAR_ANIMATION);
-                roarDelay = 200;
+                roarDelay = ROAR_DELAY;
             }
         } else roarDelay--;
 
@@ -106,11 +107,12 @@ public class AlpineEntity extends AbstractDragonEntity
             if (tick == 0) playSound(WRSounds.ENTITY_ALPINE_ROAR.value(), 3f, 1f);
             else if (tick == 25)
             {
-                for (LivingEntity entity : getEntitiesNearby(20, e -> e.getType() == WREntities.ALPINE.value()))
-                {
+                for (LivingEntity entity : getEntitiesNearby(20, e -> e instanceof AlpineEntity alpine && alpine.roarDelay <= 0)) {
                     AlpineEntity alpine = ((AlpineEntity) entity);
-                    if (alpine.noActiveAnimation() && alpine.roarDelay <= 0 && alpine.isIdling() && !alpine.isSleeping())
+                    if (alpine.isIdling() && !alpine.isSleeping()) {
                         alpine.setAnimation(ROAR_ANIMATION);
+                        alpine.roarDelay = ROAR_DELAY;
+                    }
                 }
             }
         }
