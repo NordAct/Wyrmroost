@@ -32,6 +32,7 @@ public class Wyrmroost
         WREntities.REGISTRY.register(bus);
         WRItems.REGISTRY.register(bus);
         WRDataComponentTypes.REGISTRY.register(bus);
+        WRAttachments.REGISTRY.register(bus);
 
         CommonEvents.load(bus);
         if (FMLLoader.getDist() == Dist.CLIENT) ClientEvents.load(bus);

@@ -1,11 +1,15 @@
 package com.github.wolfshotz.wyrmroost;
 
+import com.github.wolfshotz.wyrmroost.attachments.ShoulderDragon;
 import com.github.wolfshotz.wyrmroost.client.screen.DebugScreen;
 import com.github.wolfshotz.wyrmroost.data.DataGatherer;
 import com.github.wolfshotz.wyrmroost.entities.dragon.AbstractDragonEntity;
 import com.github.wolfshotz.wyrmroost.items.CoinDragonItem;
 import com.github.wolfshotz.wyrmroost.items.base.ArmorBase;
+import com.github.wolfshotz.wyrmroost.registry.WRAttachments;
 import com.github.wolfshotz.wyrmroost.registry.WREntities;
+import it.unimi.dsi.fastutil.ints.IntComparators;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -23,6 +27,7 @@ import net.neoforged.neoforge.event.LootTableLoadEvent;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
 import net.neoforged.neoforge.event.entity.RegisterSpawnPlacementsEvent;
 import net.neoforged.neoforge.event.entity.living.LivingEquipmentChangeEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 
 import java.util.ArrayList;
@@ -119,5 +124,22 @@ public class CommonEvents
 
     public static void spawnPlacements (RegisterSpawnPlacementsEvent event) {
         WREntities.SPAWN_PREDICATES.forEach(pair -> event.register(EntityType.byString(pair.getFirst().toString()).orElseThrow(), pair.getSecond().getSpawnType(), pair.getSecond().getHeightmapType(), pair.getSecond().build(), RegisterSpawnPlacementsEvent.Operation.OR));
+    }
+
+    @SubscribeEvent
+    public static void loadShoulderDragonsFromAttachment(PlayerEvent.PlayerLoggedInEvent event) {
+            Player player = event.getEntity();
+            if (!player.hasData(WRAttachments.SHOULDER_DRAGON_LIST)) return;
+            List<ShoulderDragon> shoulderDragonList = new ArrayList<>(player.getData(WRAttachments.SHOULDER_DRAGON_LIST));
+            shoulderDragonList.sort((a, b) -> IntComparators.NATURAL_COMPARATOR.compare(a.ordinal(), b.ordinal()));
+            if (!(player.level() instanceof ServerLevel serverLevel)) return;
+            for (ShoulderDragon shoulderDragon : shoulderDragonList) {
+                EntityType.create(shoulderDragon.nbt(), serverLevel).ifPresent(dragon -> {
+                    serverLevel.addWithUUID(dragon);
+                    dragon.setPos(player.position());
+                    if (player.getPassengers().size() < AbstractDragonEntity.MAX_SHOULDER_DRAGON_PER_PLAYER_COUNT)
+                        dragon.startRiding(player, true);
+                });
+            }
     }
 }

@@ -114,19 +114,9 @@ public class CanariWyvernEntity extends AbstractDragonEntity
         InteractionResult result = super.actuallyInteractWithMob(player, hand);
         if (result.consumesAction()) return result;
 
-        if (!isTame() && isFoodItem(stack) && (isPissed() || player.isCreative() || isBaby()))
-        {
+        if (!isTame() && isFoodItem(stack) && (isPissed() || player.isCreative() || isBaby())) {
             eat(stack);
             if (!level().isClientSide()) tame(random.nextDouble() < 0.2, player);
-            return InteractionResult.sidedSuccess(level().isClientSide());
-        }
-
-        if (isOwnedBy(player) && player.getPassengers().size() < 3 && !player.isShiftKeyDown() && !isLeashed())
-        {
-            setSit(true);
-            setFlying(false);
-            stopInPlace();
-            startRiding(player, true);
             return InteractionResult.sidedSuccess(level().isClientSide());
         }
 
@@ -253,6 +243,11 @@ public class CanariWyvernEntity extends AbstractDragonEntity
     public boolean isPissed()
     {
         return pissedOffTarget != null;
+    }
+
+    @Override
+    boolean canRidePlayers() {
+        return true;
     }
 
     public static AttributeSupplier.Builder createAttributes()

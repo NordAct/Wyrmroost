@@ -10,7 +10,6 @@ import com.github.wolfshotz.wyrmroost.entities.dragon.helpers.ai.goals.MoveToHom
 import com.github.wolfshotz.wyrmroost.entities.dragon.helpers.ai.goals.WRFollowOwnerGoal;
 import com.github.wolfshotz.wyrmroost.entities.util.EntityDataEntry;
 import com.github.wolfshotz.wyrmroost.items.staff.StaffAction;
-import com.github.wolfshotz.wyrmroost.network.packets.AddPassengerPacket;
 import com.github.wolfshotz.wyrmroost.registry.WRItems;
 import com.github.wolfshotz.wyrmroost.registry.WRSounds;
 import com.github.wolfshotz.wyrmroost.util.Mafs;
@@ -149,10 +148,10 @@ public class RoostStalkerEntity extends AbstractDragonEntity
 
 
     @Override
-    public InteractionResult actuallyInteractWithMob(Player player, InteractionHand hand)
-    {
+    public InteractionResult actuallyInteractWithMob(Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
-        final InteractionResult COMMON_SUCCESS = InteractionResult.sidedSuccess(level().isClientSide());
+        InteractionResult result = super.actuallyInteractWithMob(player, hand);
+        if (result.consumesAction()) return result;
 
         ItemStack heldItem = getItem();
 
@@ -163,47 +162,19 @@ public class RoostStalkerEntity extends AbstractDragonEntity
                 setHealth(getMaxHealth());
             }
 
-            return COMMON_SUCCESS;
-        }
-
-        if (isTame() && isBreedingItem(stack)) {
-            if (!level().isClientSide() && canFallInLove() && getAge() == 0) {
-                setInLove(player);
-                stack.shrink(1);
-                return InteractionResult.SUCCESS;
-            }
-
-            return InteractionResult.CONSUME;
+            return InteractionResult.sidedSuccess(level().isClientSide());
         }
 
         if (isOwnedBy(player)) {
-            if (player.isShiftKeyDown())
-            {
-                setSit(!isInSittingPose());
-                return COMMON_SUCCESS;
-            }
-
-            if (stack.isEmpty() && heldItem.isEmpty() && !isLeashed() && player.getPassengers().size() < 3)
-            {
-                if (!level().isClientSide() && startRiding(player, true))
-                {
-                    setSit(false);
-                    AddPassengerPacket.send(this, player);
-                }
-
-                return COMMON_SUCCESS;
-            }
-
             if ((!stack.isEmpty() && !isBreedingItem(stack)) || !heldItem.isEmpty()) {
                 setStackInSlot(ITEM_SLOT, stack);
                 player.setItemInHand(hand, heldItem);
 
-                return COMMON_SUCCESS;
+                return InteractionResult.sidedSuccess(level().isClientSide());
             }
         }
 
-        return InteractionResult.PASS;
-    }
+        return InteractionResult.PASS;    }
 
     @Override
     public void doSpecialEffects()
@@ -345,6 +316,11 @@ public class RoostStalkerEntity extends AbstractDragonEntity
     public DragonInvHandler createInv()
     {
         return new DragonInvHandler(this, 1);
+    }
+
+    @Override
+    boolean canRidePlayers() {
+        return true;
     }
 
     public static AttributeSupplier.Builder createAttributes()

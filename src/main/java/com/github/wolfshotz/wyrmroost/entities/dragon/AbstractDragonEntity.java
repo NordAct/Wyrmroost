@@ -1,6 +1,7 @@
 package com.github.wolfshotz.wyrmroost.entities.dragon;
 
 import com.github.wolfshotz.wyrmroost.WRConfig;
+import com.github.wolfshotz.wyrmroost.attachments.ShoulderDragon;
 import com.github.wolfshotz.wyrmroost.client.render.RenderHelper;
 import com.github.wolfshotz.wyrmroost.client.screen.StaffScreen;
 import com.github.wolfshotz.wyrmroost.client.sounds.FlyingSound;
@@ -13,6 +14,7 @@ import com.github.wolfshotz.wyrmroost.entities.util.EntityDataEntry;
 import com.github.wolfshotz.wyrmroost.items.DragonArmorItem;
 import com.github.wolfshotz.wyrmroost.items.DragonEggItem;
 import com.github.wolfshotz.wyrmroost.items.staff.StaffAction;
+import com.github.wolfshotz.wyrmroost.registry.WRAttachments;
 import com.github.wolfshotz.wyrmroost.registry.WREntities;
 import com.github.wolfshotz.wyrmroost.registry.WRSounds;
 import com.github.wolfshotz.wyrmroost.util.Mafs;
@@ -80,9 +82,9 @@ import java.util.function.Supplier;
  * Created by com.github.WolfShotz 7/10/19 - 21:36
  * This is where the magic happens. Here be our Dragons!
  */
-public abstract class AbstractDragonEntity extends TamableAnimal implements IAnimatable, MenuProvider
-{
+public abstract class AbstractDragonEntity extends TamableAnimal implements IAnimatable, MenuProvider {
     public static final byte HEAL_PARTICLES_DATA_ID = 8;
+    public static final int MAX_SHOULDER_DRAGON_PER_PLAYER_COUNT = 3;
 
     // Common Data Parameters
     public static final EntityDataAccessor<Boolean> GENDER = SynchedEntityData.defineId(AbstractDragonEntity.class, EntityDataSerializers.BOOLEAN);
@@ -360,35 +362,23 @@ public abstract class AbstractDragonEntity extends TamableAnimal implements IAni
             setRot(player.yHeadRot, getXRot());
 
             Vec3 vec3d = getRidingPosOffset(index);
-            if (player.isFallFlying())
-            {
-                if (!canFly())
-                {
-                    stopRiding();
-                    return;
-                }
-
-                vec3d = vec3d.scale(1.5);
-                setFlying(true);
-            }
             Vec3 pos = Mafs.getYawVec(player.yBodyRot, vec3d.x, vec3d.z).add(player.getX(), player.getY() + vec3d.y, player.getZ());
             setPos(pos.x, pos.y, pos.z);
         }
     }
 
     @SuppressWarnings("ConstantConditions")
-    public Vec3 getRidingPosOffset(int passengerIndex)
-    {
+    public Vec3 getRidingPosOffset(int passengerIndex) {
         double x = getBbWidth() * 0.5d + getVehicle().getBbWidth() * 0.5d;
-        switch (passengerIndex)
-        {
+        Entity vehicle = getVehicle();
+        switch (passengerIndex) {
             default:
             case 0:
-                return new Vec3(0, 1.81, 0);
+                return new Vec3(0, vehicle instanceof Player player ? player.getBbHeight() : 1.81, 0);
             case 1:
-                return new Vec3(x, 1.38d, 0);
+                return new Vec3(x, vehicle instanceof Player player ? player.getEyeHeight() : 1.38d, 0);
             case 2:
-                return new Vec3(-x, 1.38d, 0);
+                return new Vec3(-x, vehicle instanceof Player player ? player.getEyeHeight() :  1.38d, 0);
         }
     }
 
@@ -416,29 +406,22 @@ public abstract class AbstractDragonEntity extends TamableAnimal implements IAni
     // That way, the server never sends the arm swing packet.
     public InteractionResult actuallyInteractWithMob(Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
-        final InteractionResult COMMON_SUCCESS = InteractionResult.sidedSuccess(level().isClientSide());
 
-        if (isOwnedBy(player) && player.isShiftKeyDown() && !isFlying())
-        {
+        if (isOwnedBy(player) && player.isShiftKeyDown() && !isFlying()) {
             setSit(!isInSittingPose());
-            return COMMON_SUCCESS;
+            return InteractionResult.sidedSuccess(level().isClientSide());
         }
 
-        if (isTame())
-        {
-            if (isFoodItem(stack))
-            {
+        if (isTame()) {
+            if (isFoodItem(stack)) {
                 boolean flag = getHealth() < getMaxHealth();
-                if (isBaby())
-                {
+                if (isBaby()) {
                     if (!level().isClientSide()) ageUp((int) ((-getAge() / 20) * 0.1F), true);
                     flag = true;
                 }
-
-                if (flag)
-                {
+                if (flag) {
                     eat(stack);
-                    return COMMON_SUCCESS;
+                    return InteractionResult.sidedSuccess(level().isClientSide());
                 }
             }
 
@@ -452,17 +435,58 @@ public abstract class AbstractDragonEntity extends TamableAnimal implements IAni
             }
         }
 
-        if (canRide(player) && !player.isShiftKeyDown())
-        {
-            if (!level().isClientSide())
-            {
+        if (canRide(player) && !player.isShiftKeyDown()) {
+            if (!level().isClientSide()) {
                 player.startRiding(this);
                 stopInPlace();
             }
-            return COMMON_SUCCESS;
+            return InteractionResult.sidedSuccess(level().isClientSide());
+        }
+
+        if (canRidePlayers() && isOwnedBy(player) && player.getPassengers().size() < MAX_SHOULDER_DRAGON_PER_PLAYER_COUNT && !player.isShiftKeyDown() && !isLeashed()) {
+            setSit(true);
+            setFlying(false);
+            stopInPlace();
+            startRiding(player, true);
+            return InteractionResult.sidedSuccess(level().isClientSide());
         }
 
         return InteractionResult.PASS;
+    }
+
+    @Override
+    public boolean startRiding(Entity entity, boolean force) {
+        boolean result = super.startRiding(entity, force);
+        if (canRidePlayers() && result && entity instanceof Player player) {
+            CompoundTag nbtCompound = new CompoundTag();
+            saveAsPassenger(nbtCompound);
+            List<ShoulderDragon> shoulderDragonList = new ArrayList<>(player.getData(WRAttachments.SHOULDER_DRAGON_LIST));
+            boolean alreadyIn = shoulderDragonList.stream().anyMatch(d -> {
+                UUID uuid = d.nbt().getUUID("UUID");
+                return getUUID().equals(uuid);
+            });
+            if (!alreadyIn) {
+                shoulderDragonList.add(new ShoulderDragon(getVehicle().getPassengers().indexOf(this), nbtCompound));
+                player.setData(WRAttachments.SHOULDER_DRAGON_LIST, shoulderDragonList);
+            }
+            setPortalCooldown(0);
+        }
+        return result;
+    }
+
+    @Override
+    public void stopRiding() {
+        if (canRidePlayers() && getVehicle() instanceof Player player) {
+            if (player instanceof ServerPlayer serverPlayer && serverPlayer.hasDisconnected()) return;
+            List<ShoulderDragon> shoulderDragonList = new ArrayList<>(player.getData(WRAttachments.SHOULDER_DRAGON_LIST));
+            shoulderDragonList.removeIf(d -> {
+                UUID uuid = d.nbt().getUUID("UUID");
+                return getUUID().equals(uuid);
+            });
+            player.setData(WRAttachments.SHOULDER_DRAGON_LIST, shoulderDragonList);
+            setYRot(player.getYRot() + 180f);
+        }
+        super.stopRiding();
     }
 
     // Override to make processInteract way less annoying
@@ -1143,7 +1167,7 @@ public abstract class AbstractDragonEntity extends TamableAnimal implements IAni
     }
 
     public float getFlightThreshold() {
-        return isTame() ? getBbHeight() * 0.5f : getBbHeight();
+        return getBbHeight();
     }
 
     public void setMountCameraAngles(boolean backView, CalculateDetachedCameraDistanceEvent event)
@@ -1268,6 +1292,10 @@ public abstract class AbstractDragonEntity extends TamableAnimal implements IAni
     public abstract boolean mayFly();
     public abstract boolean maySleep();
     public abstract boolean hasVariants();
+
+    boolean canRidePlayers() {
+        return false;
+    }
 
     @Override
     public float getWalkTargetValue(BlockPos pos, LevelReader level) {

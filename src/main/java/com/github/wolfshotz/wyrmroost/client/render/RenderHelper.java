@@ -9,10 +9,14 @@ import com.github.wolfshotz.wyrmroost.util.ModUtils;
 import com.mojang.blaze3d.vertex.PoseStack;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+import net.minecraft.CrashReport;
+import net.minecraft.ReportedException;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -50,34 +54,24 @@ public class RenderHelper
     }
 
     @SubscribeEvent
-    public static void renderEntities(RenderLivingEvent.Post<? super LivingEntity, ?> event)
-    {
+    private static void renderEntities(RenderLivingEvent.Post<? super LivingEntity, ?> event) {
         LivingEntity entity = event.getEntity();
         ENTITY_OUTLINE_MAP.removeInt(entity);
     }
 
-//    public static void fogColors(EntityViewRenderEvent.FogColors evt)
-//    {
-//        EffectInstance effect = ClientEvents.getPlayer().getActivePotionEffect(WREffects.SILK.get());
-//        if (effect != null)
-//        {
-//            evt.setBlue(evt.getRed() + 0.875f);
-//            evt.setGreen(evt.getGreen() + 0.875f);
-//            evt.setRed(evt.getBlue() + 0.875f);
-//        }
-//    }
-//
-//    public static void renderFog(EntityViewRenderEvent.RenderFogEvent evt)
-//    {
-//        EffectInstance effect = ClientEvents.getPlayer().getActivePotionEffect(WREffects.SILK.get());
-//        if (effect != null)
-//        {
-//            float duration = (float) effect.getDuration();
-//            float lerp = MathHelper.lerp(Math.min(1f, duration / 10f), evt.getFarPlaneDistance(), 5f);
-//            RenderSystem.fogStart(lerp * 0.25f);
-//            RenderSystem.fogEnd(lerp);
-//        }
-//    }
+    public static <E extends Entity> void renderEntity(E entityIn, float partialTicks, PoseStack matrixStack, MultiBufferSource bufferIn, int packedLight) {
+        EntityRenderer<? super E> render = getEntityRenderer(entityIn);
+        try {
+            render.render(entityIn, 0, partialTicks, matrixStack, bufferIn, packedLight);
+        } catch (Throwable throwable1) {
+            throw new ReportedException(CrashReport.forThrowable(throwable1, "Rendering entity in world"));
+        }
+    }
+
+    public static <T extends Entity> EntityRenderer<? super T> getEntityRenderer(T entityIn) {
+        EntityRenderDispatcher manager = Minecraft.getInstance().getEntityRenderDispatcher();
+        return manager.getRenderer(entityIn);
+    }
 
     private static void renderDragonStaff(PoseStack ms, float partialTicks)
     {

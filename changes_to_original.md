@@ -94,3 +94,5 @@
 - Added `#wyrmroost:butterfly_leviathan_conduit_targets` tag that contains entities that can be damaged by Butterfly Leviathans with Conduit if they're not actively targeted and get too close
   - By default, tag contains `#wyrmroost:home_defender_attackable` and `#minecraft:aquatic`, so don't leave your BFLs near your aquariums
 - Updated Butterfly Leviathan navigator to make it do donuts in water less often
+- Dragons that can ride player now render attached to player model and no longer dismount themselves when player uses elytra
+- Fixed issue when dragons that ride player either dismount player or vanish from world entirely when player logs off

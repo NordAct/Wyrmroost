@@ -2,17 +2,22 @@ package com.github.wolfshotz.wyrmroost.client.render.entity;
 
 import com.github.wolfshotz.wyrmroost.Wyrmroost;
 import com.github.wolfshotz.wyrmroost.client.model.WREntityModel;
+import com.github.wolfshotz.wyrmroost.client.render.PlayerShoulderDragonLayer;
 import com.github.wolfshotz.wyrmroost.entities.dragon.AbstractDragonEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Axis;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.player.Player;
 
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -21,9 +26,27 @@ public abstract class AbstractDragonRenderer<T extends AbstractDragonEntity, M e
 {
     public static final String BASE_PATH = "textures/entity/dragon/";
 
-    public AbstractDragonRenderer(EntityRendererProvider.Context manager, M model, float shadowSize)
-    {
+    public AbstractDragonRenderer(EntityRendererProvider.Context manager, M model, float shadowSize) {
         super(manager, model, shadowSize);
+    }
+
+    @Override
+    public void render(T entity, float entityYaw, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
+        if (entity.getVehicle() instanceof Player player) {
+            if (PlayerShoulderDragonLayer.RIDING_PLAYER.contains(entity.getUUID())) return;
+            else if (Minecraft.getInstance().player == player && Minecraft.getInstance().options.getCameraType().isFirstPerson()) return;
+        }
+        super.render(entity, entityYaw, partialTick, poseStack, bufferSource, packedLight);
+    }
+
+    @Override
+    protected void setupRotations(T entity, PoseStack poseStack, float bob, float yBodyRot, float partialTick, float scale) {
+        if (entity.getVehicle() instanceof Player) {
+            if (LivingEntityRenderer.isEntityUpsideDown(entity)) {
+                poseStack.translate(0, (entity.getBbHeight() + 0.1f) / scale, 0);
+                poseStack.mulPose(Axis.ZP.rotationDegrees(180f));
+            }
+        } else super.setupRotations(entity, poseStack, bob, yBodyRot, partialTick, scale);
     }
 
     /**

@@ -122,23 +122,13 @@ public class SilverGliderEntity extends AbstractDragonEntity
         InteractionResult result = super.actuallyInteractWithMob(player, hand);
         if (result.consumesAction()) return result;
 
-        if (!isTame() && isFood(stack))
-        {
-            if (!level().isClientSide() && (temptGoal.isRunning() || player.isCreative()))
-            {
+        if (!isTame() && isFood(stack)) {
+            if (!level().isClientSide() && (temptGoal.isRunning() || player.isCreative())) {
                 tame(random.nextDouble() < 0.333, player);
                 eat(stack);
                 return InteractionResult.SUCCESS;
             }
             return InteractionResult.CONSUME;
-        }
-
-        if (isOwnedBy(player) && player.getPassengers().isEmpty() && !player.isShiftKeyDown() && !isFood(stack) && !isLeashed())
-        {
-            startRiding(player, true);
-            setSit(false);
-            stopInPlace();
-            return InteractionResult.sidedSuccess(level().isClientSide());
         }
 
         return InteractionResult.PASS;
@@ -205,12 +195,6 @@ public class SilverGliderEntity extends AbstractDragonEntity
     }
 
     @Override
-    public Vec3 getRidingPosOffset(int passengerIndex)
-    {
-        return new Vec3(0, 1.81, 0.5d);
-    }
-
-    @Override
     public boolean shouldFly()
     {
         return isRiding()? isGliding() : super.shouldFly();
@@ -260,6 +244,11 @@ public class SilverGliderEntity extends AbstractDragonEntity
 
     @Override
     public boolean hasVariants() {
+        return true;
+    }
+
+    @Override
+    boolean canRidePlayers() {
         return true;
     }
 
