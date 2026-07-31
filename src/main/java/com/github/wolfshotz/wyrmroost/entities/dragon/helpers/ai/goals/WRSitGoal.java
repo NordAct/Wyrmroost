@@ -23,11 +23,11 @@ public class WRSitGoal extends SitWhenOrderedToGoal
     public boolean canUse()
     {
         if (!dragon.isTame()) return false;
-        if (dragon.isInWaterRainOrBubble() && !dragon.isUnderWater()) return false;
-        if (!dragon.onGround() && !dragon.isFlying()) return false;
+        if (dragon.isUnderWater() && !dragon.canRestUnderWater()) return false;
+        if (!dragon.onGround() && dragon.mayFly()) return false;
         LivingEntity owner = dragon.getOwner();
         if (owner == null) return true;
-        return (dragon.distanceToSqr(owner) > 144d || owner.getLastHurtByMob() == null) && super.canContinueToUse();
+        return (dragon.distanceToSqr(owner) > 144d || owner.getLastHurtByMob() == null) && dragon.isOrderedToSit();
     }
 
     @Override

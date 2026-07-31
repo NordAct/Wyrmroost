@@ -1297,6 +1297,10 @@ public abstract class AbstractDragonEntity extends TamableAnimal implements IAni
         return false;
     }
 
+    public boolean canRestUnderWater() {
+        return false;
+    }
+
     @Override
     public float getWalkTargetValue(BlockPos pos, LevelReader level) {
         return 0;

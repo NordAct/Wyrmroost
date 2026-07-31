@@ -559,6 +559,11 @@ public class ButterflyLeviathanEntity extends AbstractDragonEntity
         return entityData.get(LIGHTNING_COOLDOWN);
     }
 
+    @Override
+    public boolean canRestUnderWater() {
+        return true;
+    }
+
     private class MoveController extends MoveControl
     {
         public MoveController()

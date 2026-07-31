@@ -313,7 +313,7 @@ public class ButterflyLeviathanModel extends WREntityModel<ButterflyLeviathanEnt
     public void setupAnim(ButterflyLeviathanEntity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch)
     {
         netHeadYaw = Mth.wrapDegrees(netHeadYaw);
-        if (!entity.beached)
+        if (!entity.beached && !entity.isInSittingPose())
         {
             body1.xRot = headPitch * Mafs.PI / 180f;
             headPitch = 0;

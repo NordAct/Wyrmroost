@@ -96,3 +96,5 @@
 - Updated Butterfly Leviathan navigator to make it do donuts in water less often
 - Dragons that can ride player now render attached to player model and no longer dismount themselves when player uses elytra
 - Fixed issue when dragons that ride player either dismount player or vanish from world entirely when player logs off
+- Fixed issue when dragons could start buttsliding when they happen to be under rain
+  - This also fixes BFL being unable to stand still while in sitting pose under water
