@@ -36,7 +36,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.HitResult;
-import net.neoforged.neoforge.event.EventHooks;
 
 import javax.annotation.Nullable;
 import java.util.Comparator;
@@ -200,18 +199,13 @@ public class LDWyrmEntity extends PathfinderMob implements IAnimatable
     }
 
     @Override
-    public void checkDespawn()
-    {
-        if (isPersistenceRequired()) {
-            noActionTime = 0;
-            return;
-        }
+    public boolean requiresCustomPersistence() {
+        return super.requiresCustomPersistence() || level().isDay();
+    }
 
-        if (EventHooks.checkMobDespawn(this)) return;
-
-        Entity player = level().getNearestPlayer(this, 32);
-        if (player == null && (random.nextDouble() < 0.0075 || !level().isDay())) discard();
-        else noActionTime = 0;
+    @Override
+    public boolean removeWhenFarAway(double dist) {
+        return !this.hasCustomName();
     }
 
     @Override
