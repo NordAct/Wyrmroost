@@ -109,7 +109,7 @@ class RecipeData extends RecipeProvider {
         shaped(RecipeCategory.COMBAT, WRItems.RED_GEODE_ARROW.value(), 8).define('G', WRItems.RED_GEODE.value()).define('|', Items.STICK).define('F', Items.FEATHER).pattern("G").pattern("|").pattern("F").unlockedBy("has_geode", has(WRItems.RED_GEODE.value())).save(output);
         shaped(RecipeCategory.COMBAT, WRItems.PURPLE_GEODE_ARROW.value(), 8).define('G', WRItems.PURPLE_GEODE.value()).define('|', Items.STICK).define('F', Items.FEATHER).pattern("G").pattern("|").pattern("F").unlockedBy("has_geode", has(WRItems.PURPLE_GEODE.value())).save(output);
 
-        stonecutterResultFromBase(output, RecipeCategory.DECORATIONS, WRBlocks.CHISELED_PLATINUM_BLOCK.value(), WRBlocks.PLATINUM_BLOCK.value());
+        stonecutterResultFromBase(output, RecipeCategory.DECORATIONS, WRBlocks.CHISELED_PLATINUM_BLOCK.value(), WRBlocks.PLATINUM_BLOCK.value(), 2);
         // Materials
         storageBlock(output, WRItems.BLUE_GEODE.value(), WRBlocks.BLUE_GEODE_BLOCK.value());
         smelt(output, WRBlocks.BLUE_GEODE_ORE.value(), WRItems.BLUE_GEODE.value(), 1f, 200);

@@ -103,6 +103,7 @@
 - Moved all contents of server config to common one
 - Added hatch time config
 - Added Raw Platinum. Platinum Ore now drops Raw Platinum instead of itself
+- Added Chiseled Platinum Block. It's a decorative block that you can craft from Platinum Block using stonecutter
 - Updated all platinum related item and blocks textures
   - Platinum Armor model for player and dragons is not updated
 - Updated Drake Backplate texture and Drake armor items textures
