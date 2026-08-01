@@ -2,6 +2,7 @@ package com.github.wolfshotz.wyrmroost;
 
 import com.github.wolfshotz.wyrmroost.attachments.ShoulderDragon;
 import com.github.wolfshotz.wyrmroost.client.screen.DebugScreen;
+import com.github.wolfshotz.wyrmroost.config.WRConfig;
 import com.github.wolfshotz.wyrmroost.data.DataGatherer;
 import com.github.wolfshotz.wyrmroost.entities.dragon.AbstractDragonEntity;
 import com.github.wolfshotz.wyrmroost.items.CoinDragonItem;

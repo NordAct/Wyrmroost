@@ -1,6 +1,6 @@
 package com.github.wolfshotz.wyrmroost.client.render.entity.coin_dragon;
 
-import com.github.wolfshotz.wyrmroost.WRConfig;
+import com.github.wolfshotz.wyrmroost.config.WRConfig;
 import com.github.wolfshotz.wyrmroost.Wyrmroost;
 import com.github.wolfshotz.wyrmroost.entities.dragon.CoinDragonEntity;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;

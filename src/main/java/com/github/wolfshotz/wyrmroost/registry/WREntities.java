@@ -35,9 +35,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.*;
-import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
-import net.minecraft.world.entity.ai.attributes.RangedAttribute;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.levelgen.Heightmap;
@@ -254,22 +252,6 @@ public class WREntities {
         private static <T extends Entity> Builder<T> withClassification(String name, EntityType.EntityFactory<T> factory, MobCategory classification)
         {
             return new Builder<>(name, factory, classification);
-        }
-    }
-
-    public static class Attributes {
-        public static final DeferredRegister<Attribute> REGISTRY = DeferredRegister.create(Registries.ATTRIBUTE, Wyrmroost.MOD_ID);
-
-        public static final Holder<Attribute> PROJECTILE_DAMAGE = ranged("generic.projectileDamage", 2d, 0, 2048d);
-
-        private static Holder<Attribute> ranged(String name, double defaultValue, double min, double max)
-        {
-            return register(name.toLowerCase().replace('.', '_'), () -> new RangedAttribute("attribute.name." + name, defaultValue, min, max));
-        }
-
-        private static Holder<Attribute> register(String name, Supplier<Attribute> attribute)
-        {
-            return REGISTRY.register(name, attribute);
         }
     }
 

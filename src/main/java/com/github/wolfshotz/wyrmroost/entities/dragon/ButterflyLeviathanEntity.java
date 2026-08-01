@@ -1,6 +1,7 @@
 package com.github.wolfshotz.wyrmroost.entities.dragon;
 
-import com.github.wolfshotz.wyrmroost.WRConfig;
+import com.github.wolfshotz.wyrmroost.config.WRConfig;
+import com.github.wolfshotz.wyrmroost.config.WREntityAttributeConfig;
 import com.github.wolfshotz.wyrmroost.client.screen.StaffScreen;
 import com.github.wolfshotz.wyrmroost.containers.DragonInvContainer;
 import com.github.wolfshotz.wyrmroost.containers.util.SlotBuilder;
@@ -539,14 +540,22 @@ public class ButterflyLeviathanEntity extends AbstractDragonEntity
         return world.getFluidState(pos).is(FluidTags.WATER) && random.nextFloat() < 0.35f;
     }
 
-    public static AttributeSupplier.Builder createAttributes()
-    {
+    @Override
+    public void applyAttributes() {
+        getAttribute(Attributes.MAX_HEALTH).setBaseValue(WREntityAttributeConfig.INSTANCE.butterflyLeviathanHealth.get());
+        getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(WREntityAttributeConfig.INSTANCE.butterflyLeviathanGroundSpeed.get());
+        getAttribute(NeoForgeMod.SWIM_SPEED).setBaseValue(WREntityAttributeConfig.INSTANCE.butterflyLeviathanSwimSpeed.get());
+        getAttribute(Attributes.KNOCKBACK_RESISTANCE).setBaseValue(WREntityAttributeConfig.INSTANCE.butterflyLeviathanKnockbackResistance.get());
+        getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(WREntityAttributeConfig.INSTANCE.butterflyLeviathanAttackDamage.get());
+    }
+
+    public static AttributeSupplier.Builder createAttributes() {
         return AbstractDragonEntity.createDragonAttributes()
-                .add(Attributes.MAX_HEALTH, 180)
-                .add(Attributes.MOVEMENT_SPEED, 0.08)
-                .add(NeoForgeMod.SWIM_SPEED, 0.3)
-                .add(Attributes.KNOCKBACK_RESISTANCE, 1)
-                .add(Attributes.ATTACK_DAMAGE, 14)
+                .add(Attributes.MAX_HEALTH, WREntityAttributeConfig.INSTANCE.butterflyLeviathanHealth.get())
+                .add(Attributes.MOVEMENT_SPEED, WREntityAttributeConfig.INSTANCE.butterflyLeviathanGroundSpeed.get())
+                .add(NeoForgeMod.SWIM_SPEED, WREntityAttributeConfig.INSTANCE.butterflyLeviathanSwimSpeed.get())
+                .add(Attributes.KNOCKBACK_RESISTANCE, WREntityAttributeConfig.INSTANCE.butterflyLeviathanKnockbackResistance.get())
+                .add(Attributes.ATTACK_DAMAGE, WREntityAttributeConfig.INSTANCE.butterflyLeviathanAttackDamage.get())
                 .add(Attributes.STEP_HEIGHT, 2)
                 .add(Attributes.FOLLOW_RANGE, 50);
     }

@@ -1,6 +1,6 @@
 package com.github.wolfshotz.wyrmroost.client.render.entity.rooststalker;
 
-import com.github.wolfshotz.wyrmroost.WRConfig;
+import com.github.wolfshotz.wyrmroost.config.WRConfig;
 import com.github.wolfshotz.wyrmroost.Wyrmroost;
 import com.github.wolfshotz.wyrmroost.client.model.WRModelPart;
 import com.github.wolfshotz.wyrmroost.client.render.entity.AbstractDragonRenderer;

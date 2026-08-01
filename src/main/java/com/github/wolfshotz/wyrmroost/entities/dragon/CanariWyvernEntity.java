@@ -1,5 +1,6 @@
 package com.github.wolfshotz.wyrmroost.entities.dragon;
 
+import com.github.wolfshotz.wyrmroost.config.WREntityAttributeConfig;
 import com.github.wolfshotz.wyrmroost.client.screen.StaffScreen;
 import com.github.wolfshotz.wyrmroost.entities.dragon.helpers.ai.goals.*;
 import com.github.wolfshotz.wyrmroost.entities.util.EntityDataEntry;
@@ -250,13 +251,20 @@ public class CanariWyvernEntity extends AbstractDragonEntity
         return true;
     }
 
-    public static AttributeSupplier.Builder createAttributes()
-    {
+    @Override
+    public void applyAttributes() {
+        getAttribute(Attributes.MAX_HEALTH).setBaseValue(WREntityAttributeConfig.INSTANCE.canariWyvernHealth.get());
+        getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(WREntityAttributeConfig.INSTANCE.canariWyvernGroundSpeed.get());
+        getAttribute(Attributes.FLYING_SPEED).setBaseValue(WREntityAttributeConfig.INSTANCE.canariWyvernFlyingSpeed.get());
+        getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(WREntityAttributeConfig.INSTANCE.canariWyvernAttackDamage.get());
+    }
+
+    public static AttributeSupplier.Builder createAttributes() {
         return AbstractDragonEntity.createDragonAttributes()
-                .add(Attributes.MAX_HEALTH, 12)
-                .add(Attributes.MOVEMENT_SPEED, 0.2)
-                .add(Attributes.FLYING_SPEED, 0.1)
-                .add(Attributes.ATTACK_DAMAGE, 3);
+                .add(Attributes.MAX_HEALTH, WREntityAttributeConfig.INSTANCE.canariWyvernHealth.get())
+                .add(Attributes.MOVEMENT_SPEED, WREntityAttributeConfig.INSTANCE.canariWyvernGroundSpeed.get())
+                .add(Attributes.FLYING_SPEED, WREntityAttributeConfig.INSTANCE.canariWyvernFlyingSpeed.get())
+                .add(Attributes.ATTACK_DAMAGE, WREntityAttributeConfig.INSTANCE.canariWyvernAttackDamage.get());
     }
 
     public class ThreatenGoal extends Goal

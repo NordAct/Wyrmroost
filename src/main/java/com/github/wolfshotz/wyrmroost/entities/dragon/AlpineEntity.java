@@ -1,5 +1,6 @@
 package com.github.wolfshotz.wyrmroost.entities.dragon;
 
+import com.github.wolfshotz.wyrmroost.config.WREntityAttributeConfig;
 import com.github.wolfshotz.wyrmroost.entities.dragon.helpers.ai.goals.DragonBreedGoal;
 import com.github.wolfshotz.wyrmroost.entities.dragon.helpers.ai.goals.FlyerWanderGoal;
 import com.github.wolfshotz.wyrmroost.entities.dragon.helpers.ai.goals.MoveToHomeGoal;
@@ -8,7 +9,7 @@ import com.github.wolfshotz.wyrmroost.entities.projectile.WindGustEntity;
 import com.github.wolfshotz.wyrmroost.entities.util.EntityDataEntry;
 import com.github.wolfshotz.wyrmroost.network.packets.AnimationPacket;
 import com.github.wolfshotz.wyrmroost.network.packets.KeybindPacket;
-import com.github.wolfshotz.wyrmroost.registry.WREntities;
+import com.github.wolfshotz.wyrmroost.registry.WRAttributes;
 import com.github.wolfshotz.wyrmroost.registry.WRItems;
 import com.github.wolfshotz.wyrmroost.registry.WRSounds;
 import com.github.wolfshotz.wyrmroost.util.TickFloat;
@@ -270,14 +271,23 @@ public class AlpineEntity extends AbstractDragonEntity
         return true;
     }
 
-    public static AttributeSupplier.Builder createAttributes()
-    {
+    @Override
+    public void applyAttributes() {
+        getAttribute(Attributes.MAX_HEALTH).setBaseValue(WREntityAttributeConfig.INSTANCE.alpineHealth.get());
+        getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(WREntityAttributeConfig.INSTANCE.alpineGroundSpeed.get());
+        getAttribute(Attributes.KNOCKBACK_RESISTANCE).setBaseValue(WREntityAttributeConfig.INSTANCE.alpineKnockbackResistance.get());
+        getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(WREntityAttributeConfig.INSTANCE.alpineAttackDamage.get());
+        getAttribute(Attributes.FLYING_SPEED).setBaseValue(WREntityAttributeConfig.INSTANCE.alpineFlyingSpeed.get());
+        getAttribute(WRAttributes.PROJECTILE_DAMAGE).setBaseValue(WREntityAttributeConfig.INSTANCE.alpineProjectileDamage.get());
+    }
+
+    public static AttributeSupplier.Builder createAttributes() {
         return AbstractDragonEntity.createDragonAttributes()
-                .add(Attributes.MAX_HEALTH, 40)
-                .add(Attributes.MOVEMENT_SPEED, 0.22)
-                .add(Attributes.KNOCKBACK_RESISTANCE, 1)
-                .add(Attributes.ATTACK_DAMAGE, 3)
-                .add(Attributes.FLYING_SPEED, 0.185f)
-                .add(WREntities.Attributes.PROJECTILE_DAMAGE, 1);
+                .add(Attributes.MAX_HEALTH, WREntityAttributeConfig.INSTANCE.alpineHealth.get())
+                .add(Attributes.MOVEMENT_SPEED, WREntityAttributeConfig.INSTANCE.alpineGroundSpeed.get())
+                .add(Attributes.KNOCKBACK_RESISTANCE, WREntityAttributeConfig.INSTANCE.alpineKnockbackResistance.get())
+                .add(Attributes.ATTACK_DAMAGE, WREntityAttributeConfig.INSTANCE.alpineAttackDamage.get())
+                .add(Attributes.FLYING_SPEED, WREntityAttributeConfig.INSTANCE.alpineFlyingSpeed.get())
+                .add(WRAttributes.PROJECTILE_DAMAGE, WREntityAttributeConfig.INSTANCE.alpineProjectileDamage.get());
     }
 }

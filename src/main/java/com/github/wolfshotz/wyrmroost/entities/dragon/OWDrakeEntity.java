@@ -1,6 +1,7 @@
 package com.github.wolfshotz.wyrmroost.entities.dragon;
 
-import com.github.wolfshotz.wyrmroost.WRConfig;
+import com.github.wolfshotz.wyrmroost.config.WRConfig;
+import com.github.wolfshotz.wyrmroost.config.WREntityAttributeConfig;
 import com.github.wolfshotz.wyrmroost.client.screen.StaffScreen;
 import com.github.wolfshotz.wyrmroost.containers.DragonInvContainer;
 import com.github.wolfshotz.wyrmroost.containers.util.SlotBuilder;
@@ -448,14 +449,22 @@ public class OWDrakeEntity extends AbstractDragonEntity
         return true;
     }
 
-    public static AttributeSupplier.Builder createAttributes()
-    {
+    @Override
+    public void applyAttributes() {
+        getAttribute(Attributes.MAX_HEALTH).setBaseValue(WREntityAttributeConfig.INSTANCE.overworldDrakeHealth.get());
+        getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(WREntityAttributeConfig.INSTANCE.overworldDrakeGroundSpeed.get());
+        getAttribute(Attributes.KNOCKBACK_RESISTANCE).setBaseValue(WREntityAttributeConfig.INSTANCE.overworldDrakeKnockbackResistance.get());
+        getAttribute(Attributes.ATTACK_KNOCKBACK).setBaseValue(WREntityAttributeConfig.INSTANCE.overworldDrakeAttackKnockback.get());
+        getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(WREntityAttributeConfig.INSTANCE.overworldDrakeAttackDamage.get());
+    }
+
+    public static AttributeSupplier.Builder createAttributes() {
         return AbstractDragonEntity.createDragonAttributes()
-                .add(Attributes.MAX_HEALTH, 70)
-                .add(Attributes.MOVEMENT_SPEED, 0.2125)
-                .add(Attributes.KNOCKBACK_RESISTANCE, 0.75)
+                .add(Attributes.MAX_HEALTH, WREntityAttributeConfig.INSTANCE.overworldDrakeHealth.get())
+                .add(Attributes.MOVEMENT_SPEED, WREntityAttributeConfig.INSTANCE.overworldDrakeGroundSpeed.get())
+                .add(Attributes.KNOCKBACK_RESISTANCE, WREntityAttributeConfig.INSTANCE.overworldDrakeKnockbackResistance.get())
                 .add(Attributes.FOLLOW_RANGE, 20)
-                .add(Attributes.ATTACK_KNOCKBACK, 2.85)
-                .add(Attributes.ATTACK_DAMAGE, 8);
+                .add(Attributes.ATTACK_KNOCKBACK, WREntityAttributeConfig.INSTANCE.overworldDrakeAttackKnockback.get())
+                .add(Attributes.ATTACK_DAMAGE, WREntityAttributeConfig.INSTANCE.overworldDrakeAttackDamage.get());
     }
 }

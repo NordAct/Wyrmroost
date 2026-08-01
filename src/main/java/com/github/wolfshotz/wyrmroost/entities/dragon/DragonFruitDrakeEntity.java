@@ -1,5 +1,6 @@
 package com.github.wolfshotz.wyrmroost.entities.dragon;
 
+import com.github.wolfshotz.wyrmroost.config.WREntityAttributeConfig;
 import com.github.wolfshotz.wyrmroost.entities.dragon.helpers.ai.goals.DragonBreedGoal;
 import com.github.wolfshotz.wyrmroost.entities.dragon.helpers.ai.goals.MoveToHomeGoal;
 import com.github.wolfshotz.wyrmroost.entities.dragon.helpers.ai.goals.WRFollowOwnerGoal;
@@ -340,12 +341,18 @@ public class DragonFruitDrakeEntity extends AbstractDragonEntity implements IShe
         return state.is(Blocks.GRASS_BLOCK) || (state.is(BlockTags.LEAVES) && pos.getY() < world.getSeaLevel() + 13) && world.getRawBrightness(pos, 0) > 8;
     }
 
-    public static AttributeSupplier.Builder createAttributes()
-    {
+    @Override
+    public void applyAttributes() {
+        getAttribute(Attributes.MAX_HEALTH).setBaseValue(WREntityAttributeConfig.INSTANCE.dragonFruitDrakeHealth.get());
+        getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(WREntityAttributeConfig.INSTANCE.dragonFruitDrakeGroundSpeed.get());
+        getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(WREntityAttributeConfig.INSTANCE.dragonFruitDrakeAttackDamage.get());
+    }
+
+    public static AttributeSupplier.Builder createAttributes() {
         return AbstractDragonEntity.createDragonAttributes()
-                .add(Attributes.MAX_HEALTH, 15)
-                .add(Attributes.MOVEMENT_SPEED, 0.23)
-                .add(Attributes.ATTACK_DAMAGE, 3);
+                .add(Attributes.MAX_HEALTH, WREntityAttributeConfig.INSTANCE.dragonFruitDrakeHealth.get())
+                .add(Attributes.MOVEMENT_SPEED, WREntityAttributeConfig.INSTANCE.dragonFruitDrakeGroundSpeed.get())
+                .add(Attributes.ATTACK_DAMAGE, WREntityAttributeConfig.INSTANCE.dragonFruitDrakeAttackDamage.get());
     }
 
     public static boolean isCrop(Block block)

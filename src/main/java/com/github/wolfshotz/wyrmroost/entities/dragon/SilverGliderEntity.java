@@ -1,5 +1,6 @@
 package com.github.wolfshotz.wyrmroost.entities.dragon;
 
+import com.github.wolfshotz.wyrmroost.config.WREntityAttributeConfig;
 import com.github.wolfshotz.wyrmroost.entities.dragon.helpers.ai.goals.DragonBreedGoal;
 import com.github.wolfshotz.wyrmroost.entities.dragon.helpers.ai.goals.FlyerWanderGoal;
 import com.github.wolfshotz.wyrmroost.entities.dragon.helpers.ai.goals.WRAvoidEntityGoal;
@@ -252,19 +253,24 @@ public class SilverGliderEntity extends AbstractDragonEntity
         return true;
     }
 
-    public static boolean getSpawnPlacement(EntityType<SilverGliderEntity> fEntityType, ServerLevelAccessor world, MobSpawnType spawnReason, BlockPos blockPos, RandomSource random)
-    {
+    public static boolean getSpawnPlacement(EntityType<SilverGliderEntity> fEntityType, ServerLevelAccessor world, MobSpawnType spawnReason, BlockPos blockPos, RandomSource random) {
         if (spawnReason == MobSpawnType.SPAWNER) return true;
         BlockState block = world.getBlockState(blockPos.below());
         return block.isAir() || block.is(Tags.Blocks.SANDS) && world.getRawBrightness(blockPos, 0) > 8;
     }
 
-    public static AttributeSupplier.Builder createAttributes()
-    {
+    @Override
+    public void applyAttributes() {
+        getAttribute(Attributes.MAX_HEALTH).setBaseValue(WREntityAttributeConfig.INSTANCE.silverGliderHealth.get());
+        getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(WREntityAttributeConfig.INSTANCE.silverGliderGroundSpeed.get());
+        getAttribute(Attributes.FLYING_SPEED).setBaseValue(WREntityAttributeConfig.INSTANCE.silverGliderFlyingSpeed.get());
+    }
+
+    public static AttributeSupplier.Builder createAttributes() {
         return AbstractDragonEntity.createDragonAttributes()
-                .add(Attributes.MAX_HEALTH, 20)
-                .add(Attributes.MOVEMENT_SPEED, 0.23)
-                .add(Attributes.FLYING_SPEED, 0.12);
+                .add(Attributes.MAX_HEALTH, WREntityAttributeConfig.INSTANCE.silverGliderHealth.get())
+                .add(Attributes.MOVEMENT_SPEED, WREntityAttributeConfig.INSTANCE.silverGliderGroundSpeed.get())
+                .add(Attributes.FLYING_SPEED, WREntityAttributeConfig.INSTANCE.silverGliderFlyingSpeed.get());
     }
 
     public class SwoopGoal extends Goal

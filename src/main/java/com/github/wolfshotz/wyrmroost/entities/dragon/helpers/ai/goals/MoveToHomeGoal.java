@@ -1,6 +1,6 @@
 package com.github.wolfshotz.wyrmroost.entities.dragon.helpers.ai.goals;
 
-import com.github.wolfshotz.wyrmroost.WRConfig;
+import com.github.wolfshotz.wyrmroost.config.WRConfig;
 import com.github.wolfshotz.wyrmroost.entities.dragon.AbstractDragonEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.ai.goal.Goal;

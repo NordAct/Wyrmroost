@@ -1,6 +1,6 @@
 package com.github.wolfshotz.wyrmroost.client.render;
 
-import com.github.wolfshotz.wyrmroost.WRConfig;
+import com.github.wolfshotz.wyrmroost.config.WRConfig;
 import com.github.wolfshotz.wyrmroost.client.ClientEvents;
 import com.github.wolfshotz.wyrmroost.entities.dragon.AbstractDragonEntity;
 import com.github.wolfshotz.wyrmroost.items.staff.DragonStaffItem;

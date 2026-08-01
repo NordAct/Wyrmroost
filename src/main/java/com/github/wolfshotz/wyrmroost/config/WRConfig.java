@@ -1,5 +1,6 @@
-package com.github.wolfshotz.wyrmroost;
+package com.github.wolfshotz.wyrmroost.config;
 
+import com.github.wolfshotz.wyrmroost.Wyrmroost;
 import com.github.wolfshotz.wyrmroost.util.ModUtils;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.world.level.GameRules;
@@ -47,7 +48,6 @@ public class WRConfig
             IConfigSpec spec = evt.getConfig().getSpec();
             if (spec == Common.SPEC) Common.reload();
             else if (spec == Client.SPEC) Client.reload();
-            else if (spec == Server.SPEC) Server.reload();
         }
         catch (Throwable e)
         {
@@ -72,6 +72,13 @@ public class WRConfig
 
         public final ModConfigSpec.BooleanValue debugMode;
 
+        public final ModConfigSpec.IntValue homeRadius;
+        public final ModConfigSpec.DoubleValue breathFlammability;
+        public final ModConfigSpec.BooleanValue respectMobGriefing;
+        public final ModConfigSpec.BooleanValue dragonGriefing;
+        private static final List<String> BREED_LIMIT_DEFAULTS = ImmutableList.of("butterfly_leviathan:1", "royal_red:2");
+        public final ModConfigSpec.ConfigValue<List<? extends String>> breedLimits;
+
         Common(ModConfigSpec.Builder builder)
         {
             builder.comment("Wyrmroost General Options").push("general");
@@ -80,11 +87,50 @@ public class WRConfig
                     .define("debugMode", false);
 
             builder.pop();
+
+
+            builder.comment("Wyrmroost Dragon Options").push("dragons");
+            homeRadius = builder
+                    .comment("How far dragons can travel from their home points")
+                    .translation("config.wyrmroost.homeradius")
+                    .defineInRange("home_radius", 16, 6, 1024);
+
+            breathFlammability = builder
+                    .comment("Base Flammability for Dragon Fire Breath.",
+                            "A value of 0 will disable fire block damage completely.")
+                    .translation("config.wyrmroost.breathFlammability")
+                    .defineInRange("breath_lammability", 0.8, 0, 1);
+
+            breedLimits = builder
+                    .comment("Breed Limit for each dragon. This determines how many times a certain dragon can breed.",
+                            "Leaving this blank will disable the functionality.")
+                    .translation("config.wyrmroost.breedlimits")
+                    .defineList("breed_limits", () -> BREED_LIMIT_DEFAULTS, o -> o instanceof String);
+
+            builder.push("griefing");
+
+            respectMobGriefing = builder
+                    .comment("If True, Dragons will respect the Minecraft MobGriefing Gamerule. Else, follow \"dragonGriefing\" option")
+                    .translation("config.wyrmroost.respectMobGriefing")
+                    .define("respect_mob_griefing", true);
+
+            dragonGriefing = builder
+                    .comment("If true and not respecting MobGriefing rules, allow dragons to grief")
+                    .translation("config.wyrmroost.dragonGriefing")
+                    .define("dragon_griefing", true);
+
+            builder.pop();
+            builder.pop();
         }
 
-        public static void reload()
-        {
+        public static void reload() {
             WRConfig.debugMode = INSTANCE.debugMode.get();
+
+            WRConfig.homeRadius = INSTANCE.homeRadius.get();
+            WRConfig.fireBreathFlammability = INSTANCE.breathFlammability.get();
+            WRConfig.respectMobGriefing = INSTANCE.respectMobGriefing.get();
+            WRConfig.dragonGriefing = INSTANCE.dragonGriefing.get();
+            WRConfig.breedLimits = INSTANCE.breedLimits.get().stream().collect(Collectors.toMap(s -> s.split(":")[0], s -> Integers.parseInt(s.split(":")[1])));
         }
     }
 
@@ -120,76 +166,10 @@ public class WRConfig
             builder.pop();
         }
 
-        public static void reload()
-        {
+        public static void reload() {
             WRConfig.disableFrustumCheck = INSTANCE.disableFrustumCheck.get();
             WRConfig.deckTheHalls = INSTANCE.deckTheHalls.get() && ModUtils.DECK_THE_HALLS;
             WRConfig.renderEntityOutlines = INSTANCE.renderEntityOutlines.get();
-        }
-    }
-
-    public static class Server
-    {
-        public static final Server INSTANCE;
-        public static final ModConfigSpec SPEC;
-
-        static
-        {
-            Pair<Server, ModConfigSpec> pair = new ModConfigSpec.Builder().configure(Server::new);
-            INSTANCE = pair.getLeft();
-            SPEC = pair.getRight();
-        }
-
-        public final ModConfigSpec.IntValue homeRadius;
-        public final ModConfigSpec.DoubleValue breathFlammability;
-        public final ModConfigSpec.BooleanValue respectMobGriefing;
-        public final ModConfigSpec.BooleanValue dragonGriefing;
-        private static final List<String> BREED_LIMIT_DEFAULTS = ImmutableList.of("butterfly_leviathan:1", "royal_red:2");
-        public final ModConfigSpec.ConfigValue<List<? extends String>> breedLimits;
-
-        Server(ModConfigSpec.Builder builder)
-        {
-            builder.comment("Wyrmroost Dragon Options").push("dragons");
-            homeRadius = builder
-                    .comment("How far dragons can travel from their home points")
-                    .translation("config.wyrmroost.homeradius")
-                    .defineInRange("home_radius", 16, 6, 1024);
-
-            breathFlammability = builder
-                    .comment("Base Flammability for Dragon Fire Breath.",
-                            "A value of 0 will disable fire block damage completely.")
-                    .translation("config.wyrmroost.breathFlammability")
-                    .defineInRange("breath_lammability", 0.8, 0, 1);
-
-            breedLimits = builder
-                    .comment("Breed Limit for each dragon. This determines how many times a certain dragon can breed.",
-                            "Leaving this blank will disable the functionality.")
-                    .translation("config.wyrmroost.breedlimits")
-                    .defineList("breed_limits", () -> BREED_LIMIT_DEFAULTS, o -> o instanceof String);
-
-            builder.push("griefing");
-
-            respectMobGriefing = builder
-                    .comment("If True, Dragons will respect the Minecraft MobGriefing Gamerule. Else, follow \"dragonGriefing\" option")
-                    .translation("config.wyrmroost.respectMobGriefing")
-                    .define("respect_mob_griefing", true);
-
-            dragonGriefing = builder
-                    .comment("If true and not respecting MobGriefing rules, allow dragons to grief")
-                    .translation("config.wyrmroost.dragonGriefing")
-                    .define("dragon_griefing", true);
-
-            builder.pop();
-            builder.pop();
-        }
-
-        public static void reload()
-        {
-            WRConfig.homeRadius = INSTANCE.homeRadius.get();
-            WRConfig.fireBreathFlammability = INSTANCE.breathFlammability.get();
-            WRConfig.respectMobGriefing = INSTANCE.respectMobGriefing.get();
-            WRConfig.dragonGriefing = INSTANCE.dragonGriefing.get();
-            WRConfig.breedLimits = INSTANCE.breedLimits.get().stream().collect(Collectors.toMap(s -> s.split(":")[0], s -> Integers.parseInt(s.split(":")[1])));
         }
     }
 }

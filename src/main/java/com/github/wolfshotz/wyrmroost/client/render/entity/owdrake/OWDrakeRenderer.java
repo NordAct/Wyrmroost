@@ -1,6 +1,6 @@
 package com.github.wolfshotz.wyrmroost.client.render.entity.owdrake;
 
-import com.github.wolfshotz.wyrmroost.WRConfig;
+import com.github.wolfshotz.wyrmroost.config.WRConfig;
 import com.github.wolfshotz.wyrmroost.Wyrmroost;
 import com.github.wolfshotz.wyrmroost.client.render.entity.AbstractDragonRenderer;
 import com.github.wolfshotz.wyrmroost.entities.dragon.OWDrakeEntity;
