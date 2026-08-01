@@ -28,6 +28,8 @@ public class WRBlocks
 
     public static final Holder<Block> PLATINUM_ORE = register("platinum_ore", () -> new Block(builder().requiresCorrectToolForDrops().strength(3).sound(SoundType.STONE).mapColor(MapColor.STONE).instrument(NoteBlockInstrument.BASEDRUM)));
     public static final Holder<Block> PLATINUM_BLOCK = register("platinum_block", () -> new Block(builder().requiresCorrectToolForDrops().strength(5).sound(SoundType.METAL).instrument(NoteBlockInstrument.IRON_XYLOPHONE)));
+    public static final Holder<Block> CHISELED_PLATINUM_BLOCK = register("chiseled_platinum_block", () -> new Block(builder().requiresCorrectToolForDrops().strength(5).sound(SoundType.METAL).instrument(NoteBlockInstrument.IRON_XYLOPHONE)));
+    public static final Holder<Block> RAW_PLATINUM_BLOCK = register("raw_platinum_block", () -> new Block(builder().requiresCorrectToolForDrops().strength(5).sound(SoundType.METAL).instrument(NoteBlockInstrument.IRON_XYLOPHONE)));
 
     public static final Holder<Block> BLUE_GEODE_ORE = register("blue_geode_ore", () -> new DropExperienceBlock(UniformInt.of(3, 7), builder().requiresCorrectToolForDrops().strength(3).sound(SoundType.STONE).mapColor(MapColor.STONE).instrument(NoteBlockInstrument.BASEDRUM)));
     public static final Holder<Block> BLUE_GEODE_BLOCK = register("blue_geode_block", () -> new Block(builder().requiresCorrectToolForDrops().strength(5).sound(SoundType.METAL).instrument(NoteBlockInstrument.IRON_XYLOPHONE)));

@@ -30,12 +30,11 @@ public class WRItems
     public static final Holder<Item> DRAGON_STAFF = register("dragon_staff", DragonStaffItem::new);
     public static final Holder<Item> COIN_DRAGON = register("coin_dragon", CoinDragonItem::new);
     public static final Holder<Item> TRUMPET = register("trumpet", TrumpetItem::new);
-//    public static final Supplier<Item> SILK_GLAND = register("orbwyrm_silk_gland", SilkGlandItem::new);
-//    public static final Supplier<Item> FOG_WRAITH_TAILS = register("fog_wraith_tails", FogWraithTailsItem::new);
 
     public static final Holder<Item> BLUE_GEODE = register("blue_geode");
     public static final Holder<Item> RED_GEODE = register("red_geode");
     public static final Holder<Item> PURPLE_GEODE = register("purple_geode");
+    public static final Holder<Item> RAW_PLATINUM = register("raw_platinum");
     public static final Holder<Item> PLATINUM_INGOT = register("platinum_ingot");
     public static final Holder<Item> DRAKE_BACKPLATE = register("drake_backplate");
 

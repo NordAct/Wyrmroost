@@ -29,10 +29,10 @@ public class ModelData
 
         gen.addProvider(include, new Blocks(output, fileHelper));
         gen.addProvider(include, new Items(output, fileHelper));
+        gen.addProvider(include, new BlockStates(output, fileHelper));
     }
 
-    private static class Blocks extends BlockModelProvider
-    {
+    private static class Blocks extends BlockModelProvider {
         private final List<String> MISSING_TEXTURES = new ArrayList<>();
 
         Blocks(PackOutput output, ExistingFileHelper existingFileHelper)
@@ -41,12 +41,10 @@ public class ModelData
         }
 
         @Override
-        protected void registerModels()
-        {
+        protected void registerModels() {
             // All unregistered blocks will be done here. They will be simple blocks with all sides of the same texture
             // If this is unwanted, it is important to define so above
-            for (Block block : WRBlocks.REGISTRY.getEntries().stream().map(DeferredHolder::value).toList())
-            {
+            for (Block block : WRBlocks.REGISTRY.getEntries().stream().map(DeferredHolder::value).toList()) {
                 if (block instanceof LiquidBlock) continue;
 
                 ResourceLocation name = block.builtInRegistryHolder().key().location();
@@ -61,8 +59,7 @@ public class ModelData
         }
     }
 
-    private static class Items extends ItemModelProvider
-    {
+    private static class Items extends ItemModelProvider {
         private final List<Item> REGISTERED = new ArrayList<>();
 
         Items(PackOutput output, ExistingFileHelper existingFileHelper)
@@ -170,6 +167,27 @@ public class ModelData
         private static ModelFile.UncheckedModelFile uncheckedModel(String path)
         {
             return new ModelFile.UncheckedModelFile(path);
+        }
+    }
+
+    private static class BlockStates extends BlockStateProvider {
+
+        public BlockStates(PackOutput output, ExistingFileHelper exFileHelper) {
+            super(output, Wyrmroost.MOD_ID, exFileHelper);
+        }
+
+        @Override
+        protected void registerStatesAndModels() {
+            simpleBlock(WRBlocks.PLATINUM_BLOCK.value());
+            simpleBlock(WRBlocks.CHISELED_PLATINUM_BLOCK.value());
+            simpleBlock(WRBlocks.PLATINUM_ORE.value());
+            simpleBlock(WRBlocks.RAW_PLATINUM_BLOCK.value());
+            simpleBlock(WRBlocks.PURPLE_GEODE_ORE.value());
+            simpleBlock(WRBlocks.PURPLE_GEODE_BLOCK.value());
+            simpleBlock(WRBlocks.RED_GEODE_ORE.value());
+            simpleBlock(WRBlocks.RED_GEODE_BLOCK.value());
+            simpleBlock(WRBlocks.BLUE_GEODE_ORE.value());
+            simpleBlock(WRBlocks.BLUE_GEODE_BLOCK.value());
         }
     }
 }

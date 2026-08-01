@@ -59,8 +59,7 @@ class LootTableData extends LootTableProvider
                 provider);
     }
 
-    private static class Blocks extends BlockLootSubProvider
-    {
+    private static class Blocks extends BlockLootSubProvider {
         public final Map<Block, LootTable.Builder> lootTables = new HashMap<>();
 
         protected Blocks(HolderLookup.Provider registries) {
@@ -69,11 +68,11 @@ class LootTableData extends LootTableProvider
 
         @Override
         @SuppressWarnings("ConstantConditions")
-        protected void generate()
-        {
+        protected void generate() {
             registerOre(BLUE_GEODE_ORE.value(), WRItems.BLUE_GEODE.value());
             registerOre(RED_GEODE_ORE.value(), WRItems.RED_GEODE.value());
             registerOre(PURPLE_GEODE_ORE.value(), WRItems.PURPLE_GEODE.value());
+            registerOre(PLATINUM_ORE.value(), WRItems.RAW_PLATINUM.value());
 
             for (Block block : getKnownBlocks()) // All blocks that have not been given special treatment above, drop themselves!
             {
@@ -90,15 +89,13 @@ class LootTableData extends LootTableProvider
         private void registerOre(Block ore, Item output) { add(ore, block -> createOreDrop(block, output)); }
 
         @Override
-        protected void add(Block blockIn, LootTable.Builder table)
-        {
+        protected void add(Block blockIn, LootTable.Builder table) {
             super.add(blockIn, table);
             lootTables.put(blockIn, table);
         }
     }
 
-    private static class Entities extends EntityLootSubProvider
-    {
+    private static class Entities extends EntityLootSubProvider {
         private static final LootItemConditionalFunction.Builder<?> ON_FIRE_SMELT = SmeltItemFunction.smelted()
                 .when(
                         LootItemEntityPropertyCondition.hasProperties(

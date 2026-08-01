@@ -66,8 +66,7 @@ public class TagData
                             WRItems.RAW_COMMON_MEAT.value(),
                             WRItems.RAW_APEX_MEAT.value(),
                             WRItems.RAW_BEHEMOTH_MEAT.value()
-
-                            )
+                    )
                     .add(WRItems.LDWYRM.value());
             tag(Tags.Items.FOODS_COOKED_MEAT)
                     .add(
@@ -193,6 +192,9 @@ public class TagData
                     .add(WRItems.PLATINUM_BOOTS.value())
                     .add(WRItems.DRAKE_BOOTS.value())
             ;
+
+            tag(Tags.Items.RAW_MATERIALS)
+                    .add(WRItems.RAW_PLATINUM.value());
         }
     }
 
@@ -214,9 +216,21 @@ public class TagData
             tag(Tags.Blocks.ORES_IN_GROUND_NETHERRACK).add(WRBlocks.RED_GEODE_ORE.value());
             tag(Tags.Blocks.ORES_IN_GROUND_STONE).add(WRBlocks.BLUE_GEODE_ORE.value(), WRBlocks.PLATINUM_ORE.value());
 
-            tag(Tags.Blocks.STORAGE_BLOCKS).addTags(WRBlocks.Tags.STORAGE_BLOCKS_GEODE, WRBlocks.Tags.STORAGE_BLOCKS_PLATINUM);
-            tag(WRBlocks.Tags.STORAGE_BLOCKS_GEODE);
-            tag(WRBlocks.Tags.STORAGE_BLOCKS_PLATINUM).add(WRBlocks.PLATINUM_BLOCK.value());
+            tag(Tags.Blocks.STORAGE_BLOCKS)
+                    .addTags(
+                            WRBlocks.Tags.STORAGE_BLOCKS_GEODE,
+                            WRBlocks.Tags.STORAGE_BLOCKS_PLATINUM
+                    )
+                    .add(WRBlocks.RAW_PLATINUM_BLOCK.value())
+            ;
+            tag(WRBlocks.Tags.STORAGE_BLOCKS_GEODE)
+                    .add(
+                            WRBlocks.BLUE_GEODE_BLOCK.value(),
+                            WRBlocks.RED_GEODE_BLOCK.value(),
+                            WRBlocks.PURPLE_GEODE_BLOCK.value()
+                    );
+            tag(WRBlocks.Tags.STORAGE_BLOCKS_PLATINUM)
+                    .add(WRBlocks.PLATINUM_BLOCK.value());
 
             tag(BlockTags.DRAGON_IMMUNE).add(WRBlocks.PURPLE_GEODE_ORE.value());
 
@@ -227,6 +241,8 @@ public class TagData
             tag(BlockTags.NEEDS_STONE_TOOL)
                     .add(WRBlocks.PLATINUM_ORE.value())
                     .add(WRBlocks.PLATINUM_BLOCK.value())
+                    .add(WRBlocks.CHISELED_PLATINUM_BLOCK.value())
+                    .add(WRBlocks.RAW_PLATINUM_BLOCK.value())
             ;
 
             tag(BlockTags.NEEDS_IRON_TOOL)
@@ -236,7 +252,9 @@ public class TagData
 
             tag(BlockTags.MINEABLE_WITH_PICKAXE)
                     .add(WRBlocks.PLATINUM_ORE.value())
+                    .add(WRBlocks.RAW_PLATINUM_BLOCK.value())
                     .add(WRBlocks.PLATINUM_BLOCK.value())
+                    .add(WRBlocks.CHISELED_PLATINUM_BLOCK.value())
                     .add(WRBlocks.BLUE_GEODE_ORE.value(), WRBlocks.RED_GEODE_ORE.value(), WRBlocks.PURPLE_GEODE_ORE.value())
                     .add(WRBlocks.BLUE_GEODE_BLOCK.value(), WRBlocks.RED_GEODE_BLOCK.value(), WRBlocks.PURPLE_GEODE_BLOCK.value())
             ;

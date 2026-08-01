@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_desert_wyrm": {
+      "conditions": {
+        "items": [
+          {
+            "items": "wyrmroost:desert_wyrm"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "wyrmroost:cooked_desertwyrm_from_smoking_desert_wyrm"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_desert_wyrm"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "wyrmroost:cooked_desertwyrm_from_smoking_desert_wyrm"
+    ]
+  }
+}

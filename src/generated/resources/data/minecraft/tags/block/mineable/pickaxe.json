@@ -1,7 +1,9 @@
 {
   "values": [
     "wyrmroost:platinum_ore",
+    "wyrmroost:raw_platinum_block",
     "wyrmroost:platinum_block",
+    "wyrmroost:chiseled_platinum_block",
     "wyrmroost:blue_geode_ore",
     "wyrmroost:red_geode_ore",
     "wyrmroost:purple_geode_ore",

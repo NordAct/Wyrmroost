@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": {
+    "item": "wyrmroost:platinum_block"
+  },
+  "result": {
+    "count": 1,
+    "id": "wyrmroost:chiseled_platinum_block"
+  }
+}

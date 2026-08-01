@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_raw_apex_meat": {
+      "conditions": {
+        "items": [
+          {
+            "items": "wyrmroost:raw_apex_meat"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "wyrmroost:cooked_apex_meat_from_campfire_raw_apex_meat"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_raw_apex_meat"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "wyrmroost:cooked_apex_meat_from_campfire_raw_apex_meat"
+    ]
+  }
+}

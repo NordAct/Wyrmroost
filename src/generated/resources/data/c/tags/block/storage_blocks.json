@@ -1,6 +1,7 @@
 {
   "values": [
     "#wyrmroost:storage_blocks/geode",
-    "#wyrmroost:storage_blocks/platinum"
+    "#wyrmroost:storage_blocks/platinum",
+    "wyrmroost:raw_platinum_block"
   ]
 }

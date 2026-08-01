@@ -102,3 +102,9 @@
 - Renamed all configs and moved them to `wyrmroost` folder within config folder
 - Moved all contents of server config to common one
 - Added hatch time config
+- Added Raw Platinum. Platinum Ore now drops Raw Platinum instead of itself
+- Updated all platinum related item and blocks textures
+  - Platinum Armor model for player and dragons is not updated
+- Updated Drake Backplate texture and Drake armor items textures
+  - Drake armor model is not updated
+- Renamed some blocks

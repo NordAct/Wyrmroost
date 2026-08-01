@@ -40,8 +40,7 @@ class RecipeData extends RecipeProvider {
     /**
      * @param ingredients first element is used for criterion, design accordingly.
      */
-    private void shapeless(RecipeCategory category, RecipeOutput output, ItemLike result, @Nonnull ShapelessPair... ingredients)
-    {
+    private void shapeless(RecipeCategory category, RecipeOutput output, ItemLike result, @Nonnull ShapelessPair... ingredients) {
         final ShapelessRecipeBuilder builder = shapeless(category, result);
         for (ShapelessPair ingredient : ingredients) builder.requires(ingredient.item, ingredient.count);
         ItemLike firstIngredient = ingredients[0].item;
@@ -55,16 +54,14 @@ class RecipeData extends RecipeProvider {
         shaped(RecipeCategory.COMBAT, boots).define('X', material).pattern("X X").pattern("X X").unlockedBy("has_material", has(material)).save(output);
     }
 
-    private void armorSet(RecipeOutput output, TagKey<Item> materials, ItemLike helmet, ItemLike chest, ItemLike legs, ItemLike boots)
-    {
+    private void armorSet(RecipeOutput output, TagKey<Item> materials, ItemLike helmet, ItemLike chest, ItemLike legs, ItemLike boots) {
         shaped(RecipeCategory.COMBAT, helmet).define('X', materials).pattern("XXX").pattern("X X").unlockedBy("has_material", has(materials)).save(output);
         shaped(RecipeCategory.COMBAT, chest).define('X', materials).pattern("X X").pattern("XXX").unlockedBy("has_material", has(materials)).pattern("XXX").save(output);
         shaped(RecipeCategory.COMBAT, legs).define('X', materials).pattern("XXX").pattern("X X").unlockedBy("has_material", has(materials)).pattern("X X").save(output);
         shaped(RecipeCategory.COMBAT, boots).define('X', materials).pattern("X X").pattern("X X").unlockedBy("has_material", has(materials)).save(output);
     }
 
-    private void toolSet(RecipeOutput output, ItemLike material, ItemLike sword, ItemLike pick, ItemLike axe, ItemLike shovel, ItemLike hoe)
-    {
+    private void toolSet(RecipeOutput output, ItemLike material, ItemLike sword, ItemLike pick, ItemLike axe, ItemLike shovel, ItemLike hoe) {
         shaped(RecipeCategory.COMBAT, sword).define('X', material).define('|', Items.STICK).pattern("X").pattern("X").pattern("|").unlockedBy("has_material", has(material)).save(output);
         shaped(RecipeCategory.TOOLS, pick).define('X', material).define('|', Items.STICK).pattern("XXX").pattern(" | ").pattern(" | ").unlockedBy("has_material", has(material)).save(output);
         shaped(RecipeCategory.TOOLS, axe).define('X', material).define('|', Items.STICK).pattern("XX").pattern("X|").pattern(" |").unlockedBy("has_material", has(material)).save(output);
@@ -72,8 +69,7 @@ class RecipeData extends RecipeProvider {
         shaped(RecipeCategory.TOOLS, hoe).define('X', material).define('|', Items.STICK).pattern("XX").pattern(" |").pattern(" |").unlockedBy("has_material", has(material)).save(output);
     }
 
-    private void toolSet(RecipeOutput output, TagKey<Item> materials, ItemLike sword, ItemLike pick, ItemLike axe, ItemLike shovel, ItemLike hoe)
-    {
+    private void toolSet(RecipeOutput output, TagKey<Item> materials, ItemLike sword, ItemLike pick, ItemLike axe, ItemLike shovel, ItemLike hoe) {
         shaped(RecipeCategory.COMBAT,sword).define('X', materials).define('|', Items.STICK).pattern("X").pattern("X").pattern("|").unlockedBy("has_material", has(materials)).save(output);
         shaped(RecipeCategory.TOOLS, pick).define('X', materials).define('|', Items.STICK).pattern("XXX").pattern(" | ").pattern(" | ").unlockedBy("has_material", has(materials)).save(output);
         shaped(RecipeCategory.TOOLS, axe).define('X', materials).define('|', Items.STICK).pattern("XX").pattern("X|").pattern(" |").unlockedBy("has_material", has(materials)).save(output);
@@ -81,25 +77,24 @@ class RecipeData extends RecipeProvider {
         shaped(RecipeCategory.TOOLS, hoe).define('X', materials).define('|', Items.STICK).pattern("XX").pattern(" |").pattern(" |").unlockedBy("has_material", has(materials)).save(output);
     }
 
-    private void storageBlock(RecipeOutput output, ItemLike material, ItemLike block)
-    {
+    private void storageBlock(RecipeOutput output, ItemLike material, ItemLike block) {
         shaped(RecipeCategory.MISC, block).define('X', material).pattern("XXX").pattern("XXX").pattern("XXX").unlockedBy("has_" + material.asItem().builtInRegistryHolder().getKey().location().getPath(), has(material)).save(output);
         shapeless(RecipeCategory.MISC, material, 9).requires(block).unlockedBy("has_" + block.asItem().builtInRegistryHolder().getKey().location().getPath(), has(block)).save(output);
     }
 
-    private void smelt(RecipeOutput output, ItemLike ingredient, ItemLike result, float experience, int time, boolean food)
-    {
+    private void smelt(RecipeOutput output, ItemLike ingredient, ItemLike result, float experience, int time, boolean food) {
         String id = result.asItem().builtInRegistryHolder().getKey().location().getPath();
+        String idIngredient = ingredient.asItem().builtInRegistryHolder().getKey().location().getPath();
         String criterion = "has_" + ingredient.asItem().builtInRegistryHolder().getKey().location().getPath();
 
-        SimpleCookingRecipeBuilder.smelting(Ingredient.of(ingredient), food ? RecipeCategory.FOOD : RecipeCategory.MISC, result, experience, time).unlockedBy(criterion, has(ingredient)).save(output, Wyrmroost.rl((id + "_from_smelting")));
+        SimpleCookingRecipeBuilder.smelting(Ingredient.of(ingredient), food ? RecipeCategory.FOOD : RecipeCategory.MISC, result, experience, time).unlockedBy(criterion, has(ingredient)).save(output, Wyrmroost.rl((id + "_from_smelting_" + idIngredient)));
         if (food)
         {
-            SimpleCookingRecipeBuilder.campfireCooking(Ingredient.of(ingredient), RecipeCategory.FOOD, result, experience, time + 500).unlockedBy(criterion, has(ingredient)).save(output, Wyrmroost.rl(id + "_from_campfire"));
-            SimpleCookingRecipeBuilder.smoking(Ingredient.of(ingredient), RecipeCategory.FOOD, result, experience, time - 100).unlockedBy(criterion, has(ingredient)).save(output, Wyrmroost.rl(id + "_from_smoking"));
+            SimpleCookingRecipeBuilder.campfireCooking(Ingredient.of(ingredient), RecipeCategory.FOOD, result, experience, time + 500).unlockedBy(criterion, has(ingredient)).save(output, Wyrmroost.rl(id + "_from_campfire_" + idIngredient));
+            SimpleCookingRecipeBuilder.smoking(Ingredient.of(ingredient), RecipeCategory.FOOD, result, experience, time - 100).unlockedBy(criterion, has(ingredient)).save(output, Wyrmroost.rl(id + "_from_smoking_" + idIngredient));
         }
         else
-            SimpleCookingRecipeBuilder.blasting(Ingredient.of(ingredient), RecipeCategory.MISC, result, experience, time - 100).unlockedBy(criterion, has(ingredient)).save(output, Wyrmroost.rl(id + "_from_blasting"));
+            SimpleCookingRecipeBuilder.blasting(Ingredient.of(ingredient), RecipeCategory.MISC, result, experience, time - 100).unlockedBy(criterion, has(ingredient)).save(output, Wyrmroost.rl(id + "_from_blasting_" + idIngredient));
     }
 
     private void smelt(RecipeOutput output, ItemLike ingredient, ItemLike result, float experience, int time) { smelt(output, ingredient, result, experience, time, false); }
@@ -114,6 +109,7 @@ class RecipeData extends RecipeProvider {
         shaped(RecipeCategory.COMBAT, WRItems.RED_GEODE_ARROW.value(), 8).define('G', WRItems.RED_GEODE.value()).define('|', Items.STICK).define('F', Items.FEATHER).pattern("G").pattern("|").pattern("F").unlockedBy("has_geode", has(WRItems.RED_GEODE.value())).save(output);
         shaped(RecipeCategory.COMBAT, WRItems.PURPLE_GEODE_ARROW.value(), 8).define('G', WRItems.PURPLE_GEODE.value()).define('|', Items.STICK).define('F', Items.FEATHER).pattern("G").pattern("|").pattern("F").unlockedBy("has_geode", has(WRItems.PURPLE_GEODE.value())).save(output);
 
+        stonecutterResultFromBase(output, RecipeCategory.DECORATIONS, WRBlocks.CHISELED_PLATINUM_BLOCK.value(), WRBlocks.PLATINUM_BLOCK.value());
         // Materials
         storageBlock(output, WRItems.BLUE_GEODE.value(), WRBlocks.BLUE_GEODE_BLOCK.value());
         smelt(output, WRBlocks.BLUE_GEODE_ORE.value(), WRItems.BLUE_GEODE.value(), 1f, 200);
@@ -122,8 +118,10 @@ class RecipeData extends RecipeProvider {
         storageBlock(output, WRItems.PURPLE_GEODE.value(), WRBlocks.PURPLE_GEODE_BLOCK.value());
         smelt(output, WRBlocks.PURPLE_GEODE_ORE.value(), WRItems.PURPLE_GEODE.value(), 2f, 200);
 
+        storageBlock(output, WRItems.RAW_PLATINUM.value(), WRBlocks.RAW_PLATINUM_BLOCK.value());
         shaped(RecipeCategory.MISC, WRBlocks.PLATINUM_BLOCK.value()).define('X', WRItems.Tags.PLATINUM_INGOTS).pattern("XXX").pattern("XXX").pattern("XXX").unlockedBy("has_platinum", has(WRItems.PLATINUM_INGOT.value())).save(output);
         shapeless(RecipeCategory.MISC, WRItems.PLATINUM_INGOT.value(), 9).requires(WRBlocks.PLATINUM_BLOCK.value()).unlockedBy("has_platinum", has(WRBlocks.PLATINUM_BLOCK.value())).save(output);
+        smelt(output, WRItems.RAW_PLATINUM.value(), WRItems.PLATINUM_INGOT.value(), 0.7f, 200, false);
         smelt(output, WRBlocks.PLATINUM_ORE.value(), WRItems.PLATINUM_INGOT.value(), 0.7f, 200);
 
         // Tools

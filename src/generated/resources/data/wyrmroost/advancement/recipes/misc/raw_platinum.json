@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_raw_platinum_block": {
+      "conditions": {
+        "items": [
+          {
+            "items": "wyrmroost:raw_platinum_block"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "wyrmroost:raw_platinum"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_raw_platinum_block"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "wyrmroost:raw_platinum"
+    ]
+  }
+}

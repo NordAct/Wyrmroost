@@ -1,6 +1,8 @@
 {
   "values": [
     "wyrmroost:platinum_ore",
-    "wyrmroost:platinum_block"
+    "wyrmroost:platinum_block",
+    "wyrmroost:chiseled_platinum_block",
+    "wyrmroost:raw_platinum_block"
   ]
 }
