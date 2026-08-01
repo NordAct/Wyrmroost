@@ -51,6 +51,7 @@ public class SilverGliderRenderer extends AbstractDragonRenderer<SilverGliderEnt
         if (WRConfig.deckTheHalls) return sg.isMale()? CHRISTMAS_MALE_LAYER : null;
         if (!sg.isMale()) return FEMALE_GLOW;
         int index = sg.getVariant() + 3;
+        index = Mth.clamp(index, 0, MALE_TEXTURES.length - 1);
         if (MALE_TEXTURES[index] == null)
             return MALE_TEXTURES[index] = resource("male_" + sg.getVariant() + "_glow.png");
         return MALE_TEXTURES[index];
