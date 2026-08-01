@@ -1,8 +1,9 @@
 package com.github.wolfshotz.wyrmroost.entities.projectile.breath;
 
-import com.github.wolfshotz.wyrmroost.WRConfig;
+import com.github.wolfshotz.wyrmroost.config.WRConfig;
 import com.github.wolfshotz.wyrmroost.entities.dragon.AbstractDragonEntity;
 import com.github.wolfshotz.wyrmroost.entities.projectile.DragonProjectileEntity;
+import com.github.wolfshotz.wyrmroost.registry.WRAttributes;
 import com.github.wolfshotz.wyrmroost.registry.WRDamageTypes;
 import com.github.wolfshotz.wyrmroost.registry.WREntities;
 import com.github.wolfshotz.wyrmroost.util.Mafs;
@@ -80,7 +81,7 @@ public class FireBreathEntity extends BreathWeaponEntity
     {
         if (level().isClientSide()) return;
 
-        float damage = (float) shooter.getAttributeValue(WREntities.Attributes.PROJECTILE_DAMAGE);
+        float damage = (float) shooter.getAttributeValue(WRAttributes.PROJECTILE_DAMAGE);
         if (level().isRainingAt(entity.blockPosition())) damage *= 0.75f;
 
         if (entity.fireImmune()) damage *= 0.25; // impact damage

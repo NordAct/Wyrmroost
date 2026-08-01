@@ -1,8 +1,9 @@
 package com.github.wolfshotz.wyrmroost.entities.dragon;
 
-import com.github.wolfshotz.wyrmroost.WRConfig;
+import com.github.wolfshotz.wyrmroost.config.WRConfig;
 import com.github.wolfshotz.wyrmroost.client.screen.StaffScreen;
 import com.github.wolfshotz.wyrmroost.client.sounds.BreathSound;
+import com.github.wolfshotz.wyrmroost.config.WREntityAttributeConfig;
 import com.github.wolfshotz.wyrmroost.containers.DragonInvContainer;
 import com.github.wolfshotz.wyrmroost.containers.util.SlotBuilder;
 import com.github.wolfshotz.wyrmroost.entities.dragon.helpers.DragonInvHandler;
@@ -14,7 +15,7 @@ import com.github.wolfshotz.wyrmroost.items.DragonArmorItem;
 import com.github.wolfshotz.wyrmroost.items.staff.StaffAction;
 import com.github.wolfshotz.wyrmroost.network.packets.AnimationPacket;
 import com.github.wolfshotz.wyrmroost.network.packets.KeybindPacket;
-import com.github.wolfshotz.wyrmroost.registry.WREntities;
+import com.github.wolfshotz.wyrmroost.registry.WRAttributes;
 import com.github.wolfshotz.wyrmroost.registry.WRItems;
 import com.github.wolfshotz.wyrmroost.registry.WRSounds;
 import com.github.wolfshotz.wyrmroost.util.Mafs;
@@ -464,13 +465,23 @@ public class RoyalRedEntity extends AbstractDragonEntity {
     @SuppressWarnings("ConstantConditions")
     public void applyAttributes()
     {
-        if (!isMale())
-        {
+        if (!isMale()) {
             // base female attributes
-            getAttribute(Attributes.MAX_HEALTH).setBaseValue(130);
-            getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(0.22);
-            getAttribute(Attributes.ATTACK_KNOCKBACK).setBaseValue(4);
-            getAttribute(Attributes.FLYING_SPEED).setBaseValue(0.121);
+            getAttribute(Attributes.MAX_HEALTH).setBaseValue(WREntityAttributeConfig.INSTANCE.royalRedHealthFemale.get());
+            getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(WREntityAttributeConfig.INSTANCE.royalRedGroundSpeedFemale.get());
+            getAttribute(Attributes.KNOCKBACK_RESISTANCE).setBaseValue(WREntityAttributeConfig.INSTANCE.royalRedKnockbackResistanceFemale.get());
+            getAttribute(Attributes.ATTACK_KNOCKBACK).setBaseValue(WREntityAttributeConfig.INSTANCE.royalRedAttackKnockbackFemale.get());
+            getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(WREntityAttributeConfig.INSTANCE.royalRedAttackDamageFemale.get());
+            getAttribute(Attributes.FLYING_SPEED).setBaseValue(WREntityAttributeConfig.INSTANCE.royalRedFlyingSpeedFemale.get());
+            getAttribute(WRAttributes.PROJECTILE_DAMAGE).setBaseValue(WREntityAttributeConfig.INSTANCE.royalRedProjectileDamageFemale.get());
+        } else {
+            getAttribute(Attributes.MAX_HEALTH).setBaseValue(WREntityAttributeConfig.INSTANCE.royalRedHealthMale.get());
+            getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(WREntityAttributeConfig.INSTANCE.royalRedGroundSpeedMale.get());
+            getAttribute(Attributes.KNOCKBACK_RESISTANCE).setBaseValue(WREntityAttributeConfig.INSTANCE.royalRedKnockbackResistanceMale.get());
+            getAttribute(Attributes.ATTACK_KNOCKBACK).setBaseValue(WREntityAttributeConfig.INSTANCE.royalRedAttackKnockbackMale.get());
+            getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(WREntityAttributeConfig.INSTANCE.royalRedAttackDamageMale.get());
+            getAttribute(Attributes.FLYING_SPEED).setBaseValue(WREntityAttributeConfig.INSTANCE.royalRedFlyingSpeedMale.get());
+            getAttribute(WRAttributes.PROJECTILE_DAMAGE).setBaseValue(WREntityAttributeConfig.INSTANCE.royalRedProjectileDamageMale.get());
         }
     }
 
@@ -478,14 +489,14 @@ public class RoyalRedEntity extends AbstractDragonEntity {
     {
         // base male attributes
         return AbstractDragonEntity.createDragonAttributes()
-                .add(Attributes.MAX_HEALTH, 120)
-                .add(Attributes.MOVEMENT_SPEED, 0.2275)
-                .add(Attributes.KNOCKBACK_RESISTANCE, 1)
+                .add(Attributes.MAX_HEALTH, WREntityAttributeConfig.INSTANCE.royalRedHealthMale.get())
+                .add(Attributes.MOVEMENT_SPEED, WREntityAttributeConfig.INSTANCE.royalRedGroundSpeedMale.get())
+                .add(Attributes.KNOCKBACK_RESISTANCE, WREntityAttributeConfig.INSTANCE.royalRedKnockbackResistanceMale.get())
                 .add(Attributes.FOLLOW_RANGE, 60)
-                .add(Attributes.ATTACK_KNOCKBACK, 3)
-                .add(Attributes.ATTACK_DAMAGE, 12)
-                .add(Attributes.FLYING_SPEED, 0.125)
-                .add(WREntities.Attributes.PROJECTILE_DAMAGE, 4);
+                .add(Attributes.ATTACK_KNOCKBACK, WREntityAttributeConfig.INSTANCE.royalRedAttackKnockbackMale.get())
+                .add(Attributes.ATTACK_DAMAGE, WREntityAttributeConfig.INSTANCE.royalRedAttackDamageMale.get())
+                .add(Attributes.FLYING_SPEED, WREntityAttributeConfig.INSTANCE.royalRedFlyingSpeedMale.get())
+                .add(WRAttributes.PROJECTILE_DAMAGE, WREntityAttributeConfig.INSTANCE.royalRedProjectileDamageMale.get());
     }
 
     class AttackGoal extends Goal

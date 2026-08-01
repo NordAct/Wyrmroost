@@ -1,6 +1,8 @@
 package com.github.wolfshotz.wyrmroost;
 
 import com.github.wolfshotz.wyrmroost.client.ClientEvents;
+import com.github.wolfshotz.wyrmroost.config.WRConfig;
+import com.github.wolfshotz.wyrmroost.config.WREntityAttributeConfig;
 import com.github.wolfshotz.wyrmroost.network.packets.*;
 import com.github.wolfshotz.wyrmroost.registry.*;
 import net.minecraft.resources.ResourceLocation;
@@ -23,12 +25,16 @@ public class Wyrmroost
     public static final Logger LOG = LogManager.getLogger(MOD_ID);
 
     public Wyrmroost(ModContainer container, IEventBus bus) {
+        container.registerConfig(ModConfig.Type.STARTUP, WREntityAttributeConfig.SPEC, "wyrmroost/entity-attributes.toml");
+        container.registerConfig(ModConfig.Type.COMMON, WRConfig.Common.SPEC, "wyrmroost/common.toml");
+        container.registerConfig(ModConfig.Type.CLIENT, WRConfig.Client.SPEC, "wyrmroost/client.toml");
+
+        WRAttributes.REGISTRY.register(bus);
         WRBlocks.REGISTRY.register(bus);
         WRIO.REGISTRY.register(bus);
         WRSounds.REGISTRY.register(bus);
         WRCreativeModeTab.REGISTRY.register(bus);
         WRArmorMaterials.REGISTRY.register(bus);
-        WREntities.Attributes.REGISTRY.register(bus);
         WREntities.REGISTRY.register(bus);
         WRItems.REGISTRY.register(bus);
         WRDataComponentTypes.REGISTRY.register(bus);
@@ -36,10 +42,6 @@ public class Wyrmroost
 
         CommonEvents.load(bus);
         if (FMLLoader.getDist() == Dist.CLIENT) ClientEvents.load(bus);
-
-        container.registerConfig(ModConfig.Type.COMMON, WRConfig.Common.SPEC);
-        container.registerConfig(ModConfig.Type.CLIENT, WRConfig.Client.SPEC);
-        container.registerConfig(ModConfig.Type.SERVER, WRConfig.Server.SPEC);
     }
 
     public static void registerPayloads(RegisterPayloadHandlersEvent event) {

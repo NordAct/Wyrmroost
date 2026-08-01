@@ -1,6 +1,6 @@
 package com.github.wolfshotz.wyrmroost.registry;
 
-import com.github.wolfshotz.wyrmroost.WRConfig;
+import com.github.wolfshotz.wyrmroost.config.WRConfig;
 import com.github.wolfshotz.wyrmroost.Wyrmroost;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;

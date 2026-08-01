@@ -1,5 +1,6 @@
 package com.github.wolfshotz.wyrmroost.entities.dragon;
 
+import com.github.wolfshotz.wyrmroost.config.WREntityAttributeConfig;
 import com.github.wolfshotz.wyrmroost.client.screen.StaffScreen;
 import com.github.wolfshotz.wyrmroost.containers.DragonInvContainer;
 import com.github.wolfshotz.wyrmroost.containers.util.SlotBuilder;
@@ -158,7 +159,7 @@ public class RoostStalkerEntity extends AbstractDragonEntity
         if (!isTame() && stack.is(WRItems.Tags.ROOST_STALKER_TAMING_ITEMS)) {
             eat(stack);
             if (tame(random.nextDouble() < 0.25, player)) {
-                getAttribute(Attributes.MAX_HEALTH).setBaseValue(20);
+                getAttribute(Attributes.MAX_HEALTH).setBaseValue(WREntityAttributeConfig.INSTANCE.roostStalkerHealthTamed.get());
                 setHealth(getMaxHealth());
             }
 
@@ -323,13 +324,20 @@ public class RoostStalkerEntity extends AbstractDragonEntity
         return true;
     }
 
-    public static AttributeSupplier.Builder createAttributes()
-    {
+    @Override
+    public void applyAttributes() {
+        if (!isTame()) getAttribute(Attributes.MAX_HEALTH).setBaseValue(WREntityAttributeConfig.INSTANCE.roostStalkerHealth.get());
+        else getAttribute(Attributes.MAX_HEALTH).setBaseValue(WREntityAttributeConfig.INSTANCE.roostStalkerHealthTamed.get());
+        getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(WREntityAttributeConfig.INSTANCE.roostStalkerGroundSpeed.get());
+        getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(WREntityAttributeConfig.INSTANCE.roostStalkerAttackDamage.get());
+    }
+
+    public static AttributeSupplier.Builder createAttributes() {
         return AbstractDragonEntity.createDragonAttributes()
                 .add(Attributes.STEP_HEIGHT, 0)
-                .add(Attributes.MAX_HEALTH, 8)
-                .add(Attributes.MOVEMENT_SPEED, 0.285)
-                .add(Attributes.ATTACK_DAMAGE, 2);
+                .add(Attributes.MAX_HEALTH, WREntityAttributeConfig.INSTANCE.roostStalkerHealth.get())
+                .add(Attributes.MOVEMENT_SPEED, WREntityAttributeConfig.INSTANCE.roostStalkerGroundSpeed.get())
+                .add(Attributes.ATTACK_DAMAGE, WREntityAttributeConfig.INSTANCE.roostStalkerAttackDamage.get());
     }
 
     class ScavengeGoal extends MoveToBlockGoal

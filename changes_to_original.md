@@ -98,3 +98,6 @@
 - Fixed issue when dragons that ride player either dismount player or vanish from world entirely when player logs off
 - Fixed issue when dragons could start buttsliding when they happen to be under rain
   - This also fixes BFL being unable to stand still while in sitting pose under water
+- Added entity attribute config, containing all dragons except Lesser Desert Wyrm and Coin Dragon
+- Renamed all configs and moved them to `wyrmroost` folder within config folder
+- Moved all contents of server config to common one
