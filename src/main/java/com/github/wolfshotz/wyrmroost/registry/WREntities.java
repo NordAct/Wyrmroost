@@ -16,6 +16,7 @@ import com.github.wolfshotz.wyrmroost.client.render.entity.projectile.GeodeTippe
 import com.github.wolfshotz.wyrmroost.client.render.entity.rooststalker.RoostStalkerRenderer;
 import com.github.wolfshotz.wyrmroost.client.render.entity.royal_red.RoyalRedRenderer;
 import com.github.wolfshotz.wyrmroost.client.render.entity.silverglider.SilverGliderRenderer;
+import com.github.wolfshotz.wyrmroost.config.WRHatchTimesConfig;
 import com.github.wolfshotz.wyrmroost.entities.dragon.*;
 import com.github.wolfshotz.wyrmroost.entities.dragonegg.DragonEggEntity;
 import com.github.wolfshotz.wyrmroost.entities.dragonegg.DragonEggProperties;
@@ -74,7 +75,7 @@ public class WREntities {
             .attributes(OWDrakeEntity::createAttributes)
             .spawnPlacement()
             .spawnEgg(0x788716, 0x3E623E)
-            .dragonEgg(new DragonEggProperties(0.65f, 1f, 18000))
+            .dragonEgg(new DragonEggProperties(0.65f, 1f, WRHatchTimesConfig.INSTANCE.overworldDrake.get()))
             .renderer(() -> OWDrakeRenderer::new)
             .build(b -> b.sized(2.376f, 2.58f));
 
@@ -82,7 +83,7 @@ public class WREntities {
             .attributes(SilverGliderEntity::createAttributes)
             .spawnPlacement(SpawnPlacementTypes.NO_RESTRICTIONS, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, SilverGliderEntity::getSpawnPlacement)
             .spawnEgg(0xC8C8C8, 0xC4C4C4)
-            .dragonEgg(new DragonEggProperties(0.4f, 0.65f, 12000))
+            .dragonEgg(new DragonEggProperties(0.4f, 0.65f, WRHatchTimesConfig.INSTANCE.silverGlider.get()))
             .renderer(() -> SilverGliderRenderer::new)
             .build(b -> b.sized(1.5f, 0.75f));
 
@@ -90,7 +91,7 @@ public class WREntities {
             .attributes(RoostStalkerEntity::createAttributes)
             .spawnPlacement()
             .spawnEgg(0x52100D, 0x959595)
-            .dragonEgg(new DragonEggProperties(0.25f, 0.35f, 6000))
+            .dragonEgg(new DragonEggProperties(0.25f, 0.35f, WRHatchTimesConfig.INSTANCE.roostStalker.get()))
             .renderer(() -> RoostStalkerRenderer::new)
             .build(b -> b.sized(0.65f, 0.5f));
 
@@ -98,7 +99,7 @@ public class WREntities {
             .attributes(ButterflyLeviathanEntity::createAttributes)
             .spawnPlacement(SpawnPlacementTypes.IN_WATER, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, ButterflyLeviathanEntity::getSpawnPlacement)
             .spawnEgg(0x17283C, 0x7A6F5A)
-            .dragonEgg(new DragonEggProperties(0.75f, 1.25f, 40000).setConditions(Entity::isInWater))
+            .dragonEgg(new DragonEggProperties(0.75f, 1.25f, WRHatchTimesConfig.INSTANCE.butterflyLeviathan.get()).setConditions(Entity::isInWater))
             .renderer(() -> ButterflyLeviathanRenderer::new)
             .build(b -> b.sized(2.95f, 2.95f));
 
@@ -106,7 +107,7 @@ public class WREntities {
             .attributes(DragonFruitDrakeEntity::createAttributes)
             .spawnPlacement(SpawnPlacementTypes.NO_RESTRICTIONS, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, DragonFruitDrakeEntity::getSpawnPlacement)
             .spawnEgg(0xe05c9a, 0x788716)
-            .dragonEgg(new DragonEggProperties(0.45f, 0.75f, 9600))
+            .dragonEgg(new DragonEggProperties(0.45f, 0.75f, WRHatchTimesConfig.INSTANCE.dragonFruitDrake.get()))
             .renderer(() -> DragonFruitDrakeRenderer::new)
             .build(b -> b.sized(1.5f, 1.9f));
 
@@ -114,7 +115,7 @@ public class WREntities {
             .attributes(CanariWyvernEntity::createAttributes)
             .spawnPlacement(SpawnPlacementTypes.NO_RESTRICTIONS, Heightmap.Types.MOTION_BLOCKING, AbstractDragonEntity::canFlyerSpawn)
             .spawnEgg(0x1D1F28, 0x492E0E)
-            .dragonEgg(new DragonEggProperties(0.25f, 0.35f, 6000).setConditions(c -> c.level().getBlockState(c.blockPosition().below()).is(WRBlocks.Tags.DRAGON_FRUIT_DRAKE_CAN_SPAWN_ON)))
+            .dragonEgg(new DragonEggProperties(0.25f, 0.35f, WRHatchTimesConfig.INSTANCE.canariWyvern.get()).setConditions(c -> c.level().getBlockState(c.blockPosition().below()).is(WRBlocks.Tags.DRAGON_FRUIT_DRAKE_CAN_SPAWN_ON)))
             .renderer(() -> CanariWyvernRenderer::new)
             .build(b -> b.sized(0.65f, 0.85f));
 
@@ -122,7 +123,7 @@ public class WREntities {
             .attributes(RoyalRedEntity::createAttributes)
             .spawnPlacement(SpawnPlacementTypes.NO_RESTRICTIONS, Heightmap.Types.MOTION_BLOCKING, AbstractDragonEntity::canFlyerSpawn)
             .spawnEgg(0x8a0900, 0x0)
-            .dragonEgg(new DragonEggProperties(0.6f, 1f, 72000))
+            .dragonEgg(new DragonEggProperties(0.6f, 1f, WRHatchTimesConfig.INSTANCE.royalRed.get()))
             .renderer(() -> RoyalRedRenderer::new)
             .build(b -> b.sized(2.95f, 2.95f).fireImmune());
 
@@ -135,18 +136,9 @@ public class WREntities {
             .attributes(AlpineEntity::createAttributes)
             .spawnPlacement(SpawnPlacementTypes.NO_RESTRICTIONS, Heightmap.Types.MOTION_BLOCKING, AbstractDragonEntity::canFlyerSpawn)
             .spawnEgg(0xe3f8ff, 0xa8e9ff)
-            .dragonEgg(new DragonEggProperties(1, 1, 12000))
+            .dragonEgg(new DragonEggProperties(1, 1, WRHatchTimesConfig.INSTANCE.alpine.get()))
             .renderer(() -> AlpineRenderer::new)
             .build(b -> b.sized(2f, 2f));
-
-//    public static final Holder<EntityType<OrbwyrmEntity>> ORBWYRM = Builder.creature("orbwyrm", OrbwyrmEntity::new)
-//            .attributes(OrbwyrmEntity::createAttributes)
-////            .spawnPlacement()
-////            .spawnBiomes(OWDrakeEntity::setSpawnBiomes)
-//            .spawnEgg(0x41444F, 0x16171C)
-////            .dragonEgg(new DragonEggProperties(0.65f, 1f, 18000))
-//            .renderer(() -> OrbwyrmRenderer::new)
-//            .build(b -> b.sized(2.8f, 3.76f));
 
     public static final Holder<EntityType<?>> DRAGON_EGG = Builder.<DragonEggEntity>withClassification("dragon_egg", DragonEggEntity::new, MobCategory.MISC)
             .renderer(() -> DragonEggRenderer::new)
@@ -171,10 +163,6 @@ public class WREntities {
     public static final Holder<EntityType<?>> WIND_GUST = Builder.<WindGustEntity>withClassification("wind_gust", WindGustEntity::new, MobCategory.MISC)
             .renderer(() -> NoopRenderer::new)
             .build(b -> b.sized(4, 4).noSave().noSummon());
-
-//    public static final Holder<EntityType<SilkProjectileEntity>> SILK = Builder.withClassification("silk", SilkProjectileEntity::new, MobCategory.MISC)
-//            .renderer(() -> EmptyRenderer::new) // todo
-//            .build(b -> b.sized(0.5f, 0.5f).disableSerialization().disableSummoning());
 
     @SuppressWarnings("unchecked")
     private static class Builder<T extends Entity>

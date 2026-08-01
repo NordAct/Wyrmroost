@@ -83,7 +83,7 @@
   - This is also represented visually. Males got markings on their wings
   - As consequence, any resource pack that edited Alpine textures besides Christmas one no longer works
   - All existing Alpine Dragons in the world will be turned into females when updating the world from previous game version
-- Added `#wyrmroost:home_defender_attackable` tag for filtering entities that can be attacked
+- Added `#wyrmroost:home_defender_attackable` tag for filtering entities that can be attacked by dragons that have home position and can defend home territory
   - Tag by default attempts to contain only hostile mobs (minus creepers) to exclude possibility of accidentally massacring lots of passive mobs
 - Fixed Butterfly Leviathan Conduit attack targeting entities considered allies
 - Fixed various issues with ore spawns
@@ -101,3 +101,4 @@
 - Added entity attribute config, containing all dragons except Lesser Desert Wyrm and Coin Dragon
 - Renamed all configs and moved them to `wyrmroost` folder within config folder
 - Moved all contents of server config to common one
+- Added hatch time config

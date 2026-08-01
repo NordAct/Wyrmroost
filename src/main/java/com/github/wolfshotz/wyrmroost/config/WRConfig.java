@@ -41,10 +41,8 @@ public class WRConfig
         return respectMobGriefing? world.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING) : dragonGriefing;
     }
 
-    public static void configLoad(ModConfigEvent evt)
-    {
-        try
-        {
+    public static void configLoad(ModConfigEvent evt) {
+        try {
             IConfigSpec spec = evt.getConfig().getSpec();
             if (spec == Common.SPEC) Common.reload();
             else if (spec == Client.SPEC) Client.reload();

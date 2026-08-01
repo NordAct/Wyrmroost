@@ -3,6 +3,7 @@ package com.github.wolfshotz.wyrmroost;
 import com.github.wolfshotz.wyrmroost.client.ClientEvents;
 import com.github.wolfshotz.wyrmroost.config.WRConfig;
 import com.github.wolfshotz.wyrmroost.config.WREntityAttributeConfig;
+import com.github.wolfshotz.wyrmroost.config.WRHatchTimesConfig;
 import com.github.wolfshotz.wyrmroost.network.packets.*;
 import com.github.wolfshotz.wyrmroost.registry.*;
 import net.minecraft.resources.ResourceLocation;
@@ -26,6 +27,7 @@ public class Wyrmroost
 
     public Wyrmroost(ModContainer container, IEventBus bus) {
         container.registerConfig(ModConfig.Type.STARTUP, WREntityAttributeConfig.SPEC, "wyrmroost/entity-attributes.toml");
+        container.registerConfig(ModConfig.Type.STARTUP, WRHatchTimesConfig.SPEC, "wyrmroost/hatch-times.toml");
         container.registerConfig(ModConfig.Type.COMMON, WRConfig.Common.SPEC, "wyrmroost/common.toml");
         container.registerConfig(ModConfig.Type.CLIENT, WRConfig.Client.SPEC, "wyrmroost/client.toml");
 
