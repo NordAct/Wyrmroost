@@ -20,7 +20,7 @@ public class NameFieldWidget extends EditBox
         setResponder(s ->
         {
             if (s.equals(dragon.getName().getString())) return;
-            Component name = s.isEmpty()? null : Component.literal(s);
+            Component name = s.isEmpty()? Component.empty() : Component.literal(s);
             PacketDistributor.sendToServer(new RenameEntityPacket(dragon, name));
         });
     }
