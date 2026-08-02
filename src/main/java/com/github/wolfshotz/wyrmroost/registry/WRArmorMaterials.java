@@ -23,8 +23,8 @@ public class WRArmorMaterials {
     public static final Holder<ArmorMaterial> BLUE_GEODE = register("blue_geode", () -> new ArmorMaterial(
             Util.make(new HashMap<>(), map -> {
                 map.put(ArmorItem.Type.HELMET, 3);
-                map.put(ArmorItem.Type.CHESTPLATE, 5);
-                map.put(ArmorItem.Type.LEGGINGS, 7);
+                map.put(ArmorItem.Type.CHESTPLATE, 7);
+                map.put(ArmorItem.Type.LEGGINGS, 5);
                 map.put(ArmorItem.Type.BOOTS, 3);
                 map.put(ArmorItem.Type.BODY, 10);
             }),
@@ -40,8 +40,8 @@ public class WRArmorMaterials {
     public static final Holder<ArmorMaterial> RED_GEODE = register("red_geode", () -> new ArmorMaterial(
             Util.make(new HashMap<>(), map -> {
                 map.put(ArmorItem.Type.HELMET, 3);
-                map.put(ArmorItem.Type.CHESTPLATE, 6);
-                map.put(ArmorItem.Type.LEGGINGS, 8);
+                map.put(ArmorItem.Type.CHESTPLATE, 8);
+                map.put(ArmorItem.Type.LEGGINGS, 6);
                 map.put(ArmorItem.Type.BOOTS, 3);
                 map.put(ArmorItem.Type.BODY, 13);
             }),
@@ -57,8 +57,8 @@ public class WRArmorMaterials {
     public static final Holder<ArmorMaterial> PURPLE_GEODE = register("purple_geode", () -> new ArmorMaterial(
                     Util.make(new HashMap<>(), map -> {
                         map.put(ArmorItem.Type.HELMET, 4);
-                        map.put(ArmorItem.Type.CHESTPLATE, 7);
-                        map.put(ArmorItem.Type.LEGGINGS, 10);
+                        map.put(ArmorItem.Type.CHESTPLATE, 10);
+                        map.put(ArmorItem.Type.LEGGINGS, 7);
                         map.put(ArmorItem.Type.BOOTS, 4);
                         map.put(ArmorItem.Type.BODY, 18);
                     }),
@@ -74,8 +74,8 @@ public class WRArmorMaterials {
     public static final Holder<ArmorMaterial> PLATINUM = register("platinum", () -> new ArmorMaterial(
                     Util.make(new HashMap<>(), map -> {
                         map.put(ArmorItem.Type.HELMET, 2);
-                        map.put(ArmorItem.Type.CHESTPLATE, 5);
-                        map.put(ArmorItem.Type.LEGGINGS, 7);
+                        map.put(ArmorItem.Type.CHESTPLATE, 7);
+                        map.put(ArmorItem.Type.LEGGINGS, 5);
                         map.put(ArmorItem.Type.BOOTS, 2);
                         map.put(ArmorItem.Type.BODY, 7);
                     }),
@@ -91,8 +91,8 @@ public class WRArmorMaterials {
     public static final Holder<ArmorMaterial> DRAKE = register("drake", () -> new ArmorMaterial(
             Util.make(new HashMap<>(), map -> {
                 map.put(ArmorItem.Type.HELMET, 3);
-                map.put(ArmorItem.Type.CHESTPLATE, 6);
-                map.put(ArmorItem.Type.LEGGINGS, 8);
+                map.put(ArmorItem.Type.CHESTPLATE, 8);
+                map.put(ArmorItem.Type.LEGGINGS, 6);
                 map.put(ArmorItem.Type.BOOTS, 3);
                 map.put(ArmorItem.Type.BODY, 6);
             }),
