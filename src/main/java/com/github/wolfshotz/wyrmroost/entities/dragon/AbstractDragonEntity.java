@@ -16,6 +16,7 @@ import com.github.wolfshotz.wyrmroost.items.DragonEggItem;
 import com.github.wolfshotz.wyrmroost.items.staff.StaffAction;
 import com.github.wolfshotz.wyrmroost.registry.WRAttachments;
 import com.github.wolfshotz.wyrmroost.registry.WREntities;
+import com.github.wolfshotz.wyrmroost.registry.WRItems;
 import com.github.wolfshotz.wyrmroost.registry.WRSounds;
 import com.github.wolfshotz.wyrmroost.util.Mafs;
 import com.github.wolfshotz.wyrmroost.util.TickFloat;
@@ -406,6 +407,11 @@ public abstract class AbstractDragonEntity extends TamableAnimal implements IAni
     // That way, the server never sends the arm swing packet.
     public InteractionResult actuallyInteractWithMob(Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
+
+        if (player.isCreative() && !isTame() && (isFoodItem(stack) || stack.is(WRItems.DRAGON_STAFF))) {
+            tame(true, player);
+            return InteractionResult.sidedSuccess(level().isClientSide());
+        }
 
         if (isOwnedBy(player) && player.isShiftKeyDown() && !isFlying()) {
             setSit(!isInSittingPose());
